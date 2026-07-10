@@ -64,10 +64,10 @@ function homeView(state) {
       <div class="weather-visual">${weatherArt()}</div>
     </article>
     <article class="advice-card">
-      <span class="pill">今天建议这样穿</span>
-      <p class="weather-summary">晴朗天气 · 午间炎热 · 室内空调偏冷</p>
-      <h2>薄长袖衬衫 <em>+</em> 直筒长裤</h2>
-      <p>室外炎热，但公司约22°C且体感偏冷，建议可穿脱两件式，灵活应对温差。</p>
+      <div class="advice-label">今天建议这样穿</div>
+      <div class="ai-pet" role="img" aria-label="AI 穿搭小助手"><span></span><i></i><i></i><b>✦</b></div>
+      <h2>短袖 <em>+</em> 薄开衫 <em>+</em> 长裤</h2>
+      <p>室外炎热，但公司约<strong>22°C且体感偏冷</strong>，建议<strong>可穿脱两件式</strong>，灵活应对温差。</p>
       <div class="tip">💡 午间外出会很热，薄开衫可留在办公室</div>
       <div class="feedback-row">${feedback.map(([emoji,text]) => `<button class="feedback ${state.feedback===text?'selected':''}" data-feedback="${text}"><b>${emoji}</b>${text}</button>`).join('')}</div>
     </article>
