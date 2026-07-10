@@ -16,6 +16,12 @@ export function createInitialState() {
     loggedIn: false,
     activeTab: 'home',
     feedback: '',
+    scenes: [
+      { name: '地铁', temperature: 24, feeling: '适中' },
+      { name: '公司', temperature: 22, feeling: '偏冷' },
+      { name: '午饭外出', temperature: 33, feeling: '偏热' },
+      { name: '商场', temperature: 24, feeling: '偏凉' }
+    ],
     itinerary: [
       { time: '08:00', scene: '地铁', temperature: 24, duration: '1小时' },
       { time: '09:00', scene: '公司', temperature: 22, duration: '9小时' },
@@ -29,6 +35,7 @@ export const navigate = (state, activeTab) => tabs.includes(activeTab) ? { ...st
 export const submitFeedback = (state, feedback) => ({ ...state, feedback });
 export const addItineraryItem = (state, item) => ({ ...state, itinerary: [...state.itinerary, item] });
 export const removeItineraryItem = (state, index) => ({ ...state, itinerary: state.itinerary.filter((_, itemIndex) => itemIndex !== index) });
+export const createScene = (state, scene) => ({ ...state, scenes: [...state.scenes, scene] });
 
 const icons = {
   home: '<svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8v9H15v-6H9v6H3z"/></svg>',
@@ -77,12 +84,10 @@ function homeView(state) {
   </section>`;
 }
 
-function scenesView() {
+function scenesView(state) {
   return `<section class="page"><header class="page-title">场景库</header><p class="subtitle">常去的地方，记住大概温度就好</p><div class="card-grid">
-    <article class="mini-card lavender"><span>🏢</span><h3>公司</h3><b>约22°</b><p>体感偏冷</p></article>
-    <article class="mini-card yellow"><span>🚇</span><h3>地铁</h3><b>约24°</b><p>体感适中</p></article>
-    <article class="mini-card blue"><span>🛍️</span><h3>商场</h3><b>约24°</b><p>体感偏凉</p></article>
-    <button class="add-card">＋ 新增场景</button></div></section>`;
+    ${state.scenes.map((scene, index) => `<article class="mini-card ${['lavender','yellow','blue'][index % 3]}"><span>${sceneEmoji[scene.name] || '📍'}</span><h3>${scene.name}</h3><b>约${scene.temperature}°</b><p>体感${scene.feeling}</p></article>`).join('')}
+    <button class="add-card" data-action="open-scene">＋ 新增场景</button></div></section>`;
 }
 
 function wardrobeView() {
@@ -110,13 +115,38 @@ function nav(active) {
 let state = createInitialState();
 let selectedCloth = null;
 let clothScale = 1;
+let activeSheet = '';
+let tripDraft = null;
+
+const escapeHtml = value => String(value).replace(/[&<>'"]/g, character => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[character]);
+
+function tripSheet() {
+  const draft = tripDraft || { scene: state.scenes[0].name, time: '18:30', temperature: state.scenes[0].temperature, duration: '1小时' };
+  return `<div class="sheet-backdrop" data-action="close-sheet"></div><section class="bottom-sheet" aria-label="添加行程">
+    <div class="sheet-handle"></div><header><h2>添加行程</h2><button data-action="close-sheet" aria-label="关闭">×</button></header>
+    <div class="sheet-field"><label>选择场景</label><div class="scene-options">${state.scenes.map(scene => `<button class="scene-option ${draft.scene === scene.name ? 'selected' : ''}" data-action="select-scene" data-scene="${escapeHtml(scene.name)}">${sceneEmoji[scene.name] || '📍'} ${escapeHtml(scene.name)}</button>`).join('')}<button class="scene-option create" data-action="open-scene">＋ 新建</button></div></div>
+    <label class="sheet-field">温度<input id="trip-temperature" type="number" min="-30" max="60" value="${draft.temperature}" required><span>°C</span></label>
+    <div class="sheet-grid"><label class="sheet-field">开始时间<input id="trip-time" type="time" value="${draft.time}" required></label><label class="sheet-field">持续时间<select id="trip-duration"><option ${draft.duration === '30分钟' ? 'selected' : ''}>30分钟</option><option ${draft.duration === '1小时' ? 'selected' : ''}>1小时</option><option ${draft.duration === '2小时' ? 'selected' : ''}>2小时</option><option ${draft.duration === '4小时' ? 'selected' : ''}>4小时</option><option ${draft.duration === '9小时' ? 'selected' : ''}>9小时</option></select></label></div>
+    <button class="sheet-submit" data-action="submit-trip">添加到行程</button>
+  </section>`;
+}
+
+function sceneSheet() {
+  return `<div class="sheet-backdrop" data-action="close-sheet"></div><section class="bottom-sheet" aria-label="新建场景">
+    <div class="sheet-handle"></div><header><h2>新建场景</h2><button data-action="back-trip" aria-label="返回">‹</button></header>
+    <label class="sheet-field">场景名称<input id="scene-name" type="text" maxlength="12" placeholder="例如：健身房" required></label>
+    <label class="sheet-field">默认温度<input id="scene-temperature" type="number" min="-30" max="60" placeholder="26" required><span>°C</span></label>
+    <label class="sheet-field">体感<select id="scene-feeling"><option>偏冷</option><option selected>适中</option><option>偏热</option></select></label>
+    <button class="sheet-submit" data-action="submit-scene">保存场景</button>
+  </section>`;
+}
 
 function render() {
   const root = document.querySelector('#app');
   if (!root) return;
   if (!state.loggedIn) { root.innerHTML = loginView(); return; }
-  const views = { home: homeView(state), scenes: scenesView(), wardrobe: wardrobeView(), fitting: fittingView(), calendar: calendarView() };
-  root.innerHTML = `<main class="app-shell">${views[state.activeTab]}${nav(state.activeTab)}<div class="toast" aria-live="polite"></div></main>`;
+  const views = { home: homeView(state), scenes: scenesView(state), wardrobe: wardrobeView(), fitting: fittingView(), calendar: calendarView() };
+  root.innerHTML = `<main class="app-shell">${views[state.activeTab]}${nav(state.activeTab)}<div class="toast" aria-live="polite"></div>${activeSheet === 'trip' ? tripSheet() : activeSheet === 'scene' ? sceneSheet() : ''}</main>`;
   enableDrag();
 }
 
@@ -146,12 +176,33 @@ function enableDrag() {
 
 if (typeof document !== 'undefined') {
   document.addEventListener('click', event => {
-    const target = event.target.closest('button');
+    const target = event.target.closest('button, [data-action="close-sheet"]');
     if (!target) return;
     if (target.dataset.action === 'login') state = login(state);
     else if (target.dataset.tab) state = navigate(state, target.dataset.tab);
     else if (target.dataset.feedback) { state = submitFeedback(state, target.dataset.feedback); showToast(`已记录：${state.feedback}`); }
-    else if (target.dataset.action === 'add-trip') state = addItineraryItem(state, { time:'18:30', scene:'商场', temperature:24, duration:'2小时' });
+    else if (target.dataset.action === 'add-trip') { tripDraft = { scene: state.scenes[0].name, time:'18:30', temperature:state.scenes[0].temperature, duration:'1小时' }; activeSheet = 'trip'; }
+    else if (target.dataset.action === 'open-scene') activeSheet = 'scene';
+    else if (target.dataset.action === 'back-trip') activeSheet = 'trip';
+    else if (target.dataset.action === 'close-sheet') activeSheet = '';
+    else if (target.dataset.action === 'select-scene') { const scene = state.scenes.find(item => item.name === target.dataset.scene); tripDraft = { ...tripDraft, scene: scene.name, temperature: scene.temperature }; activeSheet = 'trip'; }
+    else if (target.dataset.action === 'submit-scene') {
+      const name = document.querySelector('#scene-name').value.trim();
+      const temperature = Number(document.querySelector('#scene-temperature').value);
+      const feeling = document.querySelector('#scene-feeling').value;
+      if (!name || !Number.isFinite(temperature)) { showToast('请完整填写场景信息'); return; }
+      state = createScene(state, { name, temperature, feeling });
+      tripDraft = { ...tripDraft, scene: name, temperature };
+      activeSheet = 'trip';
+    }
+    else if (target.dataset.action === 'submit-trip') {
+      const time = document.querySelector('#trip-time').value;
+      const temperature = Number(document.querySelector('#trip-temperature').value);
+      const duration = document.querySelector('#trip-duration').value;
+      if (!time || !tripDraft?.scene || !Number.isFinite(temperature)) { showToast('请完整填写行程信息'); return; }
+      state = addItineraryItem(state, { time, scene: tripDraft.scene, temperature, duration });
+      activeSheet = ''; tripDraft = null;
+    }
     else if (target.dataset.action === 'remove-trip') state = removeItineraryItem(state, Number(target.dataset.index));
     else if (target.dataset.action === 'save-look') showToast('搭配已保存');
     else if (target.dataset.scale && selectedCloth) { clothScale += target.dataset.scale === 'up' ? .1 : -.1; clothScale = Math.max(.6, Math.min(1.8, clothScale)); selectedCloth.style.transform = `scale(${clothScale})`; }

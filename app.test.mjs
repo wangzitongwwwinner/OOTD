@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createInitialState, login, navigate, submitFeedback, addItineraryItem, removeItineraryItem, homeTitle, formatItineraryItem } from './app.mjs';
+import { createInitialState, login, navigate, submitFeedback, addItineraryItem, removeItineraryItem, createScene, homeTitle, formatItineraryItem } from './app.mjs';
 
 test('微信登录后进入首页', () => {
   const state = login(createInitialState());
@@ -27,6 +27,11 @@ test('可向今日行程添加场景', () => {
   });
   assert.equal(state.itinerary.at(-1).scene, '商场');
   assert.equal(state.itinerary.length, 4);
+});
+
+test('新建场景会同步到常用场景库', () => {
+  const state = createScene(createInitialState(), { name: '健身房', temperature: 26, feeling: '偏热' });
+  assert.deepEqual(state.scenes.at(-1), { name: '健身房', temperature: 26, feeling: '偏热' });
 });
 
 test('可从今日行程删除指定场景', () => {
