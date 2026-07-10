@@ -16,3 +16,8 @@ test('底部卡片在移动端原型中水平居中', async () => {
   const css = await readFile(new URL('./styles.css', import.meta.url), 'utf8');
   assert.match(css, /\.bottom-sheet\{[^}]*left:50%[^}]*transform:translateX\(-50%\)/);
 });
+
+test('AI 建议入口使用醒目的胶囊按钮样式', async () => {
+  const css = await readFile(new URL('./styles.css', import.meta.url), 'utf8');
+  assert.match(css, /\.advice-generate\{[^}]*border-radius:999px[^}]*font-size:14px/);
+});

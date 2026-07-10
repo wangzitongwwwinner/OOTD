@@ -73,7 +73,7 @@ function homeView(state) {
     </article>
     <article class="advice-card">
       <div class="advice-label">今天建议这样穿</div>
-      <div class="advice-garment" role="img" aria-label="推荐衣物"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6c0-2 1.5-3 4-3s4 1 4 3l5 4-3 4-2-2v9H8v-9l-2 2-3-4z"/></svg></div>
+      <button class="advice-generate" data-action="generate-advice"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6c0-2 1.5-3 4-3s4 1 4 3l5 4-3 4-2-2v9H8v-9l-2 2-3-4z"/></svg><span>生成穿衣建议</span></button>
       <h2>短袖 <em>+</em> 薄开衫 <em>+</em> 短裤</h2>
       <p>室外炎热，但公司约<strong>22°C且体感偏冷</strong>，建议<strong>可穿脱两件式</strong>，灵活应对温差。</p>
       <div class="tip">💡 午间外出会很热，薄开衫可留在办公室</div>
@@ -181,6 +181,7 @@ if (typeof document !== 'undefined') {
     if (target.dataset.action === 'login') state = login(state);
     else if (target.dataset.tab) state = navigate(state, target.dataset.tab);
     else if (target.dataset.feedback) { state = submitFeedback(state, target.dataset.feedback); showToast(`已记录：${state.feedback}`); }
+    else if (target.dataset.action === 'generate-advice') showToast('正在生成穿衣建议');
     else if (target.dataset.action === 'add-trip') { tripDraft = { scene: state.scenes[0].name, time:'18:30', temperature:state.scenes[0].temperature, duration:'1小时' }; activeSheet = 'trip'; }
     else if (target.dataset.action === 'open-scene') activeSheet = 'scene';
     else if (target.dataset.action === 'back-trip') activeSheet = 'trip';
