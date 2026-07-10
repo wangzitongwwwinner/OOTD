@@ -28,6 +28,7 @@ export const login = state => ({ ...state, loggedIn: true, activeTab: 'home' });
 export const navigate = (state, activeTab) => tabs.includes(activeTab) ? { ...state, activeTab } : state;
 export const submitFeedback = (state, feedback) => ({ ...state, feedback });
 export const addItineraryItem = (state, item) => ({ ...state, itinerary: [...state.itinerary, item] });
+export const removeItineraryItem = (state, index) => ({ ...state, itinerary: state.itinerary.filter((_, itemIndex) => itemIndex !== index) });
 
 const icons = {
   home: '<svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8v9H15v-6H9v6H3z"/></svg>',
@@ -65,14 +66,14 @@ function homeView(state) {
     </article>
     <article class="advice-card">
       <div class="advice-label">今天建议这样穿</div>
-      <div class="ai-pet" role="img" aria-label="AI 穿搭小助手"><span></span><i></i><i></i><b>✦</b></div>
-      <h2>短袖 <em>+</em> 薄开衫 <em>+</em> 长裤</h2>
+      <div class="advice-garment" role="img" aria-label="推荐衣物"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6c0-2 1.5-3 4-3s4 1 4 3l5 4-3 4-2-2v9H8v-9l-2 2-3-4z"/></svg></div>
+      <h2>短袖 <em>+</em> 薄开衫 <em>+</em> 短裤</h2>
       <p>室外炎热，但公司约<strong>22°C且体感偏冷</strong>，建议<strong>可穿脱两件式</strong>，灵活应对温差。</p>
       <div class="tip">💡 午间外出会很热，薄开衫可留在办公室</div>
       <div class="feedback-row">${feedback.map(([emoji,text]) => `<button class="feedback ${state.feedback===text?'selected':''}" data-feedback="${text}"><b>${emoji}</b>${text}</button>`).join('')}</div>
     </article>
     <div class="section-heading"><h2>今天行程</h2><button data-action="add-trip">＋ 添加</button></div>
-    <div class="timeline">${state.itinerary.map(item=>{const row=formatItineraryItem(item);return `<div class="timeline-item"><i></i><strong>${row.time}</strong><div class="trip-parts"><span class="trip-scene">${row.scene}</span><span>${row.temperature}</span><span>${row.duration}</span></div></div>`}).join('')}</div>
+    <div class="timeline">${state.itinerary.map((item,index)=>{const row=formatItineraryItem(item);return `<div class="timeline-item"><i></i><strong>${row.time}</strong><div class="trip-parts"><span class="trip-scene">${row.scene}</span><span>${row.temperature}</span><span>${row.duration}</span><button class="trip-delete" data-action="remove-trip" data-index="${index}" aria-label="删除${item.scene}">×</button></div></div>`}).join('')}</div>
   </section>`;
 }
 
@@ -151,6 +152,7 @@ if (typeof document !== 'undefined') {
     else if (target.dataset.tab) state = navigate(state, target.dataset.tab);
     else if (target.dataset.feedback) { state = submitFeedback(state, target.dataset.feedback); showToast(`已记录：${state.feedback}`); }
     else if (target.dataset.action === 'add-trip') state = addItineraryItem(state, { time:'18:30', scene:'商场', temperature:24, duration:'2小时' });
+    else if (target.dataset.action === 'remove-trip') state = removeItineraryItem(state, Number(target.dataset.index));
     else if (target.dataset.action === 'save-look') showToast('搭配已保存');
     else if (target.dataset.scale && selectedCloth) { clothScale += target.dataset.scale === 'up' ? .1 : -.1; clothScale = Math.max(.6, Math.min(1.8, clothScale)); selectedCloth.style.transform = `scale(${clothScale})`; }
     render();
