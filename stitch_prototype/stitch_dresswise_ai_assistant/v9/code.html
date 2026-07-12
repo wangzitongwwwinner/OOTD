@@ -1,0 +1,306 @@
+<!DOCTYPE html><html class="light" lang="zh-CN" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600&amp;family=Inter:wght@400;600&amp;family=Noto+Serif+SC:wght@500;600&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-container": "#2d2926",
+                      "secondary": "#685c50",
+                      "outline-variant": "#cfc4bd",
+                      "tertiary-fixed": "#e6e2db",
+                      "on-secondary-container": "#6e6256",
+                      "inverse-surface": "#2f3130",
+                      "surface": "#faf9f7",
+                      "primary-fixed": "#e9e1dc",
+                      "on-tertiary-fixed": "#1c1c17",
+                      "surface-bright": "#faf9f7",
+                      "outline": "#7e756f",
+                      "on-tertiary": "#ffffff",
+                      "secondary-fixed": "#f0e0d0",
+                      "on-primary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-container": "#96908b",
+                      "on-tertiary-fixed-variant": "#484742",
+                      "error": "#ba1a1a",
+                      "on-background": "#1a1c1b",
+                      "on-surface-variant": "#4d4540",
+                      "secondary-container": "#f0e0d0",
+                      "primary-fixed-dim": "#cdc5c0",
+                      "background": "#faf9f7",
+                      "on-secondary-fixed-variant": "#4f453a",
+                      "surface-container-highest": "#e3e2e0",
+                      "surface-container-low": "#f4f3f1",
+                      "surface-dim": "#dadad8",
+                      "tertiary-fixed-dim": "#cac6bf",
+                      "surface-container-high": "#e9e8e6",
+                      "on-primary-fixed-variant": "#4b4642",
+                      "surface-tint": "#635d5a",
+                      "on-surface": "#1a1c1b",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed": "#1e1b18",
+                      "surface-variant": "#e3e2e0",
+                      "primary": "#181512",
+                      "on-tertiary-container": "#94918b",
+                      "on-secondary": "#ffffff",
+                      "secondary-fixed-dim": "#d3c4b5",
+                      "tertiary": "#161612",
+                      "inverse-on-surface": "#f1f1ef",
+                      "surface-container": "#efeeec",
+                      "on-secondary-fixed": "#221a11",
+                      "inverse-primary": "#cdc5c0",
+                      "error-container": "#ffdad6",
+                      "tertiary-container": "#2b2a26"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-lg": "32px",
+                      "gutter-grid": "16px",
+                      "stack-xl": "48px",
+                      "margin-page": "24px",
+                      "stack-md": "16px",
+                      "stack-sm": "8px"
+              },
+              "fontFamily": {
+                      "body-main": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "display-serif": [
+                              "Noto Serif SC"
+                      ],
+                      "title-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-md": [
+                              "Noto Serif SC"
+                      ]
+              },
+              "fontSize": {
+                      "body-main": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-serif": [
+                              "32px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "title-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      }catch(_e){}</script></head><body class="bg-background text-on-background font-body-main antialiased min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface/80 backdrop-blur-xl flex justify-between items-center px-margin-page h-16">
+<button class="text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity duration-300">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-display-serif text-headline-md tracking-tight text-primary">今天穿什么</h1>
+<button class="text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity duration-300">
+<span class="material-symbols-outlined" data-icon="account_circle" data-original-icon="account_circle">account_circle</span>
+</button>
+</header>
+<main class="pt-24 px-margin-page">
+<!-- Page Header -->
+<div class="mb-stack-lg">
+<h2 class="font-display-serif text-display-serif text-primary">我的衣橱</h2>
+<p class="font-body-main text-body-main text-on-surface-variant mt-2">12件衣物&nbsp; 最近更新 今天</p>
+</div>
+<!-- Category Filters -->
+<div class="relative mb-4">
+<div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
+</div>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-body-sm text-on-surface-variant placeholder:text-outline-variant focus:ring-1 focus:ring-primary transition-colors" placeholder="搜索衣物..." type="text">
+</div><div class="flex gap-stack-sm mb-stack-md">
+<button class="flex items-center gap-1 px-4 py-2 rounded-full bg-surface-container-low border border-tertiary/10 text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="font-body-sm text-body-sm">类别</span>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+<button class="flex items-center gap-1 px-4 py-2 rounded-full bg-surface-container-low border border-tertiary/10 text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="font-body-sm text-body-sm">颜色</span>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+</div>
+<!-- Grid Layout (Bento style) -->
+<div class="grid grid-cols-2 gap-gutter-grid"><div class="col-span-1 flex flex-col rounded-xl bg-surface-container-lowest border border-outline-variant/60 overflow-hidden group cursor-pointer shadow-sm">
+<div class="aspect-square relative w-full bg-surface-container-lowest">
+<div class="w-full h-full flex items-center justify-center p-2">
+<img alt="白色运动鞋" class="max-w-[90%] max-h-[90%] object-cover group-hover:scale-105 transition-transform duration-700 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSUaL0eaXw7Z6DHtEo4tzl09FWTssF_dyzYreZlZSnopA9NVs7ts4UR3Fk3a6zyhEKjB7APMlR92drNyh8ANaDudX9MJnXevSyRkkesdEMTxZAGrrRfhbEKQb46hVGfovkPqt_e481upuk_nLtYiXu3YCj1ZXQR67dG4tv2fEbXQnxihFRslZ8B8FWOjD7_Ra4J5V_-HzUeQiGi6RtnWDmME4syDfOwUomfEbc70RzE1hwa5Knh7d5tOaG_RBgRvuOYnk">
+</div>
+<div class="absolute top-2 right-2 flex gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container-lowest/90 border border-outline-variant/40 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container-lowest/90 border border-outline-variant/40 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<div class="px-3 py-3 border-t border-outline-variant/20 bg-surface-container-lowest flex items-center justify-between"><p class="text-[12px] font-medium text-primary truncate mr-2">白色运动鞋</p><div class="flex gap-1 flex-shrink-0"><span class="text-[9px] font-label-caps text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full border border-outline-variant/40">鞋履</span><span class="text-[9px] font-label-caps text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full border border-outline-variant/40">白色</span></div></div>
+</div>
+<!-- Item 1: White Pants -->
+
+<!-- Item 2: Washed Jeans -->
+<div class="col-span-1 flex flex-col rounded-xl bg-surface-container-lowest border border-outline-variant/60 overflow-hidden group cursor-pointer shadow-sm">
+<div class="aspect-square relative w-full bg-surface-container-lowest">
+<div class="w-full h-full flex items-center justify-center p-2">
+<img alt="牛仔裤" class="max-w-[90%] max-h-[90%] object-cover group-hover:scale-105 transition-transform duration-700 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7O0cjDPvpbEVRS-ueSwFrsKOMs8OartGdnN4NZlW4jLCWGfuxOfy2TIh3dlIi_ZZ6EHLkPF0nLd7XUD4F1Blxn_-izQg4uicz1UzE6-ESbS6Ed3DSSL7-olSe5B1wq1huhCk8qhEvC6pb-d-BAIhqHzDmPcfUSLK_t0hOrzAfB1HOXanZQ_doso2uvMvFi650yRfAN06a4uhVlJ3K3zqLMsuCzzL5m8Z3SN45bpTgFbfaTgu-FvTQor4tGs0MgQO8_Z8">
+</div>
+<div class="absolute top-2 right-2 flex gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container-lowest/90 border border-outline-variant/40 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container-lowest/90 border border-outline-variant/40 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<div class="px-3 py-3 border-t border-outline-variant/20 bg-surface-container-lowest flex items-center justify-between"><p class="text-[12px] font-medium text-primary truncate mr-2">牛仔裤</p><div class="flex gap-1 flex-shrink-0"><span class="text-[9px] font-label-caps text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full border border-outline-variant/40">下装</span><span class="text-[9px] font-label-caps text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full border border-outline-variant/40">蓝色</span></div></div>
+</div>
+<!-- Item 3: Blue Striped Shirt -->
+<div class="col-span-1 flex flex-col rounded-xl bg-surface-container-lowest border border-outline-variant/60 overflow-hidden group cursor-pointer shadow-sm">
+<div class="aspect-square relative w-full bg-[#faf9f6]">
+<div class="w-full h-full flex items-center justify-center p-2">
+<img alt="蓝色条纹衬衫" class="max-w-[90%] max-h-[90%] object-cover group-hover:scale-105 transition-transform duration-700 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZRQyEmn0CSyle98isyWKMDux37TvuJqV0xyXhIoE2W7Y4-6oA5JVueMEUapEmSWakUrNN3pH5nDgbroJz7bIixlAgPvSlFcTdLxYIotM3lcgnqkUZ4Ycv1FgdljaynbjbZNNacFD3wL3MNhjbXcuE053cxxSYHEAZ1x0lsRMTVTqJDbwYgYpjUBvrDQP8AghrRWQ_4T8FRmPy-3vs1VhRG-hU7bYgy4-kWlPGQp1TrstHifT_sgbqog850CCHVyR39Ic">
+</div>
+<div class="absolute top-2 right-2 flex gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container-lowest/90 border border-outline-variant/40 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container-lowest/90 border border-outline-variant/40 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<div class="px-3 py-3 border-t border-outline-variant/20 bg-surface-container-lowest flex items-center justify-between"><p class="text-[12px] font-medium text-primary truncate mr-2">蓝色条纹衬衫</p><div class="flex gap-1 flex-shrink-0"><span class="text-[9px] font-label-caps text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full border border-outline-variant/40">上衣</span><span class="text-[9px] font-label-caps text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full border border-outline-variant/40">蓝色</span></div></div>
+</div>
+<!-- Item 4: Snoopy T-Shirt -->
+<div class="col-span-1 flex flex-col rounded-xl bg-surface-container-lowest border border-outline-variant/60 overflow-hidden group cursor-pointer shadow-sm">
+<div class="aspect-square relative w-full bg-[#faf9f6]">
+<div class="w-full h-full flex items-center justify-center p-2">
+<img alt="史努比短袖" class="max-w-[90%] max-h-[90%] object-cover group-hover:scale-105 transition-transform duration-700 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiSWuJ1mqael_Yd9Fahq-YmhhduPLzKQaYXpbDSDODum2KXTOTVLDjOqaRNZ8wO-MGJiEPos495aI-FxCLh34VWpEmavXHR5BsH6E-5hkpTHdDRb6yQzeUow6IwecctpmfapBBZadyEeix2z_r7h0RNRMc6a4rRI58XgXkGCYkeXE4zJp1s0MvhA0LKTPXlkqktIrXE1qVnfw7MZee9HTY3QEMBD9JB-65OxegCGVZQ5mXq8zIrugouDNM1gw9GNFFnbw">
+</div>
+<div class="absolute top-2 right-2 flex gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container-lowest/90 border border-outline-variant/40 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container-lowest/90 border border-outline-variant/40 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<div class="px-3 py-3 border-t border-outline-variant/20 bg-surface-container-lowest flex items-center justify-between"><p class="text-[12px] font-medium text-primary truncate mr-2">史努比短袖</p><div class="flex gap-1 flex-shrink-0"><span class="text-[9px] font-label-caps text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full border border-outline-variant/40">上衣</span><span class="text-[9px] font-label-caps text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full border border-outline-variant/40">白色</span></div></div>
+</div>
+<!-- Item 5: Green Shorts -->
+<div class="col-span-1 flex flex-col rounded-xl bg-surface-container-lowest border border-outline-variant/60 overflow-hidden group cursor-pointer shadow-sm">
+<div class="aspect-square relative w-full bg-surface-container-lowest">
+<div class="w-full h-full flex items-center justify-center p-2">
+<img alt="军绿色短裤" class="max-w-[90%] max-h-[90%] object-cover group-hover:scale-105 transition-transform duration-700 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCd7ajPR4f713_H5VwBpsco4PoegDxCHH6LLIIzhsHpwtQcPTmcymE5oVwApMKihcC0eODGCnuQHdQpfykttKKo1Si0wKf_wFdfoXOyVT6W2G92X5KpAgWVk0hWmitYav2dPMBWelP_sfZU2PoUlEsZrgcBRf0xaNgNruwFsdfnHG7UhUM1nQm7v14eFsnKnv_pIlZBgC2ARWP4a2junXXirzjBX9Wjh4-q_1eJ2k41co1SX4qtCLgMrfdBH5HLUeB8rso">
+</div>
+<div class="absolute top-2 right-2 flex gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container-lowest/90 border border-outline-variant/40 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container-lowest/90 border border-outline-variant/40 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<div class="px-3 py-3 border-t border-outline-variant/20 bg-surface-container-lowest flex items-center justify-between"><p class="text-[12px] font-medium text-primary truncate mr-2">军绿色短裤</p><div class="flex gap-1 flex-shrink-0"><span class="text-[9px] font-label-caps text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full border border-outline-variant/40">下装</span><span class="text-[9px] font-label-caps text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full border border-outline-variant/40">绿色</span></div></div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed right-6 w-14 h-14 rounded-full bg-primary text-on-primary shadow-lg flex items-center justify-center z-50 hover:opacity-90 transition-opacity bottom-32">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface/80 dark:bg-surface/80 backdrop-blur-xl border-t border-tertiary/10 shadow-[0_-4px_20px_rgba(45,41,38,0.05)] flex justify-around items-center px-2 pb-8 pt-3">
+<button class="flex flex-col items-center justify-center text-outline-variant hover:opacity-70 scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label-caps text-label-caps">首页</span>
+</button>
+<button class="flex flex-col items-center justify-center text-outline-variant hover:opacity-70 scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined mb-1" data-icon="grid_view">grid_view</span>
+<span class="font-label-caps text-label-caps">场景</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary font-bold bg-secondary-container/30 rounded-full px-4 py-1 hover:opacity-70 scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined mb-1" data-icon="checkroom" data-weight="fill" style="font-variation-settings: &quot;FILL&quot; 1;">checkroom</span>
+<span class="font-label-caps text-label-caps">衣橱</span>
+</button>
+<button class="flex flex-col items-center justify-center text-outline-variant hover:opacity-70 scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined mb-1" data-icon="apparel">apparel</span>
+<span class="font-label-caps text-label-caps">试穿</span>
+</button>
+
+</nav>
+<style class="">
+        /* Utility to hide scrollbar but keep functionality */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style</style>
+
+
+
+
+
+
+
+
+
+
+
+
+</body></html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html><html lang="zh-CN" style="width: 390px; height: 884px; overflow: hidden; position: relative;"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Noto+Serif+SC:wght@500;600&amp;family=Plus+Jakarta+Sans:wght@400;600&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{try{
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#1c1c17",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-container": "#94918b",
+                        "inverse-surface": "#2f3130",
+                        "primary-container": "#2d2926",
+                        "surface-bright": "#faf9f7",
+                        "surface-tint": "#635d5a",
+                        "surface-container-high": "#e9e8e6",
+                        "inverse-primary": "#cdc5c0",
+                        "background": "#faf9f7",
+                        "secondary-container": "#f0e0d0",
+                        "on-secondary-container": "#6e6256",
+                        "on-tertiary-fixed-variant": "#484742",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f1f1ef",
+                        "secondary": "#685c50",
+                        "tertiary-fixed-dim": "#cac6bf",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed-variant": "#4b4642",
+                        "secondary-fixed": "#f0e0d0",
+                        "on-primary-fixed": "#1e1b18",
+                        "on-background": "#1a1c1b",
+                        "surface-container-low": "#f4f3f1",
+                        "primary": "#181512",
+                        "on-surface-variant": "#4d4540",
+                        "on-primary-container": "#96908b",
+                        "on-secondary-fixed": "#221a11",
+                        "surface-container": "#efeeec",
+                        "primary-fixed-dim": "#cdc5c0",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dadad8",
+                        "primary-fixed": "#e9e1dc",
+                        "on-surface": "#1a1c1b",
+                        "tertiary-container": "#2b2a26",
+                        "secondary-fixed-dim": "#d3c4b5",
+                        "tertiary": "#161612",
+                        "outline-variant": "#cfc4bd",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e3e2e0",
+                        "on-secondary-fixed-variant": "#4f453a",
+                        "tertiary-fixed": "#e6e2db",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e3e2e0",
+                        "surface": "#faf9f7",
+                        "outline": "#7e756f",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter-grid": "16px",
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "stack-xl": "48px",
+                        "stack-sm": "8px",
+                        "margin-page": "24px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Noto Serif SC"],
+                        "body-main": ["Plus Jakarta Sans"],
+                        "display-serif": ["Noto Serif SC"],
+                        "label-caps": ["Inter"],
+                        "title-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "500" }],
+                        "body-main": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-serif": ["32px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "title-lg": ["18px", { "lineHeight": "26px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    }catch(_e){}}catch(_e){}</script></head><body class="bg-background text-on-background font-body-main antialiased pb-24 h-screen overflow-hidden flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl transition-opacity duration-300">
+<div class="flex justify-between items-center px-margin-page h-16 w-full">
+<span class="material-symbols-outlined text-outline">menu</span>
+<div class="flex bg-surface-container-low rounded-full p-1 border border-outline-variant/30">
+<button class="px-6 py-1.5 rounded-full bg-primary text-on-primary font-label-caps text-label-caps shadow-sm transition-all duration-200" id="tab-fitting">
+                    试衣间
+                </button>
+<button class="px-6 py-1.5 rounded-full text-on-surface-variant font-label-caps text-label-caps hover:bg-surface-variant/50 transition-all duration-200" id="tab-outfits">
+                    我的搭配
+                </button>
+</div>
+<span class="material-symbols-outlined text-outline">account_circle</span>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 mt-16 relative overflow-hidden">
+<!-- Fitting Room View -->
+<div class="h-full flex flex-col absolute inset-0 transition-opacity duration-300 opacity-100 z-10" id="view-fitting"><div class="flex-1 flex overflow-hidden bg-surface-container-lowest">
+<!-- Left Sidebar: Selected Items (35% width) -->
+<aside class="w-[35%] border-r border-outline-variant/30 flex flex-col p-4 bg-surface/50">
+<h3 class="font-display-serif text-headline-md text-primary mb-4">已选</h3>
+<div class="flex-1 overflow-y-auto space-y-3 hide-scrollbar mb-4">
+<!-- Item 1 (Active) -->
+<div class="space-y-2 bg-surface-variant/30 p-2 rounded-xl -mx-2">
+<div class="flex items-center justify-between px-3 py-1.5 rounded-full border border-primary bg-primary text-on-primary font-display-serif text-[13px]">
+<span class="truncate">蓝色条纹衬衫</span>
+</div>
+<div class="flex space-x-1.5 px-1">
+<button class="flex-1 h-8 flex flex-col items-center justify-center rounded hover:bg-surface-variant transition-colors text-primary font-display-serif text-[10px]">
+<span class="material-symbols-outlined text-[16px] mb-0.5">arrow_upward</span>
+<span class="">上移</span>
+</button>
+<button class="flex-1 h-8 flex flex-col items-center justify-center rounded hover:bg-surface-variant transition-colors text-primary font-display-serif text-[10px]">
+<span class="material-symbols-outlined text-[16px] mb-0.5">arrow_downward</span>
+<span class="">下移</span>
+</button>
+<button class="flex-1 h-8 flex flex-col items-center justify-center rounded hover:bg-surface-variant transition-colors text-outline font-display-serif text-[10px]">
+<span class="material-symbols-outlined text-[16px] mb-0.5">delete</span>
+<span class="">移除</span>
+</button>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="px-3 py-1.5 rounded-full border border-primary text-primary font-display-serif text-[13px] hover:bg-surface-variant/30 transition-colors cursor-pointer">
+<span class="truncate">史努比短袖</span>
+</div>
+<!-- Item 3 -->
+<div class="px-3 py-1.5 rounded-full border border-primary text-primary font-display-serif text-[13px] hover:bg-surface-variant/30 transition-colors cursor-pointer">
+<span class="truncate">牛仔裤</span>
+</div>
+<!-- Item 4 -->
+<div class="px-3 py-1.5 rounded-full border border-primary text-primary font-display-serif text-[13px] hover:bg-surface-variant/30 transition-colors cursor-pointer">
+<span class="truncate">白色运动鞋</span>
+</div>
+</div>
+<div class="space-y-3"><button class="w-full py-3 rounded-xl border border-primary text-primary font-display-serif text-label-caps hover:bg-surface-variant transition-all duration-300 tracking-widest">
+                重置画布
+            </button>
+<button class="w-full py-3 rounded-xl bg-primary text-on-primary font-display-serif text-label-caps shadow-lg hover:opacity-90 transition-all duration-300 tracking-widest">
+                保存搭配
+            </button></div>
+</aside>
+<!-- Right Column: Outfit Canvas (65% width) -->
+<section class="flex-1 relative grid-bg border border-outline-variant/30 m-4 rounded-xl overflow-hidden bg-surface-bright shadow-inner">
+<div class="absolute inset-0 flex items-center justify-center p-4">
+<div class="relative w-full h-full flex flex-col items-center justify-center">
+<!-- Layered Outfit Composition -->
+<img alt="Snoopy Shirt" class="w-40 absolute top-8 z-10 drop-shadow-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfD0P8AZZ_NwSPz9K82xax7hH-kgSt8OaB4KSazJjfLJcM6fpu-U56dZ04XNrcIELE_L2PVINtJnAF88tbeUEVoxBvlLtaYgMT6TRXU-XEVuYFazmYvpbD7BapwYCLzrCR_iI0p9Oiy19XH7JVCumOU-2yWfCIPil4ivTqdKyQskLFh7MDx9oZtAktFFOIBOYmuR5DFWlci-fqjPLtmMlZZ2p9gBU4zfX7i7s8uWVOkWqZGejUtdH16r1dPgH7RAR4EOI">
+<img alt="Blue Shirt" class="w-48 absolute top-4 z-20 drop-shadow-lg opacity-90 mix-blend-multiply" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhc0T8ZlDj4ziNMegL5ZM5vw7yKNXW3Ju80rsEXbTtGX7lvmuEHu2aJjXARVW89ebfS9BjP4UcwXyGi7b0rVXpALn30dyZGrB7ElPho8DIsruMKYwdWSyWtAMfv5zRh8GkWIbcgA5uenfODse6EEVFXMxjmQ1mL4IQpe1UNJmd3IaZwwugN8gXRnyphaQCUsNrHzB4_LbPDlpMsq-NecvAtPpeSM_oa7zJg1Iizudo9I8r629DLEXj8FlmFUhYk1RuNu8">
+<img alt="Jeans" class="w-44 absolute bottom-12 z-0 drop-shadow-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsk2vptE3HRNyzG7FCyglFWJh4cYedksbr-hSSO-0ViuyoEIC1KPaFh4tveczi4QjZtPhgcIQ1gAM1VUMUKxRfnyZj9akWfigDjxuLzGfT0aPlqpgiy1CM3mmD94q1_ze8h4mILIHvY1XdnjBZoP0Aw_F299lYCW5656vT_urRUopsXgE7InHLq8WHkBItFp7SeVx179Ajqn9zP8ZHmn94ncQp8gDOpUN8k7g2ygd6J_ZX5KRaRRpN8dJ1eMLSz3HVeoo">
+
+</div>
+</div>
+</section>
+</div>
+<!-- Bottom Drawer: Filter & Browse -->
+<div class="bg-surface border-t border-outline-variant/30 rounded-t-3xl shadow-[0_-8px_30px_rgba(45,41,38,0.08)] z-50 pb-4">
+<div class="w-full flex justify-center pt-3 pb-1">
+<div class="w-12 h-1 bg-outline-variant/50 rounded-full"></div>
+</div>
+<div class="px-margin-page pb-4">
+<div class="flex items-center space-x-3 mb-4">
+<span class="font-display-serif text-title-lg text-primary">筛选</span>
+<button class="flex items-center px-3 py-1 rounded-full border border-outline text-primary font-display-serif text-[12px] hover:bg-surface-variant/50">
+                类别 <span class="material-symbols-outlined text-[16px] ml-1">arrow_drop_down</span>
+</button>
+<button class="flex items-center px-3 py-1 rounded-full border border-outline text-primary font-display-serif text-[12px] hover:bg-surface-variant/50">
+                颜色 <span class="material-symbols-outlined text-[16px] ml-1">arrow_drop_down</span>
+</button>
+</div>
+<div class="flex space-x-4 overflow-x-auto hide-scrollbar pb-2">
+<!-- Card 1 -->
+<div class="flex-shrink-0 w-36 flex flex-col">
+<div class="w-36 h-36 rounded-xl border border-outline-variant/40 bg-surface-bright flex items-center justify-center p-2 mb-2 overflow-hidden shadow-sm">
+<img alt="White Sneakers" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwoL5eEJRDmm628_USSinEVufCQ8II6v8jGdZxEmHDcAR8q19IDQ3fmIWY2q-KWdaK_fNBcWPqKkShMWfCqfBZmhQBn0MBupWVZ6NlfeuG1bNiQoIY56SyIKy2u1kqqihEriLltg3ZdXiptMlB2PG0GJ_LxySGWwc-DHmjZS_s9W7H4qaR8IUBYr2rNPGzZLUXnc-aU6zdxV_AsLzMUS28y7z6ox_kjzs5u2tgJKVv_w3nYKBRrA5-9vq_RHayygRaeXc">
+</div>
+<div class="flex flex-col px-1">
+<span class="text-primary font-display-serif text-[13px] font-semibold truncate">白色运动鞋</span>
+<span class="text-outline font-body-sm text-[11px]">鞋履 · 白色</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="flex-shrink-0 w-36 flex flex-col">
+<div class="w-36 h-36 rounded-xl border border-outline-variant/40 bg-surface-bright flex items-center justify-center p-2 mb-2 overflow-hidden shadow-sm">
+<img alt="Jeans" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLdhblMozGEzQ5NHauUlvRejJ73-xOmhOgEW1tY9rygrrsx24IIMBv-y6wYSGDMZT-lojftnbqLN82bkTQtvSacxr-wxY9PPqZkKKpzpFn1r5Mx5hrrJsG9BL0DOhQiJTk1l7dXpjGduxSr-iJ0w_-BLfeHhUReNMTXeMRlwP5YdmVs3nUpRf09ORtUvwz58AtPe6WGANQS1ryJIAwkYy0D30sAR4Pn_DmWfO02PBqhYL4rAV8Fic_DyamCbEDVUivNxg">
+</div>
+<div class="flex flex-col px-1">
+<span class="text-primary font-display-serif text-[13px] font-semibold truncate">牛仔裤</span>
+<span class="text-outline font-body-sm text-[11px]">下装 · 蓝色</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="flex-shrink-0 w-36 flex flex-col">
+<div class="w-36 h-36 rounded-xl border border-outline-variant/40 bg-surface-bright flex items-center justify-center p-2 mb-2 overflow-hidden shadow-sm">
+<img alt="Blue Shirt" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAY4O0qRhl3ACwGhrqH6GEjmuUDjBF1zYpIVFOlLCtjwzpTCuYfkXrzPhnLpsytfwREED7o18IqmX9Hwfx-J7eRgIUrLCDvWGe4LWWCQldouG7kLARhZnCyV2N5uDivMZSNx-w57xVRAfN4kP6z4vie3zGbhXtRVCHsDxSbetpm4xe3UpbIExDjbX7aYVwvMjFz9lhKKw8H-ioZM_eQ12m8jbw_QMe0iyrhOfSF8SmQVj0_3iGJG0H7ya7CvQjUu4NrmpQ">
+</div>
+<div class="flex flex-col px-1">
+<span class="text-primary font-display-serif text-[13px] font-semibold truncate">蓝色条纹衬衫</span>
+<span class="text-outline font-body-sm text-[11px]">上装 · 蓝色</span>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="flex-shrink-0 w-36 flex flex-col">
+<div class="w-36 h-36 rounded-xl border border-outline-variant/40 bg-surface-bright flex items-center justify-center p-2 mb-2 overflow-hidden shadow-sm">
+<img alt="Snoopy Shirt" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBapUOdFt_oqEVKv17LoNsNZBCRKFfGSl8Ht8DMXPT5OkUNoIU-crmVniAyVjUSKNcqlWF19GyX9J0EPwlE7I1LWb-3kr56cqlz23b3jEWei4kC7iGIvLylLwd1Noa-GVaRGPEI9QN5gRa4oJoK2WEmbvzIyTqT2OLfmA0ndglZgeyChpysT8vbBaTd47zEARwz9f3I0kq2-BhDMZQ17VKyjXGc1Hi87D53qhW5AAYwAdSiC1mHclZnQsSYRars3oI9aOU">
+</div>
+<div class="flex flex-col px-1">
+<span class="text-primary font-display-serif text-[13px] font-semibold truncate">史努比短袖</span>
+<span class="text-outline font-body-sm text-[11px]">上装 · 绿色</span>
+</div>
+</div>
+</div>
+<div class="mt-2 flex justify-center">
+    <div class="w-24 h-0.5 bg-outline-variant/30 rounded-full relative overflow-hidden">
+        <div class="absolute left-0 top-0 h-full w-1/3 bg-primary rounded-full"></div>
+    </div>
+</div></div>
+</div></div>
+<!-- My Outfits View (Hidden by default) -->
+<div class="h-full w-full absolute inset-0 transition-opacity duration-300 opacity-0 pointer-events-none bg-background z-0 overflow-y-auto px-margin-page pt-4 pb-32" id="view-outfits">
+<div class="mb-stack-md flex justify-between items-end">
+<h2 class="font-display-serif text-headline-md text-primary tracking-tight">灵感档案</h2>
+<span class="font-body-sm text-body-sm text-outline-variant">12 套搭配</span>
+</div>
+<div class="grid grid-cols-2 gap-gutter-grid">
+<!-- Outfit Card 1 -->
+<div class="bg-surface-container-lowest rounded-2xl p-3 border border-outline-variant/20 shadow-[0_4px_20px_rgba(45,41,38,0.03)] hover:shadow-[0_8px_30px_rgba(45,41,38,0.08)] transition-all duration-300 cursor-pointer group">
+<div class="aspect-[3/4] rounded-xl bg-surface-container-low mb-3 relative overflow-hidden flex items-center justify-center p-4">
+<!-- Collage Simulation -->
+<img alt="Blazer" class="w-2/3 absolute top-2 right-2 rotate-6 group-hover:rotate-12 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqhHlKtoaFbpBgPQiCf46BY5XHNWrO_CxaJj3cbLM20tLF1kQ5EWxc_DSVw9E4dImnjIceK58FtkCiUqC1SQwF9QVhKIO79wy4O8l36ybqgcFf-bZuoIrPtqSr6Bux22KNZlY1eU230STgdQDgeTLNPHalGAbu6JSvpBpHbr64B_Z2Kve4Gzo9F9d70aRvCLlcTD3gUmWMESF98HIsRW2wVQ8qfoMx1MPKwHN6qNbuuMT5Rj46qk02yDUnR6BMrHpRaV8">
+<img alt="Trousers" class="w-1/2 absolute bottom-2 left-2 -rotate-3 group-hover:-rotate-6 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAa-Cwkjy9NzCc7WbSlLriDfddgV5oMJvVoZrRYJKpE9R6ED_ftzlxGN4bNwVudG4rNlGOHf0eMHlVqdwJ4BksnawHj4SVTB0i_WMW4AWSoafzewGRDhGSCyvtqKrB7s2RVCKDqD80yA810achq2pF_OIf-IcCbBZpAl-UvlxWlYAiEiPcLn6csJvdgMRF4Q-RHqrFrLFBvHv0SGa1VBqXiwsJV4-hjZ4a6DMdLqetzWg3wPhVSMHkDp5SUIYuA2NAiiPg">
+</div>
+<div class="px-1">
+<h4 class="font-title-lg text-body-main text-on-surface mb-1">秋日通勤</h4>
+<p class="font-body-sm text-[12px] text-outline-variant">2023.10.15</p>
+</div>
+</div>
+<!-- Outfit Card 2 -->
+<div class="bg-surface-container-lowest rounded-2xl p-3 border border-outline-variant/20 shadow-[0_4px_20px_rgba(45,41,38,0.03)] hover:shadow-[0_8px_30px_rgba(45,41,38,0.08)] transition-all duration-300 cursor-pointer group mt-8">
+<div class="aspect-[3/4] rounded-xl bg-surface-container-low mb-3 relative overflow-hidden flex items-center justify-center p-4">
+<img alt="Sweater" class="w-3/4 absolute top-4 left-4 -rotate-6 group-hover:-rotate-12 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuApN3ODthxOFd0yNTQh46Ek3l1DbugRH1_3yNrJD7FacycPFIi9JchQo0bpXbwcMZJbamehRop__hP-YtmC3M4-i59r-6zH8ZE4OMMEpuaCRbOYSM1YdgixhNh-9v6HWC1W8PRjQwF-my1jCh7VWc3Zoc1GP8Ie0C0wGByys-CvznBWjYVL8mKg0OhGlP1QacAVZ3z52bnE1N9roLC5v9nHUa1mCNsn93Wd2pNfQ9cRMcEWSxkt0b7IBCWCIzPtN0v2_Ac">
+</div>
+<div class="px-1">
+<h4 class="font-title-lg text-body-main text-on-surface mb-1">周末闲适</h4>
+<p class="font-body-sm text-[12px] text-outline-variant">2023.10.12</p>
+</div>
+</div>
+<!-- Outfit Card 3 -->
+<div class="bg-surface-container-lowest rounded-2xl p-3 border border-outline-variant/20 shadow-[0_4px_20px_rgba(45,41,38,0.03)] hover:shadow-[0_8px_30px_rgba(45,41,38,0.08)] transition-all duration-300 cursor-pointer group">
+<div class="aspect-[3/4] rounded-xl bg-surface-container-low mb-3 relative overflow-hidden flex items-center justify-center p-4">
+<img alt="Full Outfit Reference" class="w-full h-full object-cover rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnypFu4E8aXtj3SAUzruqqiZxbPfpbs6-hqNACA2lVYcE8xftfwxNEK7QuU1RF8mYpt5StSXPVl6sLyWeUgAaxjtRiS9oqc51Mc_Hs8uJnjeONwz9W_a4av8-nIjZ9ZTlZY6LSHKMGFL65W_-5O0wvHrCMiddSdtshKk7Sp4FNFp3NFT-VESJK3xTMXL3RLTO0zwSMo_fDFWswYzlOze06TmD8tdXa58B5xFCO4sTEopk4emInpNEZN9w13E122YfN0tA">
+</div>
+<div class="px-1">
+<h4 class="font-title-lg text-body-main text-on-surface mb-1">晚宴参考</h4>
+<p class="font-body-sm text-[12px] text-outline-variant">2023.09.28</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-2 pb-8 pt-3 bg-surface/80 dark:bg-surface/80 backdrop-blur-xl z-50 rounded-t-xl border-t border-tertiary/10 shadow-[0_-4px_20px_rgba(45,41,38,0.05)] md:hidden">
+<a class="flex flex-col items-center justify-center text-outline-variant opacity-70 scale-95 transition-transform duration-200 hover:opacity-100" href="#">
+<span class="material-symbols-outlined text-title-lg mb-1" style="font-variation-settings: &quot;FILL&quot; 0;">home</span>
+<span class="font-label-caps text-label-caps">首页</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline-variant opacity-70 scale-95 transition-transform duration-200 hover:opacity-100" href="#">
+<span class="material-symbols-outlined text-title-lg mb-1" style="font-variation-settings: &quot;FILL&quot; 0;">grid_view</span>
+<span class="font-label-caps text-label-caps">场景</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline-variant opacity-70 scale-95 transition-transform duration-200 hover:opacity-100" href="#">
+<span class="material-symbols-outlined text-title-lg mb-1" style="font-variation-settings: &quot;FILL&quot; 0;">checkroom</span>
+<span class="font-label-caps text-label-caps">衣橱</span>
+</a>
+<!-- Active Tab: 试穿 -->
+<a class="flex flex-col items-center justify-center text-primary font-bold bg-secondary-container/30 rounded-full px-4 py-1 scale-100 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-title-lg mb-0.5 text-primary" style="font-variation-settings: &quot;FILL&quot; 1;">apparel</span>
+<span class="font-label-caps text-label-caps text-primary">试穿</span>
+</a>
+
+</nav>
+<script>
+        // Simple View Switcher Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabFitting = document.getElementById('tab-fitting');
+            const tabOutfits = document.getElementById('tab-outfits');
+            const viewFitting = document.getElementById('view-fitting');
+            const viewOutfits = document.getElementById('view-outfits');
+
+            function switchView(view) {
+                if (view === 'fitting') {
+                    // Update Tabs
+                    tabFitting.classList.remove('text-on-surface-variant', 'hover:bg-surface-variant/50');
+                    tabFitting.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+                    
+                    tabOutfits.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+                    tabOutfits.classList.add('text-on-surface-variant', 'hover:bg-surface-variant/50');
+
+                    // Update Views
+                    viewFitting.classList.remove('opacity-0', 'pointer-events-none', 'z-0');
+                    viewFitting.classList.add('opacity-100', 'z-10');
+                    
+                    viewOutfits.classList.remove('opacity-100', 'z-10');
+                    viewOutfits.classList.add('opacity-0', 'pointer-events-none', 'z-0');
+                } else {
+                    // Update Tabs
+                    tabOutfits.classList.remove('text-on-surface-variant', 'hover:bg</script>
+
+</body></html>
