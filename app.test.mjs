@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createInitialState, login, navigate, submitFeedback, addItineraryItem, removeItineraryItem, createScene, homeTitle, formatItineraryItem } from './app.mjs';
+import { createInitialState, login, navigate, submitFeedback, addItineraryItem, removeItineraryItem, createScene, homeTitle, formatItineraryItem, getSceneSheetRoute, filterWardrobe } from './app.mjs';
 
 test('微信登录后进入首页', () => {
   const state = login(createInitialState());
@@ -51,4 +51,19 @@ test('行程拆分为带表情的场景、温度和时长', () => {
     formatItineraryItem({ time: '08:00', scene: '地铁', temperature: 24, duration: '1小时' }),
     { time: '08:00', scene: '🚇 地铁', temperature: '24°', duration: '约1小时' }
   );
+});
+
+test('场景库新建场景完成后直接关闭，而行程内新建会返回行程弹层', () => {
+  assert.equal(getSceneSheetRoute(false), 'close');
+  assert.equal(getSceneSheetRoute(true), 'trip');
+});
+
+test('衣橱可组合类别、颜色与名称模糊筛选', () => {
+  const items = [
+    { name: '白色短袖', category: '短袖', color: '白' },
+    { name: '蓝色衬衫', category: '衬衫', color: '蓝' },
+    { name: '橙色长裤', category: '裤子', color: '橙' }
+  ];
+  assert.deepEqual(filterWardrobe(items, { category: '衬衫', color: '蓝', query: '' }).map(item => item.name), ['蓝色衬衫']);
+  assert.deepEqual(filterWardrobe(items, { category: '全部', color: '全部', query: '长裤' }).map(item => item.name), ['橙色长裤']);
 });

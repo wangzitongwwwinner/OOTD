@@ -36,6 +36,11 @@ export const submitFeedback = (state, feedback) => ({ ...state, feedback });
 export const addItineraryItem = (state, item) => ({ ...state, itinerary: [...state.itinerary, item] });
 export const removeItineraryItem = (state, index) => ({ ...state, itinerary: state.itinerary.filter((_, itemIndex) => itemIndex !== index) });
 export const createScene = (state, scene) => ({ ...state, scenes: [...state.scenes, scene] });
+export const getSceneSheetRoute = returnToTrip => returnToTrip ? 'trip' : 'close';
+export const filterWardrobe = (items, { category = '全部', color = '全部', query = '' } = {}) => {
+  const keyword = query.trim().toLowerCase();
+  return items.filter(item => (category === '全部' || item.category === category) && (color === '全部' || item.color === color) && (!keyword || item.name.toLowerCase().includes(keyword)));
+};
 
 const icons = {
   home: '<svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8v9H15v-6H9v6H3z"/></svg>',
@@ -85,15 +90,19 @@ function homeView(state) {
 }
 
 function scenesView(state) {
-  return `<section class="page"><header class="page-title">场景库</header><p class="subtitle">常去的地方，记住大概温度就好</p><div class="card-grid">
-    ${state.scenes.map((scene, index) => `<article class="mini-card ${['lavender','yellow','blue'][index % 3]}"><span>${sceneEmoji[scene.name] || '📍'}</span><h3>${scene.name}</h3><b>约${scene.temperature}°</b><p>体感${scene.feeling}</p></article>`).join('')}
-    <button class="add-card" data-action="open-scene">＋ 新增场景</button></div></section>`;
+  return `<section class="page"><header class="page-title">场景库</header><p class="subtitle">常去的地方，记住大概温度就好</p><div class="scene-list">
+    ${state.scenes.map(scene => `<article class="scene-card"><div class="scene-card-icon">${sceneEmoji[scene.name] || '📍'}</div><div class="scene-card-info"><h3>${escapeHtml(scene.name)}</h3><p>约${scene.temperature}° · 体感${escapeHtml(scene.feeling)}</p></div><div class="scene-card-actions"><button type="button" aria-label="编辑${escapeHtml(scene.name)}" title="编辑${escapeHtml(scene.name)}">编辑</button><button class="scene-delete" type="button" aria-label="删除${escapeHtml(scene.name)}" title="删除${escapeHtml(scene.name)}">删除</button></div></article>`).join('')}
+    <button class="scene-add" data-action="open-scene" data-scene-origin="library">＋ 新增场景</button></div></section>`;
 }
 
 function wardrobeView() {
-  return `<section class="page"><header class="page-title">我的衣橱</header><p class="subtitle">12 件衣物 · 最近更新今天</p><div class="filter-row"><button class="active">全部</button><button>上衣</button><button>下装</button><button>鞋子</button></div><div class="wardrobe-grid">
-    ${[['👕','白色短袖'],['👔','蓝色衬衫'],['👖','直筒长裤'],['🧥','薄开衫'],['👟','白色运动鞋'],['🩳','浅色短裤']].map(([e,n])=>`<article><div>${e}</div><span>${n}</span></article>`).join('')}
-  </div><button class="fab">＋</button></section>`;
+  const categories = ['全部', '短袖', '衬衫', '毛衣', '裤子', '鞋子', '外套', '裙装'];
+  const colors = ['全部', '黑', '白', '灰', '蓝', '橙', '红', '绿', '棕'];
+  const visibleItems = filterWardrobe(wardrobeItems, { category: wardrobeCategory, color: wardrobeColor, query: wardrobeQuery });
+  const options = (values, selected) => values.map(value => `<option value="${value}" ${selected === value ? 'selected' : ''}>${value}</option>`).join('');
+  return `<section class="page wardrobe-page"><header class="page-title">我的衣橱</header><p class="subtitle">12 件衣物 · 最近更新今天</p><label class="wardrobe-search"><span>⌕</span><input data-wardrobe-search type="search" value="${escapeHtml(wardrobeQuery)}" placeholder="搜索衣物名称"></label><div class="wardrobe-controls"><label><span>类别</span><select data-wardrobe-category>${options(categories, wardrobeCategory)}</select></label><label><span>颜色</span><select data-wardrobe-color>${options(colors, wardrobeColor)}</select></label></div><div class="wardrobe-grid">
+    ${visibleItems.map(item => `<article class="wardrobe-card"><div class="wardrobe-photo"><img src="${item.image}" alt="${escapeHtml(item.name)}"><div class="wardrobe-actions"><button data-action="edit-wardrobe" aria-label="编辑${escapeHtml(item.name)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16-.8 4.8L8 20l10.5-10.5-4-4Z"/><path d="m13.5 6.5 4 4"/></svg></button><button data-action="delete-wardrobe" aria-label="删除${escapeHtml(item.name)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg></button></div></div></article>`).join('') || '<p class="wardrobe-empty">没有找到符合条件的衣物</p>'}
+  </div><button class="fab" data-action="open-wardrobe-upload" aria-label="上传衣物">＋</button></section>`;
 }
 
 function fittingView() {
@@ -117,6 +126,18 @@ let selectedCloth = null;
 let clothScale = 1;
 let activeSheet = '';
 let tripDraft = null;
+let sceneSheetReturnToTrip = false;
+let wardrobeCategory = '全部';
+let wardrobeColor = '全部';
+let wardrobeQuery = '';
+const wardrobeItems = [
+  { name: '白色短袖', category: '短袖', color: '白', image: 'assets/wardrobe/white-tshirt.png' },
+  { name: '蓝色衬衫', category: '衬衫', color: '蓝', image: 'assets/wardrobe/blue-shirt.png' },
+  { name: '灰色毛衣', category: '毛衣', color: '灰', image: 'assets/wardrobe/gray-sweater.png' },
+  { name: '橙色长裤', category: '裤子', color: '橙', image: 'assets/wardrobe/orange-pants.png' },
+  { name: '白色运动鞋', category: '鞋子', color: '白', image: 'assets/wardrobe/white-sneakers.png' },
+  { name: '深蓝衬衫', category: '衬衫', color: '蓝', image: 'assets/wardrobe/blue-shirt.png' }
+];
 
 const escapeHtml = value => String(value).replace(/[&<>'"]/g, character => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[character]);
 
@@ -124,16 +145,16 @@ function tripSheet() {
   const draft = tripDraft || { scene: state.scenes[0].name, time: '18:30', temperature: state.scenes[0].temperature, duration: '1小时' };
   return `<div class="sheet-backdrop" data-action="close-sheet"></div><section class="bottom-sheet" aria-label="添加行程">
     <div class="sheet-handle"></div><header><h2>添加行程</h2><button data-action="close-sheet" aria-label="关闭">×</button></header>
-    <div class="sheet-field"><label>选择场景</label><div class="scene-options">${state.scenes.map(scene => `<button class="scene-option ${draft.scene === scene.name ? 'selected' : ''}" data-action="select-scene" data-scene="${escapeHtml(scene.name)}">${sceneEmoji[scene.name] || '📍'} ${escapeHtml(scene.name)}</button>`).join('')}<button class="scene-option create" data-action="open-scene">＋ 新建</button></div></div>
+    <div class="sheet-field"><label>选择场景</label><div class="scene-options">${state.scenes.map(scene => `<button class="scene-option ${draft.scene === scene.name ? 'selected' : ''}" data-action="select-scene" data-scene="${escapeHtml(scene.name)}">${sceneEmoji[scene.name] || '📍'} ${escapeHtml(scene.name)}</button>`).join('')}<button class="scene-option create" data-action="open-scene" data-scene-origin="trip">＋ 新建</button></div></div>
     <label class="sheet-field">温度<input id="trip-temperature" type="number" min="-30" max="60" value="${draft.temperature}" required><span>°C</span></label>
     <div class="sheet-grid"><label class="sheet-field">开始时间<input id="trip-time" type="time" value="${draft.time}" required></label><label class="sheet-field">持续时间<select id="trip-duration"><option ${draft.duration === '30分钟' ? 'selected' : ''}>30分钟</option><option ${draft.duration === '1小时' ? 'selected' : ''}>1小时</option><option ${draft.duration === '2小时' ? 'selected' : ''}>2小时</option><option ${draft.duration === '4小时' ? 'selected' : ''}>4小时</option><option ${draft.duration === '9小时' ? 'selected' : ''}>9小时</option></select></label></div>
     <button class="sheet-submit" data-action="submit-trip">添加到行程</button>
   </section>`;
 }
 
-function sceneSheet() {
+function sceneSheet(returnToTrip) {
   return `<div class="sheet-backdrop" data-action="close-sheet"></div><section class="bottom-sheet" aria-label="新建场景">
-    <div class="sheet-handle"></div><header><h2>新建场景</h2><button data-action="back-trip" aria-label="返回">‹</button></header>
+    <div class="sheet-handle"></div><header><h2>新建场景</h2><button data-action="${returnToTrip ? 'back-trip' : 'close-sheet'}" aria-label="${returnToTrip ? '返回' : '关闭'}">${returnToTrip ? '‹' : '×'}</button></header>
     <label class="sheet-field">场景名称<input id="scene-name" type="text" maxlength="12" placeholder="例如：健身房" required></label>
     <label class="sheet-field">默认温度<input id="scene-temperature" type="number" min="-30" max="60" placeholder="26" required><span>°C</span></label>
     <label class="sheet-field">体感<select id="scene-feeling"><option>偏冷</option><option selected>适中</option><option>偏热</option></select></label>
@@ -141,12 +162,16 @@ function sceneSheet() {
   </section>`;
 }
 
+function wardrobeUploadSheet() {
+  return `<div class="sheet-backdrop" data-action="close-sheet"></div><section class="bottom-sheet wardrobe-upload-sheet" aria-label="上传衣物"><div class="sheet-handle"></div><header><h2>上传衣物</h2><button data-action="close-sheet" aria-label="关闭">×</button></header><p>建议平铺衣物，在深色纯背景下正面拍摄</p><button class="upload-choice" data-action="upload-photo">拍照上传</button><button class="upload-choice" data-action="upload-album">从相册选择</button></section>`;
+}
+
 function render() {
   const root = document.querySelector('#app');
   if (!root) return;
   if (!state.loggedIn) { root.innerHTML = loginView(); return; }
   const views = { home: homeView(state), scenes: scenesView(state), wardrobe: wardrobeView(), fitting: fittingView(), calendar: calendarView() };
-  root.innerHTML = `<main class="app-shell">${views[state.activeTab]}${nav(state.activeTab)}<div class="toast" aria-live="polite"></div>${activeSheet === 'trip' ? tripSheet() : activeSheet === 'scene' ? sceneSheet() : ''}</main>`;
+  root.innerHTML = `<main class="app-shell">${views[state.activeTab]}${nav(state.activeTab)}<div class="toast" aria-live="polite"></div>${activeSheet === 'trip' ? tripSheet() : activeSheet === 'scene' ? sceneSheet(sceneSheetReturnToTrip) : activeSheet === 'wardrobe-upload' ? wardrobeUploadSheet() : ''}</main>`;
   enableDrag();
 }
 
@@ -183,9 +208,12 @@ if (typeof document !== 'undefined') {
     else if (target.dataset.feedback) { state = submitFeedback(state, target.dataset.feedback); showToast(`已记录：${state.feedback}`); }
     else if (target.dataset.action === 'generate-advice') showToast('正在生成穿衣建议');
     else if (target.dataset.action === 'add-trip') { tripDraft = { scene: state.scenes[0].name, time:'18:30', temperature:state.scenes[0].temperature, duration:'1小时' }; activeSheet = 'trip'; }
-    else if (target.dataset.action === 'open-scene') activeSheet = 'scene';
+    else if (target.dataset.action === 'open-wardrobe-upload') activeSheet = 'wardrobe-upload';
+    else if (target.dataset.action === 'upload-photo' || target.dataset.action === 'upload-album') showToast('上传流程待继续完善');
+    else if (target.dataset.action === 'edit-wardrobe' || target.dataset.action === 'delete-wardrobe') showToast('衣物管理功能待继续完善');
+    else if (target.dataset.action === 'open-scene') { sceneSheetReturnToTrip = target.dataset.sceneOrigin === 'trip'; if (!sceneSheetReturnToTrip) tripDraft = null; activeSheet = 'scene'; }
     else if (target.dataset.action === 'back-trip') activeSheet = 'trip';
-    else if (target.dataset.action === 'close-sheet') activeSheet = '';
+    else if (target.dataset.action === 'close-sheet') { activeSheet = ''; tripDraft = null; sceneSheetReturnToTrip = false; }
     else if (target.dataset.action === 'select-scene') { const scene = state.scenes.find(item => item.name === target.dataset.scene); tripDraft = { ...tripDraft, scene: scene.name, temperature: scene.temperature }; activeSheet = 'trip'; }
     else if (target.dataset.action === 'submit-scene') {
       const name = document.querySelector('#scene-name').value.trim();
@@ -193,8 +221,9 @@ if (typeof document !== 'undefined') {
       const feeling = document.querySelector('#scene-feeling').value;
       if (!name || !Number.isFinite(temperature)) { showToast('请完整填写场景信息'); return; }
       state = createScene(state, { name, temperature, feeling });
-      tripDraft = { ...tripDraft, scene: name, temperature };
-      activeSheet = 'trip';
+      if (sceneSheetReturnToTrip) tripDraft = { ...tripDraft, scene: name, temperature };
+      activeSheet = getSceneSheetRoute(sceneSheetReturnToTrip);
+      sceneSheetReturnToTrip = false;
     }
     else if (target.dataset.action === 'submit-trip') {
       const time = document.querySelector('#trip-time').value;
@@ -207,6 +236,20 @@ if (typeof document !== 'undefined') {
     else if (target.dataset.action === 'remove-trip') state = removeItineraryItem(state, Number(target.dataset.index));
     else if (target.dataset.action === 'save-look') showToast('搭配已保存');
     else if (target.dataset.scale && selectedCloth) { clothScale += target.dataset.scale === 'up' ? .1 : -.1; clothScale = Math.max(.6, Math.min(1.8, clothScale)); selectedCloth.style.transform = `scale(${clothScale})`; }
+    render();
+  });
+  document.addEventListener('input', event => {
+    if (!event.target.matches('[data-wardrobe-search]')) return;
+    wardrobeQuery = event.target.value;
+    render();
+    const input = document.querySelector('[data-wardrobe-search]');
+    input?.focus();
+    input?.setSelectionRange(wardrobeQuery.length, wardrobeQuery.length);
+  });
+  document.addEventListener('change', event => {
+    if (event.target.matches('[data-wardrobe-category]')) wardrobeCategory = event.target.value;
+    else if (event.target.matches('[data-wardrobe-color]')) wardrobeColor = event.target.value;
+    else return;
     render();
   });
   render();

@@ -21,3 +21,23 @@ test('AI 建议入口使用醒目的胶囊按钮样式', async () => {
   const css = await readFile(new URL('./styles.css', import.meta.url), 'utf8');
   assert.match(css, /\.advice-generate\{[^}]*border-radius:999px[^}]*font-size:14px/);
 });
+
+test('场景库使用竖向条形卡片，并将操作按钮置于右侧', async () => {
+  const css = await readFile(new URL('./styles.css', import.meta.url), 'utf8');
+  assert.match(css, /\.scene-list\{display:grid;gap:10px/);
+  assert.match(css, /\.scene-card\{[^}]*grid-template-columns:auto 1fr auto/);
+  assert.match(css, /\.scene-card-actions\{display:flex/);
+});
+
+test('衣橱筛选使用胶囊控件，衣物卡片只保留图片与管理按钮', async () => {
+  const css = await readFile(new URL('./styles.css', import.meta.url), 'utf8');
+  const app = await readFile(new URL('./app.mjs', import.meta.url), 'utf8');
+  assert.match(css, /\.wardrobe-controls\{display:grid;grid-template-columns:1fr 1fr/);
+  assert.match(css, /\.wardrobe-search\{[^}]*border-radius:999px/);
+  assert.match(css, /\.wardrobe-controls label\{[^}]*border-radius:999px/);
+  assert.match(css, /\.wardrobe-grid \.wardrobe-card\{[^}]*border:0[^}]*background:transparent/);
+  assert.doesNotMatch(app, /class="wardrobe-card-info"/);
+  assert.match(css, /\.wardrobe-grid \.wardrobe-photo\{[^}]*height:auto[^}]*aspect-ratio:1/);
+  assert.match(css, /\.wardrobe-grid \.wardrobe-actions\{[^}]*display:flex[^}]*height:auto/);
+  assert.match(css, /\.wardrobe-actions button\{[^}]*background:rgba\(45,48,53,.72\)/);
+});
