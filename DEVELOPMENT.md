@@ -1,4 +1,4 @@
-# 今天穿什么｜开发规范
+# 穿衣有数｜开发规范
 
 > 本文定义 MVP 生产开发的工程约束。产品边界见 [PRODUCT.md](./PRODUCT.md)，视觉规范见 [DESIGN.md](./DESIGN.md)，技术结构见 [ARCHITECTURE.md](./ARCHITECTURE.md)，微信平台流程见 [WECHAT_MINIPROGRAM.md](./WECHAT_MINIPROGRAM.md)，测试门禁见 [TEST.md](./TEST.md)。
 
@@ -44,7 +44,7 @@
 - 最低基础库版本在 M0 技术验证后固定，不能长期使用“最新版”作为不可复现配置。
 - `AppID` 可用于项目识别；`AppSecret`、上传私钥和开发者工具登录态不得进入仓库。
 - 本地可临时关闭域名校验用于排障，但发布测试必须开启真实校验。
-- 每个环境使用独立 CloudBase 环境 ID，并在构建时显式选择。
+- 当前 MVP 的所有构建显式使用上海地域的 `ootd-ai-dev`。由于没有环境级隔离，测试数据必须带可识别标记，自动化清理不得影响无测试标记的数据，发布前执行测试数据和调试配置清理门禁。
 
 ## 3. 建议目录
 

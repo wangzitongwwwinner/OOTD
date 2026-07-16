@@ -1,4 +1,4 @@
-# 今天穿什么｜产品说明
+# 穿衣有数｜产品说明
 
 > 本文档是产品事实的单一来源。视觉规范见 [DESIGN.md](./DESIGN.md)，实施状态见 [PROGRESS.md](./PROGRESS.md)，飞书 PRD 与页面说明的访问方式见 [FEISHU_DOCS.md](./FEISHU_DOCS.md)，生产技术方案见 [ARCHITECTURE.md](./ARCHITECTURE.md)。
 
@@ -6,7 +6,7 @@
 
 ### 1.1 产品名称
 
-今天穿什么
+穿衣有数
 
 ### 1.2 一句话定位
 

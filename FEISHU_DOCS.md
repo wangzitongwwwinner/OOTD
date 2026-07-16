@@ -1,13 +1,13 @@
 # 飞书项目文档访问指引
 
-> 本文用于指导 Agent 和开发者定位、读取与维护“今天穿什么”项目的飞书文档。产品事实仍以 [PRODUCT.md](./PRODUCT.md) 为仓库内单一来源；飞书 PRD 和页面说明用于补充需求背景、原型截图与页面细节。
+> 本文用于指导 Agent 和开发者定位、读取与维护“穿衣有数”项目的飞书文档。产品事实仍以 [PRODUCT.md](./PRODUCT.md) 为仓库内单一来源；飞书 PRD 文档用于补充需求背景、原型截图与页面细节。
 
 ## 1. 项目飞书文档
 
 | 文档 | 用途 | 链接 |
 |---|---|---|
-| 【PRD】今天穿什么（优化版）- 更新副本 | 查看原始产品背景、用户问题、需求推导与完整 PRD | [打开 PRD](https://qcn270o4wvg1.feishu.cn/docx/QZ9SdL9xGoUMQBxfrpXckTiLnZc) |
-| 今天穿什么｜MVP 页面说明与开发指引 | 查看最终原型截图、一级页面、次级弹层、交互状态与开发边界 | [打开页面说明](https://qcn270o4wvg1.feishu.cn/docx/ZFLEd1bUvok51bxKARAc18xzntg) |
+| 【PRD】穿衣有数 | 查看原始产品背景、用户问题、需求推导与完整 PRD | [打开产品背景版](https://qcn270o4wvg1.feishu.cn/docx/QZ9SdL9xGoUMQBxfrpXckTiLnZc) |
+| 【PRD】穿衣有数 | 查看最终原型截图、一级页面、次级弹层、交互状态与开发边界 | [打开 MVP 页面说明版](https://qcn270o4wvg1.feishu.cn/docx/ZFLEd1bUvok51bxKARAc18xzntg) |
 
 ## 2. 信息使用顺序
 
@@ -73,7 +73,7 @@ lark-cli auth login --domain docs --domain drive
 按标题查找项目文档：
 
 ```powershell
-lark-cli drive +search --query "今天穿什么" --doc-types docx,wiki --page-size 20 --sort edit_time --as user
+lark-cli drive +search --query "穿衣有数" --doc-types docx,wiki --page-size 20 --sort edit_time --as user
 ```
 
 读取 PRD：

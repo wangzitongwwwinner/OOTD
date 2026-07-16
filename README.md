@@ -1,6 +1,6 @@
-# 今天穿什么
+# 穿衣有数
 
-“今天穿什么”MVP 的交互原型与后续前后端开发基线。当前版本使用 React、TypeScript、Vite 与 Express，产品事实见 [PRODUCT.md](./PRODUCT.md)，视觉规范见 [DESIGN.md](./DESIGN.md)，实施状态见 [PROGRESS.md](./PROGRESS.md)。
+“穿衣有数”MVP 的交互原型与后续前后端开发基线。当前版本使用 React、TypeScript、Vite 与 Express，产品事实见 [PRODUCT.md](./PRODUCT.md)，视觉规范见 [DESIGN.md](./DESIGN.md)，实施状态见 [PROGRESS.md](./PROGRESS.md)。
 
 正式开发前还应读取：
 

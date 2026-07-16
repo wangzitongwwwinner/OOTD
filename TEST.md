@@ -1,4 +1,4 @@
-# 今天穿什么｜测试规范
+# 穿衣有数｜测试规范
 
 > 测试从 [PRODUCT.md](./PRODUCT.md) 的验收事实、[DESIGN.md](./DESIGN.md) 的交互规范、飞书页面说明的页面状态和 [ARCHITECTURE.md](./ARCHITECTURE.md) 的技术约束生成，不以“当前代码能做什么”为测试边界。
 

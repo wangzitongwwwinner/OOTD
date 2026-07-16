@@ -175,7 +175,7 @@ export default function HomeView({
       <header className="flex justify-between items-center px-6 py-4 bg-white/70 backdrop-blur-md sticky top-0 z-30 border-b border-gray-100">
         <div className="flex items-center space-x-1">
           <span className="material-symbols-outlined text-gray-800 text-2xl font-semibold">wb_sunny</span>
-          <span className="font-serif text-xl font-extrabold tracking-tight text-gray-900">今天穿什么</span>
+          <span className="font-serif text-xl font-extrabold tracking-tight text-gray-900">穿衣有数</span>
         </div>
 
         {/* Profile Avatar Trigger */}

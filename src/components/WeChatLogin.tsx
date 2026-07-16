@@ -69,12 +69,12 @@ export default function WeChatLogin({ onLoginSuccess, initialUser }: WeChatLogin
           <div className="w-24 h-24 mb-6 relative flex items-center justify-center rounded-full border border-gray-200 bg-white p-[2px] shadow-sm">
             <img
               src={brandLogo}
-              alt="今天穿什么 Logo"
+              alt="穿衣有数 Logo"
               className="w-full h-full rounded-full object-cover"
             />
           </div>
           <h1 className="font-serif text-3xl md:text-4xl text-gray-900 tracking-widest font-semibold">
-            今天穿什么
+            穿衣有数
           </h1>
           <div className="w-12 h-[1px] bg-gray-300 my-6"></div>
           <p className="font-serif text-sm md:text-base text-gray-500 max-w-[280px] leading-relaxed tracking-widest">
