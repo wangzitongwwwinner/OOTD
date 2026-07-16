@@ -6,5 +6,6 @@ export default defineAppConfig({
     navigationBarTextStyle: 'black',
     navigationBarTitleText: '穿衣有数',
   },
+  lazyCodeLoading: 'requiredComponents',
   sitemapLocation: 'sitemap.json',
 });

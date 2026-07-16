@@ -15,13 +15,16 @@ test('M0-00 提供可导入微信开发者工具的 Taro 构建配置', async ()
 
   assert.equal(
     packageJson.scripts['build:weapp'],
-    'cd miniprogram && taro build --type weapp',
+    'npm --prefix miniprogram run build:weapp',
   );
-  assert.equal(packageJson.devDependencies.webpack, '5.78.0');
-  assert.equal(packageJson.dependencies['@tarojs/react'], '3.6.38');
   assert.match(taroConfig, /outputRoot:\s*['"]dist['"]/);
   assert.match(taroConfig, /from:\s*['"]src\/sitemap\.json['"]/);
   assert.match(taroConfig, /to:\s*['"]dist\/sitemap\.json['"]/);
+  assert.match(
+    appConfig,
+    /lazyCodeLoading:\s*['"]requiredComponents['"]/,
+    '应启用微信小程序组件按需注入',
+  );
   assert.match(appConfig, /pages\/index\/index/);
   assert.equal(projectConfig.appid, 'wxf9475a79c2296561');
   assert.equal(projectConfig.miniprogramRoot, 'dist/');

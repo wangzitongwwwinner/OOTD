@@ -6,7 +6,7 @@
 
 **Architecture:** 在现有 React/Vite 原型旁新增独立的 `miniprogram/` 生产目录，不移动或改写原型。根目录 npm 脚本负责调用 Taro CLI，微信输出固定为 `miniprogram/dist`，共享 `project.config.json` 使用已确认 AppID。
 
-**Tech Stack:** Taro 3.x、React 18、TypeScript 5.x、Node.js 内置测试运行器、微信开发者工具。
+**Tech Stack:** 最初以 Taro 3.x、React 18、TypeScript 5.x 建立 M0-00 样板；M0-01 已将生产基线升级为 Taro 4.2.0。测试使用 Node.js 内置测试运行器，并通过微信开发者工具验收。
 
 ## Global Constraints
 

@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build:weapp": "cd miniprogram && taro build --type weapp",
+    "build:weapp": "npm --prefix miniprogram run build:weapp",
+    "typecheck:weapp": "npm --prefix miniprogram run typecheck",
+    "lint:weapp": "npm --prefix miniprogram run lint",
+    "test:weapp": "npm --prefix miniprogram run test",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "clean": "rm -rf dist",
@@ -14,10 +17,6 @@
   "dependencies": {
     "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.1.14",
-    "@tarojs/components": "3.6.38",
-    "@tarojs/react": "3.6.38",
-    "@tarojs/runtime": "3.6.38",
-    "@tarojs/taro": "3.6.38",
     "@vitejs/plugin-react": "^5.0.4",
     "lucide-react": "^0.546.0",
     "react": "18.2.0",
@@ -28,22 +27,15 @@
     "motion": "^12.23.24"
   },
   "devDependencies": {
-    "@tarojs/cli": "3.6.38",
-    "@tarojs/plugin-framework-react": "3.6.38",
-    "@tarojs/plugin-platform-weapp": "3.6.38",
-    "@tarojs/webpack5-runner": "3.6.38",
     "@types/node": "^22.14.0",
     "@types/react": "18.2.79",
     "@types/react-dom": "18.2.25",
     "autoprefixer": "^10.4.21",
-    "babel-preset-taro": "3.6.38",
     "esbuild": "^0.25.0",
-    "sass": "1.77.8",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.3",
-    "webpack": "5.78.0",
     "@types/express": "^4.17.21"
   }
 }
