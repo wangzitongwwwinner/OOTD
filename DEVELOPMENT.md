@@ -1,6 +1,6 @@
 # 今天穿什么｜开发规范
 
-> 本文定义 MVP 生产开发的工程约束。产品边界见 [PRODUCT.md](./PRODUCT.md)，视觉规范见 [DESIGN.md](./DESIGN.md)，技术结构见 [ARCHITECTURE.md](./ARCHITECTURE.md)，测试门禁见 [TEST.md](./TEST.md)。
+> 本文定义 MVP 生产开发的工程约束。产品边界见 [PRODUCT.md](./PRODUCT.md)，视觉规范见 [DESIGN.md](./DESIGN.md)，技术结构见 [ARCHITECTURE.md](./ARCHITECTURE.md)，微信平台流程见 [WECHAT_MINIPROGRAM.md](./WECHAT_MINIPROGRAM.md)，测试门禁见 [TEST.md](./TEST.md)。
 
 ## 1. 开发目标与原则
 
@@ -32,9 +32,19 @@
 - 包管理器统一使用 npm，并提交 `package-lock.json`。
 - ESLint、Prettier、TypeScript strict、Vitest、React Testing Library。
 - 微信开发者工具用于真机预览、权限与兼容验证。
+- 微信开发者工具还用于导入 Taro 微信输出目录、选择基础库、质量检查、预览、真机调试和上传；不能只用浏览器完成验收。
 - 原型继续保留 Vite/Express 作为迁移参照，生产目录建立后不得把原型模拟接口混入生产云函数。
 
 依赖升级必须单独评审；文档中的大版本代表基线，精确版本以锁文件为准。
+
+### 2.4 微信项目配置
+
+- `project.config.json` 提交共享配置，`project.private.config.json` 仅限本机并加入 `.gitignore`。
+- Taro 的 `outputRoot` 必须与微信开发者工具导入目录一致。
+- 最低基础库版本在 M0 技术验证后固定，不能长期使用“最新版”作为不可复现配置。
+- `AppID` 可用于项目识别；`AppSecret`、上传私钥和开发者工具登录态不得进入仓库。
+- 本地可临时关闭域名校验用于排障，但发布测试必须开启真实校验。
+- 每个环境使用独立 CloudBase 环境 ID，并在构建时显式选择。
 
 ## 3. 建议目录
 

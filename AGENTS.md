@@ -13,6 +13,7 @@
 5. 规划、状态汇报、接力：读取 [PROGRESS.md](./PROGRESS.md)。
 6. 访问项目飞书 PRD 或页面说明：读取 [FEISHU_DOCS.md](./FEISHU_DOCS.md)。
 7. 正式开发前：按任务读取 [DEVELOPMENT.md](./DEVELOPMENT.md)、[ARCHITECTURE.md](./ARCHITECTURE.md)、[TASK.md](./TASK.md) 与 [TEST.md](./TEST.md) 的相关章节。
+8. 涉及微信开发者工具、平台配置、体验版、提审或发布：读取 [WECHAT_MINIPROGRAM.md](./WECHAT_MINIPROGRAM.md)。
 
 不要无差别读取全部文档。先用 `rg` / `rg --files` 定位，再读取必要片段。
 
@@ -38,6 +39,7 @@
 - `ARCHITECTURE.md`：生产系统架构、模块、数据流、数据模型和技术风险。
 - `TASK.md`：开发里程碑、最小任务、依赖、状态和验收门槛。
 - `TEST.md`：测试分层、用例矩阵、质量门禁和缺陷规范。
+- `WECHAT_MINIPROGRAM.md`：微信账号、开发者工具、环境、隐私、体验版、审核和发布流程。
 
 同一事实只在一个主文档中完整定义，其他文档使用链接引用。
 

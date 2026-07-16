@@ -19,6 +19,7 @@
 - 技术方案：[ARCHITECTURE.md](./ARCHITECTURE.md)
 - 开发任务与节奏：[TASK.md](./TASK.md)
 - 测试规范：[TEST.md](./TEST.md)
+- 微信小程序开发与发布流程：[WECHAT_MINIPROGRAM.md](./WECHAT_MINIPROGRAM.md)
 
 ## 2. 项目基线
 
@@ -78,6 +79,7 @@ git diff --check
 
 - 已建立飞书项目文档与 CLI 访问指引。
 - 已建立开发规范、生产技术方案、开发任务节奏和测试规范。
+- 已补充微信开发者工具、平台配置、体验版、审核、发布和项目所有者介入流程。
 - 生产方案采用 Taro/React 小程序与 CloudBase 模块化单体方向；天气、LLM、抠图和短信供应商仍需在对应任务开始前确认。
 
 ## 4. 当前原型能力
