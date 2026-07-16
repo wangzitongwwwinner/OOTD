@@ -11,6 +11,8 @@
 3. UI、交互、视觉实现：读取 [PRODUCT.md](./PRODUCT.md) 和 [DESIGN.md](./DESIGN.md)。
 4. 开发、测试、排障：读取 [PRODUCT.md](./PRODUCT.md) 相关章节和 [PROGRESS.md](./PROGRESS.md)；涉及 UI 时再读取 `DESIGN.md`。
 5. 规划、状态汇报、接力：读取 [PROGRESS.md](./PROGRESS.md)。
+6. 访问项目飞书 PRD 或页面说明：读取 [FEISHU_DOCS.md](./FEISHU_DOCS.md)。
+7. 正式开发前：按任务读取 [DEVELOPMENT.md](./DEVELOPMENT.md)、[ARCHITECTURE.md](./ARCHITECTURE.md)、[TASK.md](./TASK.md) 与 [TEST.md](./TEST.md) 的相关章节。
 
 不要无差别读取全部文档。先用 `rg` / `rg --files` 定位，再读取必要片段。
 
@@ -31,6 +33,11 @@
 - `DESIGN.md`：最终原型视觉系统、页面结构和交互表现。
 - `PROGRESS.md`：里程碑、当前状态、阻塞、决策和下一步。
 - `AGENTS.md`：协作、开发、测试、Git 和安全规范。
+- `FEISHU_DOCS.md`：项目飞书文档链接、CLI 访问方法和修改约束。
+- `DEVELOPMENT.md`：生产开发的技术栈、代码、接口、安全和交付规范。
+- `ARCHITECTURE.md`：生产系统架构、模块、数据流、数据模型和技术风险。
+- `TASK.md`：开发里程碑、最小任务、依赖、状态和验收门槛。
+- `TEST.md`：测试分层、用例矩阵、质量门禁和缺陷规范。
 
 同一事实只在一个主文档中完整定义，其他文档使用链接引用。
 

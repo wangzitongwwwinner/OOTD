@@ -147,8 +147,8 @@ export default function WeChatLogin({ onLoginSuccess, initialUser }: WeChatLogin
 
       {/* Beautiful Modal for Phone OTP Login */}
       {showPhoneModal && (
-        <div className="absolute inset-0 z-50 bg-gray-900/40 backdrop-blur-sm flex items-end justify-center md:items-center transition-all">
-          <div className="w-full md:max-w-md bg-white/80 backdrop-blur-2xl border-t border-white/60 md:border rounded-t-[2rem] md:rounded-3xl p-8 shadow-2xl flex flex-col space-y-6 animate-[slideUp_0.3s_ease-out_forwards]">
+        <div className="fixed inset-0 z-50 bg-gray-900/40 backdrop-blur-sm flex items-end justify-center transition-all">
+          <div className="w-full max-w-md bg-white/80 backdrop-blur-2xl border-t border-white/60 rounded-t-[2rem] p-8 pb-[max(2rem,env(safe-area-inset-bottom))] shadow-2xl flex flex-col space-y-6 animate-[slideUp_0.3s_ease-out_forwards]">
             <div className="flex justify-between items-center pb-3 border-b border-gray-200/50">
               <h3 className="font-serif text-xl font-semibold text-gray-900 tracking-wider">手机号安全登录</h3>
               <button

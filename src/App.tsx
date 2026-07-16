@@ -15,6 +15,7 @@ import SceneView from "./components/SceneView";
 import WardrobeView from "./components/WardrobeView";
 import TryOnView from "./components/TryOnView";
 import ProfileView from "./components/ProfileView";
+import MaterialSymbolFallback from "./components/MaterialSymbolFallback";
 
 export default function App() {
   // 1. Core States with LocalStorage Hydration
@@ -189,23 +190,32 @@ export default function App() {
 
   // Render Login flow if session is unauthenticated
   if (!user.isLoggedIn) {
-    return <WeChatLogin onLoginSuccess={handleLoginSuccess} initialUser={initialUser} />;
+    return (
+      <>
+        <MaterialSymbolFallback />
+        <WeChatLogin onLoginSuccess={handleLoginSuccess} initialUser={initialUser} />
+      </>
+    );
   }
 
   // Render Settings/Profile Drawer view if triggered
   if (showProfile) {
     return (
-      <ProfileView
-        user={user}
-        onUpdateUser={handleUpdateUser}
-        onBack={() => setShowProfile(false)}
-        onSignOut={handleSignOut}
-      />
+      <>
+        <MaterialSymbolFallback />
+        <ProfileView
+          user={user}
+          onUpdateUser={handleUpdateUser}
+          onBack={() => setShowProfile(false)}
+          onSignOut={handleSignOut}
+        />
+      </>
     );
   }
 
   return (
     <div id="application_root" className="min-h-screen bg-[#faf9f7] relative">
+      <MaterialSymbolFallback />
       {/* 5. Main Screen Router based on activeTab */}
       <main className="w-full">
         {activeTab === "home" && (
