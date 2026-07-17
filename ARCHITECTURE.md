@@ -110,9 +110,19 @@ imageProcessingJobs
 recommendationSnapshots
   id, userId, localDate, inputHash, weatherSnapshot,
   itinerarySnapshot, result, source, createdAt, expiresAt
+
+weatherCache
+  id, cityCode, weather, observedAt, expiresAt,
+  createdAt, updatedAt, version
+
+idempotencyKeys
+  id, userId, scope, key, response, expiresAt,
+  createdAt, updatedAt, version
 ```
 
 `nodes[]` 包含 `clothingId`、归一化 `x/y`、`scale`、`rotation`（MVP 如不支持则固定为 0）和 `zIndex`。不建立未来行程、体感反馈快照和衣物软删除模型。
+
+M0-03 已将上述集合、关键索引和权限目标状态声明在 `cloudbase/`。客户端数据库读写默认关闭，业务访问统一经过 `cloudfunctions/api`；声明文件不会自动修改 `ootd-ai-dev`。
 
 ## 6. 关键数据流
 

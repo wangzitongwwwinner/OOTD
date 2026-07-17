@@ -1,0 +1,21 @@
+{
+  "name": "@chuanyiyoushu/cloudfunction-api",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test src/router.test.ts",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=cjs --external:@cloudbase/node-sdk --outfile=dist/index.js"
+  },
+  "dependencies": {
+    "@cloudbase/node-sdk": "3.18.3"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.3",
+    "esbuild": "0.25.11",
+    "tsx": "4.21.0",
+    "typescript": "~5.8.2"
+  }
+}

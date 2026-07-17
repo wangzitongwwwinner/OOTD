@@ -1,5 +1,18 @@
+@use './styles/tokens';
+
 page {
-  background: #f5f1e8;
-  color: #2a2926;
-  font-family: sans-serif;
+  box-sizing: border-box;
+  background: var(--color-canvas);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  line-height: 1.5;
+}
+
+view,
+text,
+button,
+input,
+textarea {
+  box-sizing: border-box;
 }

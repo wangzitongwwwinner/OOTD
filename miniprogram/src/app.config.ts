@@ -2,7 +2,7 @@ export default defineAppConfig({
   pages: ['pages/index/index'],
   window: {
     backgroundTextStyle: 'light',
-    navigationBarBackgroundColor: '#f5f1e8',
+    navigationBarBackgroundColor: '#faf9f7',
     navigationBarTextStyle: 'black',
     navigationBarTitleText: '穿衣有数',
   },

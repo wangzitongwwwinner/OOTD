@@ -1,0 +1,15 @@
+{
+  "version": "2.0",
+  "envId": "ootd-ai-dev",
+  "functionRoot": "./cloudfunctions",
+  "functions": [
+    {
+      "name": "api",
+      "dir": "api",
+      "runtime": "Nodejs20.19",
+      "handler": "dist/index.main",
+      "timeout": 5,
+      "installDependency": true
+    }
+  ]
+}

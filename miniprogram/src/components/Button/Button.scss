@@ -1,0 +1,40 @@
+.ui-button {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  border-radius: var(--radius-control);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  line-height: 24px;
+
+  &::after {
+    border: 0;
+  }
+
+  &--primary {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+
+  &--secondary {
+    border: 1px solid var(--color-outline);
+    background: transparent;
+    color: var(--color-primary);
+  }
+
+  &--danger {
+    border: 1px solid var(--color-error);
+    background: transparent;
+    color: var(--color-error);
+  }
+
+  &[disabled] {
+    border-color: var(--color-outline);
+    background: var(--color-surface-muted);
+    color: var(--color-text-muted);
+    opacity: 0.65;
+  }
+}

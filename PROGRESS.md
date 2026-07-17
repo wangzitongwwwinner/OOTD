@@ -2,13 +2,13 @@
 
 > 稳定产品事实见 [PRODUCT.md](./PRODUCT.md)，最终 UI 规范见 [DESIGN.md](./DESIGN.md)，协作规则见 [AGENTS.md](./AGENTS.md)。
 
-最后更新：2026-07-16
+最后更新：2026-07-17
 
 ## 1. 当前阶段
 
 阶段：**MVP 产品原型设计完成，进入开发阶段**。
 
-当前任务：**M0-03 云函数、数据库与共享契约骨架（进行中）**。M0-01 与 M0-02 已完成：生产小程序固定为 Taro 4.2.0 / React 18.2.0，微信基础库固定为 3.16.2；天气采用和风天气开发期免费订阅，LLM 采用腾讯混元，抠图采用腾讯云媒体处理 MPS。小程序包已建立独立的 TypeScript、ESLint、Prettier、Vitest、React Testing Library 和微信构建命令，并通过开发者工具编译、代码质量扫描、预览和真机打开。
+当前状态：**M0-04 设计令牌、字体和基础组件已完成，按项目所有者要求暂停在 M0-05 开始前**。已将确认的温暖中性色、字体回退、间距、圆角和阴影迁移为小程序设计令牌；新增 Button、Card、BottomSheet、FormField、EmptyState、ErrorState，覆盖加载禁用、字段错误关联、空态操作、错误重试和弹层遮罩交互；工程首页暂作为 UI 基础层预览页。自动化测试与微信构建通过，项目所有者已在微信开发者工具完成窄屏、宽屏、加载禁用和底部弹层视觉交互验收，无问题。
 
 当前 React/Vite 原型已被确认为 MVP 的 UI 与交互基线。旧 HTML 原型、Stitch 参考原型以及 `codex/ui-new-prototype` 工作树均不再作为需求或设计来源。
 
@@ -90,6 +90,20 @@ git diff --check
 - 已配置 TypeScript 类型检查、ESLint、Prettier、Vitest、React Testing Library 与 jsdom 测试环境。
 - 根项目提供小程序类型检查、Lint、测试和微信构建代理命令。
 
+### 3.6 CloudBase 与共享契约基线
+
+- `packages/contracts` 提供统一响应信封、稳定错误码、MVP 数据类型和严格运行时校验。
+- `cloudfunctions/api` 使用 Nodejs20.19 和 `@cloudbase/node-sdk`，只从平台上下文获取可信微信身份。
+- `cloudbase/` 声明九个集合、关键索引和默认拒绝客户端数据库直读写的规则；写入云端前必须再次获得授权。
+
+### 3.7 小程序 UI 基础层
+
+- `miniprogram/src/styles/tokens.scss` 集中维护确认的品牌色、本地字体回退、8px 间距节奏、圆角和浮层阴影，不依赖远程字体。
+- 已建立 Button、Card、BottomSheet、FormField、EmptyState、ErrorState 六个无业务基础组件。
+- Vitest 组件测试使用等价 HTML 元素模拟 Taro 平台组件，真实微信组件行为仍由生产构建、开发者工具和真机验证负责。
+- M0-04 自动化结果：7 个测试文件、12 个测试通过；TypeScript、ESLint、Prettier 与 `build:weapp` 通过。
+- 2026-07-17 项目所有者完成开发者工具视觉验收，确认窄屏、宽屏、加载禁用和底部弹层交互均无问题。
+
 ## 4. 当前原型能力
 
 - 微信一键登录原型。
@@ -142,6 +156,7 @@ git diff --check
 - 整个 MVP 共用 `ootd-ai-dev`，没有环境级开发、测试、生产隔离；测试数据、调试配置、权限和发布数据必须通过命名、标记、清理清单及发布门禁做逻辑隔离，误操作影响正式数据的风险高于多环境方案。
 - Taro 4.2.0 的本地构建、开发者工具编译、组件按需注入代码质量扫描、预览和真机打开均已通过，基础库固定为 3.16.2。
 - Taro 4.2.0 的小程序生产依赖审计仍报告 12 个上游漏洞（3 个低危、6 个中危、3 个严重），涉及 `esbuild`、`swiper`、`uuid` 和 `webpack`；其中部分暂无上游修复，开发服务不得暴露到不可信网络，并在版本更新时复查。
+- `@cloudbase/node-sdk@3.18.3` 的生产依赖审计报告 5 个上游漏洞（1 个中危、4 个高危），来自其旧版 Axios 与 lodash 依赖；当前无不降级 SDK 的直接修复，真实外部请求接入前必须复查并限制请求目标、输入规模和出网范围。
 - 当前服务包含模拟天气和原型 AI 接口，不能视为生产服务。
 - Gemini 与 Google 相关调用不一定适合最终中国大陆生产环境，需要开发阶段替换或确认。
 - 当前浏览器 `localStorage` 仅用于原型演示，不能作为生产数据方案。
