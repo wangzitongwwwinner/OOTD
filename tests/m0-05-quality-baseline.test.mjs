@@ -103,3 +103,13 @@ test('M0-05 GitHub Actions 使用锁文件且不接触云端和密钥', async ()
   assert.match(workflow, /run: npm run quality/);
   assert.doesNotMatch(workflow, /secrets\.|cloudbase\s+functions:deploy|cloudbase\s+framework:deploy|upload|deploy/i);
 });
+
+test('M0-05 验收后开发顺序推进到 M1-01', async () => {
+  const task = await readFile('TASK.md', 'utf8');
+
+  assert.match(
+    task,
+    /\| M0-05 \| 建立测试夹具、CI 门禁和环境配置 \| M0-02,M0-03 \|[^|]+\| 已完成 \|/,
+  );
+  assert.match(task, /\| M1-01 \| 微信登录与会话恢复 \| M0 \|[^|]+\| 进行中 \|/);
+});

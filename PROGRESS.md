@@ -8,7 +8,7 @@
 
 阶段：**MVP 产品原型设计完成，进入开发阶段**。
 
-当前任务：**M0-05 测试夹具、CI 门禁和环境配置（待首次 GitHub Actions 验收）**。已建立固定上海时区、虚构用户、五类天气和四类外部服务结果夹具；development/test/production 均显式映射到唯一 `ootd-ai-dev`，测试数据统一使用 `__test__` 标记；新增无密钥、无云端访问的 GitHub Actions 质量门禁和根目录 `npm run quality`。本地全部测试、类型、格式和三类构建已验证，工作流需在获得提交/推送授权后由 GitHub 首次运行确认。
+当前任务：**M1-01 微信登录与会话恢复（进行中）**。M0 工程与架构基线已全部完成：固定测试夹具、单环境映射、空密钥示例和 GitHub Actions 质量门禁均已落地；提交 `db05172` 的首次 [Quality 工作流](https://github.com/wangzitongwwwinner/OOTD/actions/runs/29630771382) 在 1 分 12 秒内通过。下一步按测试先行实现登录契约、云函数身份落库、协议确认和小程序会话恢复。
 
 当前 React/Vite 原型已被确认为 MVP 的 UI 与交互基线。旧 HTML 原型、Stitch 参考原型以及 `codex/ui-new-prototype` 工作树均不再作为需求或设计来源。
 
@@ -110,7 +110,8 @@ git diff --check
 - `config/environments.json` 将 development、test、production 全部映射到上海地域 `ootd-ai-dev`，自动清理必须检查 `__test__` 标记。
 - `.env.example` 只保留公开环境信息和空的服务端密钥变量；真实值继续由本地环境或密钥管理提供。
 - `.github/workflows/quality.yml` 使用 Node.js 20.19.2、四个锁文件和仓库只读权限，仅运行本地 `npm run quality`，不访问 CloudBase、微信工具或供应商服务。
-- 本地结果：根测试 17/17、小程序 12/12、契约 3/3、云函数 4/4；全部类型检查、Prettier、Web/Taro/云函数构建通过。首次远端 CI 尚待提交与推送后验收。
+- 本地结果：根测试 17/17、小程序 12/12、契约 3/3、云函数 4/4；全部类型检查、Prettier、Web/Taro/云函数构建通过。
+- 提交 `db05172` 的首次 GitHub Actions Quality 工作流通过，运行编号 `29630771382`，耗时 1 分 12 秒；GitHub 提示 `actions/checkout@v4`、`actions/setup-node@v4` 的内部 Node 20 运行时已由平台强制迁移到 Node 24，项目配置的 Node.js 20.19.2 测试环境仍正常生效。
 
 ## 4. 当前原型能力
 

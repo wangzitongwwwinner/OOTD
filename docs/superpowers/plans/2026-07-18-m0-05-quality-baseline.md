@@ -65,4 +65,4 @@
 - [x] 运行结构测试，确认因工作流和脚本不存在失败。
 - [x] 实现根质量命令及 GitHub Actions 工作流。
 - [x] 运行质量门禁各组成命令、`npm run lint`、`npm run build` 与 `git diff --check`。
-- [ ] 更新 `TASK.md` 与 `PROGRESS.md`；首次 GitHub Actions 通过后将 M0-05 标记完成并把 M1-01 设为进行中。
+- [x] 更新 `TASK.md` 与 `PROGRESS.md`；首次 GitHub Actions 通过后将 M0-05 标记完成并把 M1-01 设为进行中。
