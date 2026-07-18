@@ -4,8 +4,8 @@ import test from 'node:test';
 import { trustedIdentityFromWxContext } from './context.ts';
 import { createRequestContext, routeRequest } from './router.ts';
 
-test('GET /health 返回统一成功信封', () => {
-  const response = routeRequest(
+test('GET /health 返回统一成功信封', async () => {
+  const response = await routeRequest(
     { method: 'GET', path: '/health' },
     { openId: 'trusted-open-id', appId: 'trusted-app-id' },
     'req_health',
@@ -17,8 +17,8 @@ test('GET /health 返回统一成功信封', () => {
   });
 });
 
-test('未知路由返回不可重试的 NOT_FOUND', () => {
-  const response = routeRequest(
+test('未知路由返回不可重试的 NOT_FOUND', async () => {
+  const response = await routeRequest(
     { method: 'POST', path: '/v1/unknown' },
     { openId: 'trusted-open-id', appId: 'trusted-app-id' },
     'req_missing',

@@ -9,7 +9,10 @@ test('M0-00 提供可导入微信开发者工具的 Taro 构建配置', async ()
   const taroConfig = await readUtf8('miniprogram/config/index.ts');
   const appConfig = await readUtf8('miniprogram/src/app.config.ts');
   const projectConfig = JSON.parse(
-    await readUtf8('miniprogram/project.config.json'),
+    await readUtf8('project.config.json'),
+  );
+  const cloudFunctionPackage = JSON.parse(
+    await readUtf8('cloudfunctions/api/package.json'),
   );
   const gitignore = await readUtf8('.gitignore');
 
@@ -27,6 +30,10 @@ test('M0-00 提供可导入微信开发者工具的 Taro 构建配置', async ()
   );
   assert.match(appConfig, /pages\/index\/index/);
   assert.equal(projectConfig.appid, 'wxf9475a79c2296561');
-  assert.equal(projectConfig.miniprogramRoot, 'dist/');
+  assert.equal(projectConfig.miniprogramRoot, 'miniprogram/dist/');
+  assert.equal(projectConfig.cloudfunctionRoot, 'cloudfunctions/');
+  assert.equal(cloudFunctionPackage.main, 'index.js');
+  assert.equal(cloudFunctionPackage.type, 'commonjs');
+  assert.match(cloudFunctionPackage.scripts.build, /--outfile=index\.js/);
   assert.match(gitignore, /miniprogram\/project\.private\.config\.json/);
 });

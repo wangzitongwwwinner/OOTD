@@ -1,7 +1,19 @@
 import '@testing-library/jest-dom/vitest';
 
 import React from 'react';
-import { vi } from 'vitest';
+import { cleanup } from '@testing-library/react';
+import { afterEach, vi } from 'vitest';
+
+afterEach(cleanup);
+
+vi.mock('@tarojs/taro', () => ({
+  default: {
+    cloud: { callFunction: vi.fn() },
+    getStorageSync: vi.fn(),
+    setStorageSync: vi.fn(),
+    removeStorageSync: vi.fn(),
+  },
+}));
 
 vi.mock('@tarojs/components', () => ({
   Button: ({
@@ -13,6 +25,8 @@ vi.mock('@tarojs/components', () => ({
   },
   Text: (props: React.HTMLAttributes<HTMLSpanElement>) =>
     React.createElement('span', props),
+  Image: (props: React.ImgHTMLAttributes<HTMLImageElement>) =>
+    React.createElement('img', props),
   View: (props: React.HTMLAttributes<HTMLDivElement>) =>
     React.createElement('div', props),
 }));

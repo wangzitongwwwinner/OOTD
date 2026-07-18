@@ -5,6 +5,7 @@ coverage/
 miniprogram/dist/
 miniprogram/.swc/
 miniprogram/project.private.config.json
+project.private.config.json
 .DS_Store
 *.log
 .env*

@@ -6,7 +6,7 @@
   "exports": "./src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test src/envelope.test.ts"
+    "test": "node --import tsx --test src/auth.test.ts src/envelope.test.ts"
   },
   "dependencies": {
     "zod": "4.4.3"

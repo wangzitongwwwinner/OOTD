@@ -1,3 +1,4 @@
 dist
+project.private.config.json
 node_modules
 package-lock.json

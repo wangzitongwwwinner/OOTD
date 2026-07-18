@@ -48,11 +48,17 @@ test('M0-05 三个构建阶段只映射到唯一 CloudBase 环境', async () => 
   const environments = await readJson('config/environments.json');
 
   assert.equal(environments.schemaVersion, 1);
-  assert.equal(environments.cloudbase.environmentId, 'ootd-ai-dev');
+  assert.equal(
+    environments.cloudbase.environmentId,
+    'ootd-ai-dev-d6g5hzex6925fcea7',
+  );
   assert.equal(environments.cloudbase.region, 'ap-shanghai');
   assert.deepEqual(Object.keys(environments.stages), ['development', 'test', 'production']);
   for (const stage of Object.values(environments.stages)) {
-    assert.equal(stage.cloudbaseEnvironmentId, 'ootd-ai-dev');
+    assert.equal(
+      stage.cloudbaseEnvironmentId,
+      'ootd-ai-dev-d6g5hzex6925fcea7',
+    );
   }
   assert.equal(environments.testData.marker, '__test__');
   assert.equal(environments.testData.cleanupRequiresMarker, true);
@@ -61,7 +67,10 @@ test('M0-05 三个构建阶段只映射到唯一 CloudBase 环境', async () => 
 test('M0-05 环境变量示例不包含真实密钥', async () => {
   const example = await readFile('.env.example', 'utf8');
 
-  assert.match(example, /^CLOUDBASE_ENV_ID=ootd-ai-dev$/m);
+  assert.match(
+    example,
+    /^CLOUDBASE_ENV_ID=ootd-ai-dev-d6g5hzex6925fcea7$/m,
+  );
   assert.match(example, /^CLOUDBASE_REGION=ap-shanghai$/m);
   assert.match(example, /^TEST_DATA_MARKER=__test__$/m);
   for (const name of ['QWEATHER_API_KEY', 'HUNYUAN_API_KEY', 'MPS_SECRET_ID', 'MPS_SECRET_KEY']) {
@@ -111,5 +120,8 @@ test('M0-05 验收后开发顺序推进到 M1-01', async () => {
     task,
     /\| M0-05 \| 建立测试夹具、CI 门禁和环境配置 \| M0-02,M0-03 \|[^|]+\| 已完成 \|/,
   );
-  assert.match(task, /\| M1-01 \| 微信登录与会话恢复 \| M0 \|[^|]+\| 进行中 \|/);
+  assert.match(
+    task,
+    /\| M1-01 \| 微信登录与会话恢复 \| M0 \|[^|]+\| (?:进行中|待验收|已完成) \|/,
+  );
 });

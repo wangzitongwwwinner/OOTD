@@ -138,8 +138,6 @@
 
 ```text
 POST   /v1/auth/wechat/login
-POST   /v1/auth/sms/send
-POST   /v1/auth/sms/login
 GET    /v1/weather/current
 POST   /v1/recommendations
 GET    /v1/scenes

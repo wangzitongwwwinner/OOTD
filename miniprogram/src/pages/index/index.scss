@@ -1,90 +1,43 @@
-.page {
+.session-loading {
   display: flex;
   min-height: 100vh;
-  padding: var(--space-12) var(--space-page)
-    calc(var(--space-12) + env(safe-area-inset-bottom));
-  flex-direction: column;
-}
-
-.eyebrow,
-.title,
-.intro,
-.section__title,
-.card-kicker,
-.card-copy,
-.sheet-copy {
-  display: block;
-}
-
-.eyebrow {
-  color: var(--color-secondary);
-  font-size: var(--font-size-label);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-}
-
-.title {
-  margin-top: var(--space-2);
-  font-family: var(--font-serif);
-  font-size: var(--font-size-display);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 44px;
-}
-
-.intro {
-  margin-top: var(--space-4);
+  align-items: center;
+  justify-content: center;
   color: var(--color-text-muted);
   font-size: var(--font-size-small);
-  line-height: 20px;
 }
 
-.section {
+.home-placeholder {
   display: flex;
-  margin-top: var(--space-8);
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 104px var(--space-page);
   flex-direction: column;
-  gap: var(--space-4);
+
+  &__eyebrow,
+  &__title,
+  &__copy {
+    display: block;
+  }
+
+  &__eyebrow {
+    color: var(--color-secondary);
+    font-size: var(--font-size-label);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
 
   &__title {
+    margin-top: var(--space-3);
     font-family: var(--font-serif);
-    font-size: var(--font-size-title);
+    font-size: var(--font-size-display);
     font-weight: 600;
   }
-}
 
-.card-kicker {
-  color: var(--color-secondary);
-  font-size: var(--font-size-label);
-  font-weight: 600;
-}
-
-.card-copy {
-  margin-top: var(--space-2);
-  font-family: var(--font-serif);
-  font-size: var(--font-size-title);
-  line-height: 28px;
-}
-
-.actions,
-.sheet-actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.field-input {
-  min-height: 40px;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-outline);
-  border-radius: var(--radius-control);
-  background: var(--color-surface);
-}
-
-.sheet-copy {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-small);
-}
-
-.sheet-actions {
-  margin-top: var(--space-6);
+  &__copy {
+    margin-top: var(--space-4);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-small);
+    line-height: 20px;
+  }
 }

@@ -52,13 +52,13 @@ production  -> ootd-ai-dev
 npm run build:weapp
 ```
 
-开发者工具应导入 Taro 的微信编译输出目录，通常为：
+开发者工具应导入仓库根目录，使编译后的小程序与云函数同时位于项目范围内：
 
 ```text
-miniprogram/dist
+G:\24级王梓桐\OOTDapp
 ```
 
-最终目录以 Taro 配置中的 `outputRoot` 为准。项目应提供：
+根目录 `project.config.json` 分别声明 `miniprogramRoot: miniprogram/dist/` 和 `cloudfunctionRoot: cloudfunctions/`；不要单独导入 `miniprogram`，否则开发者工具无法识别其上级目录中的云函数。项目应提供：
 
 ```text
 project.config.json

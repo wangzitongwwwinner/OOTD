@@ -10,7 +10,7 @@ test('M0-03 声明完整集合并固定到唯一 CloudBase 环境', async () => 
   const schema = await readJson('cloudbase/database/collections.json');
   const names = schema.collections.map((collection) => collection.name);
 
-  assert.equal(schema.environment, 'ootd-ai-dev');
+  assert.equal(schema.environment, 'ootd-ai-dev-d6g5hzex6925fcea7');
   assert.deepEqual(names, [
     'users',
     'scenes',

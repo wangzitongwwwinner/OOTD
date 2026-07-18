@@ -1,8 +1,9 @@
 {
   "appid": "wxf9475a79c2296561",
   "compileType": "miniprogram",
-  "miniprogramRoot": "dist/",
-  "projectname": "穿衣有数（Taro 构建）",
+  "miniprogramRoot": "miniprogram/dist/",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "projectname": "穿衣有数",
   "setting": {
     "es6": true,
     "minified": true,
@@ -32,5 +33,6 @@
     "ignore": [],
     "include": []
   },
-  "editorSetting": {}
+  "editorSetting": {},
+  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
 }
