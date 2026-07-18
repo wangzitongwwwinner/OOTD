@@ -1,0 +1,26 @@
+[
+  {
+    "outcome": "success",
+    "isStub": true,
+    "delayMs": 80,
+    "status": 200
+  },
+  {
+    "outcome": "timeout",
+    "isStub": true,
+    "delayMs": 5000,
+    "error": "stub-timeout"
+  },
+  {
+    "outcome": "rate-limited",
+    "isStub": true,
+    "delayMs": 50,
+    "status": 429
+  },
+  {
+    "outcome": "invalid-response",
+    "isStub": true,
+    "delayMs": 50,
+    "payload": null
+  }
+]

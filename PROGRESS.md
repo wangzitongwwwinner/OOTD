@@ -2,13 +2,13 @@
 
 > 稳定产品事实见 [PRODUCT.md](./PRODUCT.md)，最终 UI 规范见 [DESIGN.md](./DESIGN.md)，协作规则见 [AGENTS.md](./AGENTS.md)。
 
-最后更新：2026-07-17
+最后更新：2026-07-18
 
 ## 1. 当前阶段
 
 阶段：**MVP 产品原型设计完成，进入开发阶段**。
 
-当前状态：**M0-04 设计令牌、字体和基础组件已完成，按项目所有者要求暂停在 M0-05 开始前**。已将确认的温暖中性色、字体回退、间距、圆角和阴影迁移为小程序设计令牌；新增 Button、Card、BottomSheet、FormField、EmptyState、ErrorState，覆盖加载禁用、字段错误关联、空态操作、错误重试和弹层遮罩交互；工程首页暂作为 UI 基础层预览页。自动化测试与微信构建通过，项目所有者已在微信开发者工具完成窄屏、宽屏、加载禁用和底部弹层视觉交互验收，无问题。
+当前任务：**M0-05 测试夹具、CI 门禁和环境配置（待首次 GitHub Actions 验收）**。已建立固定上海时区、虚构用户、五类天气和四类外部服务结果夹具；development/test/production 均显式映射到唯一 `ootd-ai-dev`，测试数据统一使用 `__test__` 标记；新增无密钥、无云端访问的 GitHub Actions 质量门禁和根目录 `npm run quality`。本地全部测试、类型、格式和三类构建已验证，工作流需在获得提交/推送授权后由 GitHub 首次运行确认。
 
 当前 React/Vite 原型已被确认为 MVP 的 UI 与交互基线。旧 HTML 原型、Stitch 参考原型以及 `codex/ui-new-prototype` 工作树均不再作为需求或设计来源。
 
@@ -103,6 +103,14 @@ git diff --check
 - Vitest 组件测试使用等价 HTML 元素模拟 Taro 平台组件，真实微信组件行为仍由生产构建、开发者工具和真机验证负责。
 - M0-04 自动化结果：7 个测试文件、12 个测试通过；TypeScript、ESLint、Prettier 与 `build:weapp` 通过。
 - 2026-07-17 项目所有者完成开发者工具视觉验收，确认窄屏、宽屏、加载禁用和底部弹层交互均无问题。
+
+### 3.8 自动化质量基线
+
+- `tests/fixtures/` 提供固定 `Asia/Shanghai` 时间、虚构用户、城市级天气和外部服务 Stub 结果，不包含真实身份、精确定位或图片。
+- `config/environments.json` 将 development、test、production 全部映射到上海地域 `ootd-ai-dev`，自动清理必须检查 `__test__` 标记。
+- `.env.example` 只保留公开环境信息和空的服务端密钥变量；真实值继续由本地环境或密钥管理提供。
+- `.github/workflows/quality.yml` 使用 Node.js 20.19.2、四个锁文件和仓库只读权限，仅运行本地 `npm run quality`，不访问 CloudBase、微信工具或供应商服务。
+- 本地结果：根测试 17/17、小程序 12/12、契约 3/3、云函数 4/4；全部类型检查、Prettier、Web/Taro/云函数构建通过。首次远端 CI 尚待提交与推送后验收。
 
 ## 4. 当前原型能力
 

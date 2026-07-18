@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "cloudbase": {
+    "environmentId": "ootd-ai-dev",
+    "region": "ap-shanghai"
+  },
+  "stages": {
+    "development": {
+      "cloudbaseEnvironmentId": "ootd-ai-dev",
+      "dataMode": "test-marked",
+      "debugEnabled": true
+    },
+    "test": {
+      "cloudbaseEnvironmentId": "ootd-ai-dev",
+      "dataMode": "test-marked",
+      "debugEnabled": true
+    },
+    "production": {
+      "cloudbaseEnvironmentId": "ootd-ai-dev",
+      "dataMode": "production",
+      "debugEnabled": false
+    }
+  },
+  "testData": {
+    "marker": "__test__",
+    "cleanupRequiresMarker": true
+  }
+}
