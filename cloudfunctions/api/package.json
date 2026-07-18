@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test src/auth/login.test.ts src/router.test.ts",
+    "test": "node --import tsx --test src/auth/login.test.ts src/location/qweather-city-resolver.test.ts src/location/resolve-city.test.ts src/profile/profile.test.ts src/router.test.ts",
     "build": "esbuild src/index.ts --bundle --platform=node --target=node20.19 --format=cjs --minify --external:@cloudbase/node-sdk --outfile=index.js && node scripts/normalize-build.mjs index.js"
   },
   "dependencies": {

@@ -5,6 +5,7 @@ import type { Db } from '@cloudbase/database';
 import {
   authUserSummarySchema,
   type AuthUserSummary,
+  type Profile,
 } from '../../../../packages/contracts/src/index.ts';
 import type {
   FindOrCreateWechatUserInput,
@@ -57,6 +58,48 @@ export class CloudBaseUserRepository implements UserRepository {
     } as StoredUser & { latestAgreement: typeof input.agreement };
     await users.add(created);
     return toPublicUser(created);
+  }
+
+  async findByWechatIdentity(input: {
+    openId: string;
+    appId: string;
+  }): Promise<Profile | undefined> {
+    const result = await this.database.collection('users').where({
+      wechatOpenId: input.openId,
+      wechatAppId: input.appId,
+    }).limit(1).get();
+    const stored = result.data[0] as StoredUser | undefined;
+    return stored ? toPublicUser(stored) : undefined;
+  }
+
+  async updateFeelPreference(
+    input: Parameters<UserRepository['updateFeelPreference']>[0],
+  ): ReturnType<UserRepository['updateFeelPreference']> {
+    const users = this.database.collection('users');
+    const matching = await users.where({
+      wechatOpenId: input.openId,
+      wechatAppId: input.appId,
+    }).limit(1).get();
+    const stored = matching.data[0] as StoredUser | undefined;
+    if (!stored) return { status: 'not_found' };
+    if (stored.version !== input.expectedVersion) return { status: 'conflict' };
+
+    const next = {
+      ...stored,
+      recentFeelPreference: input.recentFeelPreference,
+      updatedAt: input.now,
+      version: stored.version + 1,
+    };
+    const result = await users.where({
+      _id: stored._id,
+      version: input.expectedVersion,
+    }).update({
+      recentFeelPreference: next.recentFeelPreference,
+      updatedAt: next.updatedAt,
+      version: next.version,
+    });
+    if (result.updated !== 1) return { status: 'conflict' };
+    return { status: 'updated', profile: toPublicUser(next) };
   }
 }
 

@@ -15,7 +15,7 @@ const SESSION_DURATION_MILLISECONDS = 7 * 24 * 60 * 60 * 1000;
 export async function loginWithWechat(
   body: unknown,
   identity: TrustedIdentity,
-  repository: UserRepository,
+  repository: Pick<UserRepository, 'findOrCreateByWechatIdentity'>,
   requestId: string,
   clock: () => Date = () => new Date(),
 ): Promise<ApiEnvelope<AuthSession>> {

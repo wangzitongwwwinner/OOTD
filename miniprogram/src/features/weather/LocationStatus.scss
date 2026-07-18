@@ -1,0 +1,43 @@
+.location-status {
+  display: flex;
+  margin-top: var(--space-3);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+
+  &--located {
+    flex-direction: row;
+    align-items: center;
+  }
+  &__pin,
+  &__source {
+    color: var(--color-secondary);
+    font-size: var(--font-size-label);
+  }
+  &__city {
+    color: var(--color-text);
+    font-size: var(--font-size-body);
+    font-weight: 600;
+  }
+  &__divider {
+    width: 2rpx;
+    height: 24rpx;
+    background: var(--color-outline);
+  }
+  &__purpose,
+  &__error {
+    font-size: var(--font-size-small);
+  }
+  &__purpose {
+    color: var(--color-text-muted);
+  }
+  &__error {
+    color: var(--color-error);
+  }
+  &__action {
+    margin: 0;
+    min-height: 64rpx;
+    padding: 0 var(--space-3);
+    font-size: var(--font-size-small);
+  }
+}

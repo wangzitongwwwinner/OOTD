@@ -20,7 +20,7 @@ const user: AuthUserSummary = {
 
 function repositoryWith(result: AuthUserSummary = user) {
   const calls: FindOrCreateWechatUserInput[] = [];
-  const repository: UserRepository = {
+  const repository: Pick<UserRepository, 'findOrCreateByWechatIdentity'> = {
     async findOrCreateByWechatIdentity(input) {
       calls.push(input);
       return result;
@@ -84,7 +84,7 @@ test('缺少协议确认时不访问用户仓储', async () => {
 });
 
 test('仓储异常返回可重试的内部错误且不泄露细节', async () => {
-  const repository: UserRepository = {
+  const repository: Pick<UserRepository, 'findOrCreateByWechatIdentity'> = {
     async findOrCreateByWechatIdentity() {
       throw new Error('database credential and open-id');
     },

@@ -3,6 +3,8 @@ import { Text, View } from '@tarojs/components';
 
 import { LoginPage } from '../../features/auth/LoginPage';
 import { useAuthSession } from '../../features/auth/useAuthSession';
+import { ProfilePreference } from '../../features/profile/ProfilePreference';
+import { LocationStatus } from '../../features/weather/LocationStatus';
 
 import './index.scss';
 
@@ -48,13 +50,15 @@ export default function IndexPage() {
 
   return (
     <View className="home-placeholder">
-      <Text className="home-placeholder__eyebrow">TODAY · SHANGHAI</Text>
+      <Text className="home-placeholder__eyebrow">TODAY</Text>
+      <LocationStatus />
       <Text className="home-placeholder__title">
         你好，{auth.session?.user.nickname}
       </Text>
       <Text className="home-placeholder__copy">
         登录已完成，天气与全天行程将在下一项任务接入。
       </Text>
+      <ProfilePreference />
     </View>
   );
 }
