@@ -1,0 +1,38 @@
+.scenes-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 72rpx 40rpx 120rpx;
+  background: #faf9f7;
+  color: #2d2926;
+}
+
+.scenes-page__eyebrow,
+.scenes-page__title,
+.scenes-page__description {
+  display: block;
+}
+
+.scenes-page__eyebrow {
+  color: #756b62;
+  font-size: 22rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+
+.scenes-page__title {
+  margin-top: 20rpx;
+  font-family: serif;
+  font-size: 54rpx;
+}
+
+.scenes-page__description {
+  margin-top: 18rpx;
+  color: #756b62;
+  font-size: 28rpx;
+  line-height: 1.7;
+}
+
+.authenticated-page__loading {
+  padding: 80rpx 40rpx;
+  color: #756b62;
+}

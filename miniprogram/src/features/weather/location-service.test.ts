@@ -40,6 +40,34 @@ describe('location service', () => {
     await expect(service.locate()).rejects.toMatchObject({ kind });
   });
 
+  it('真机仅返回 timeout 时使用通用定位失败文案', async () => {
+    const service = createLocationService(
+      dependencies({
+        locate: vi.fn().mockRejectedValue({
+          errCode: -1,
+          errMsg: 'getLocation:fail:timeout',
+        }),
+      }),
+    );
+    await expect(service.locate()).rejects.toEqual(
+      new LocationError('unavailable', '暂时无法获取定位，请稍后重试'),
+    );
+  });
+
+  it('Taro 将 timeout 包装为 Error.message 时仍使用通用文案', async () => {
+    const service = createLocationService(
+      dependencies({
+        locate: vi
+          .fn()
+          .mockRejectedValue(new Error('getLocation:fail:timeout')),
+      }),
+    );
+    await expect(service.locate()).rejects.toMatchObject({
+      kind: 'unavailable',
+      message: '暂时无法获取定位，请稍后重试',
+    });
+  });
+
   it('恢复时只读取城市级缓存', () => {
     const deps = dependencies();
     deps.cache.restore.mockReturnValue(city);

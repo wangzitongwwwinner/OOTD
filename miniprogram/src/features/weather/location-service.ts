@@ -87,7 +87,11 @@ export const locationService = createLocationService({
 
 function classifyLocationFailure(cause: unknown): LocationError {
   const message =
-    isRecord(cause) && typeof cause.errMsg === 'string' ? cause.errMsg : '';
+    isRecord(cause) && typeof cause.errMsg === 'string'
+      ? cause.errMsg
+      : cause instanceof Error
+        ? cause.message
+        : '';
   if (/system permission denied/i.test(message)) {
     return new LocationError(
       'system_disabled',

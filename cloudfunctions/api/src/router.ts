@@ -10,11 +10,23 @@ import type { UserRepository } from './auth/user-repository.ts';
 import type { CityResolver } from './location/city-resolver.ts';
 import { resolveCity } from './location/resolve-city.ts';
 import { getProfile, updateProfile } from './profile/profile.ts';
+import { listScenes } from './scenes/list-scenes.ts';
+import type { SceneRepository } from './scenes/scene-repository.ts';
+import { getCurrentWeather } from './weather/current-weather.ts';
+import type {
+  WeatherCacheRepository,
+  WeatherProvider,
+} from './weather/weather-provider.ts';
 
 interface RequestEvent {
   method?: unknown;
   path?: unknown;
   [key: string]: unknown;
+}
+
+interface WeatherDependencies {
+  provider: WeatherProvider;
+  cache: WeatherCacheRepository;
 }
 
 export function createRequestContext(
@@ -31,6 +43,8 @@ export async function routeRequest(
   requestId: string,
   userRepository?: UserRepository,
   cityResolver?: CityResolver,
+  weather?: WeatherDependencies,
+  sceneRepository?: SceneRepository,
 ): Promise<ApiEnvelope<unknown>> {
   createRequestContext(event, identity, requestId);
 
@@ -77,6 +91,35 @@ export async function routeRequest(
       );
     }
     return resolveCity(event.body, cityResolver, requestId);
+  }
+
+  if (event.method === 'GET' && event.path === '/v1/weather/current') {
+    if (!weather) {
+      return failure(
+        'EXTERNAL_SERVICE_ERROR',
+        '天气服务尚未配置，请稍后重试',
+        true,
+        requestId,
+      );
+    }
+    return getCurrentWeather(
+      event.body,
+      weather.provider,
+      weather.cache,
+      requestId,
+    );
+  }
+
+  if (event.method === 'GET' && event.path === '/v1/scenes') {
+    if (!sceneRepository) {
+      return failure(
+        'INTERNAL_ERROR',
+        '场景服务暂时不可用，请稍后重试',
+        true,
+        requestId,
+      );
+    }
+    return listScenes(identity, sceneRepository, requestId);
   }
 
   return failure(

@@ -11,20 +11,6 @@ export interface User {
   version: number;
 }
 
-export interface Scene {
-  id: string;
-  userId?: string;
-  name: string;
-  type: string;
-  estimatedTemperatureCelsius: number;
-  feel: FeelPreference;
-  isPreset: boolean;
-  note?: string;
-  createdAt: string;
-  updatedAt: string;
-  version: number;
-}
-
 export interface ItineraryItem {
   id: string;
   userId: string;
@@ -78,18 +64,4 @@ export interface SavedOutfit {
   createdAt: string;
   updatedAt: string;
   version: number;
-}
-
-export interface WeatherInfo {
-  city: string;
-  localDate: string;
-  condition: string;
-  temperatureCelsius: number;
-  feelsLikeCelsius: number;
-  humidityPercent: number;
-  highCelsius: number;
-  lowCelsius: number;
-  uvIndex: number;
-  windSpeedKilometersPerHour: number;
-  observedAt: string;
 }

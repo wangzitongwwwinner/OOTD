@@ -1,10 +1,13 @@
 import Taro from '@tarojs/taro';
 import { Text, View } from '@tarojs/components';
+import { useEffect, useState } from 'react';
 
 import { LoginPage } from '../../features/auth/LoginPage';
 import { useAuthSession } from '../../features/auth/useAuthSession';
 import { ProfilePreference } from '../../features/profile/ProfilePreference';
 import { LocationStatus } from '../../features/weather/LocationStatus';
+import { locationService } from '../../features/weather/location-service';
+import { WeatherCard } from '../../features/weather/WeatherCard';
 
 import './index.scss';
 
@@ -12,6 +15,15 @@ const AGREEMENT_VERSION = '2026-07-18';
 
 export default function IndexPage() {
   const auth = useAuthSession();
+  const [city, setCity] = useState(() => locationService.restore());
+
+  useEffect(() => {
+    if (auth.status === 'authenticated') {
+      void Taro.showTabBar();
+    } else {
+      void Taro.hideTabBar();
+    }
+  }, [auth.status]);
 
   if (auth.status === 'restoring') {
     return (
@@ -51,7 +63,8 @@ export default function IndexPage() {
   return (
     <View className="home-placeholder">
       <Text className="home-placeholder__eyebrow">TODAY</Text>
-      <LocationStatus />
+      <LocationStatus onLocated={setCity} />
+      {city ? <WeatherCard key={city.cityCode} city={city} /> : null}
       <Text className="home-placeholder__title">
         你好，{auth.session?.user.nickname}
       </Text>

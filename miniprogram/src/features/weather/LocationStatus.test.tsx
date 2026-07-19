@@ -36,8 +36,40 @@ it('说明用途后由用户主动触发首次定位', async () => {
   expect(await screen.findByText('上海')).toBeInTheDocument();
 });
 
-it('拒绝授权后提供设置入口', async () => {
-  const onOpenSettings = vi.fn();
+it('定位请求期间展示自定义加载效果、黑色文字并禁止重复点击', async () => {
+  let finishLocate!: (value: typeof city) => void;
+  const locate = vi.fn(
+    () =>
+      new Promise<typeof city>((resolve) => {
+        finishLocate = resolve;
+      }),
+  );
+  const { container } = render(
+    <LocationStatus
+      service={{ restore: () => undefined, locate }}
+      onOpenSettings={vi.fn()}
+    />,
+  );
+
+  fireEvent.click(screen.getByRole('button', { name: '启用微信定位' }));
+
+  const locatingButton = screen.getByRole('button', { name: '定位中…' });
+  expect(locatingButton).toHaveAttribute('aria-disabled', 'true');
+  expect(locatingButton).toHaveClass('location-status__action--locating');
+  expect(
+    container.querySelector('.location-status__spinner'),
+  ).toBeInTheDocument();
+  expect(screen.getByText('定位中…')).toHaveStyle({ color: '#1a1c1b' });
+
+  fireEvent.click(locatingButton);
+  expect(locate).toHaveBeenCalledTimes(1);
+
+  finishLocate(city);
+  expect(await screen.findByText('上海')).toBeInTheDocument();
+});
+
+it('拒绝授权后在设置中开启权限会恢复定位按钮', async () => {
+  const onOpenSettings = vi.fn().mockResolvedValue(true);
   render(
     <LocationStatus
       service={{
@@ -57,4 +89,7 @@ it('拒绝授权后提供设置入口', async () => {
   ).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: '打开设置' }));
   expect(onOpenSettings).toHaveBeenCalledTimes(1);
+  expect(
+    await screen.findByRole('button', { name: '启用微信定位' }),
+  ).toBeInTheDocument();
 });

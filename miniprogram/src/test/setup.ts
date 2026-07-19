@@ -20,8 +20,10 @@ vi.mock('@tarojs/components', () => ({
     loading,
     ...props
   }: React.ButtonHTMLAttributes<HTMLButtonElement> & { loading?: boolean }) => {
-    void loading;
-    return React.createElement('button', props);
+    return React.createElement('button', {
+      ...props,
+      'data-loading': String(Boolean(loading)),
+    });
   },
   Text: (props: React.HTMLAttributes<HTMLSpanElement>) =>
     React.createElement('span', props),

@@ -6,6 +6,11 @@ import type { UserRepository } from './auth/user-repository.ts';
 import { trustedIdentityFromWxContext } from './context.ts';
 import type { CityResolver } from './location/city-resolver.ts';
 import { createRequestContext, routeRequest } from './router.ts';
+import type { SceneRepository } from './scenes/scene-repository.ts';
+import type {
+  WeatherCacheRepository,
+  WeatherProvider,
+} from './weather/weather-provider.ts';
 
 const profile: Profile = {
   id: 'user_1',
@@ -27,6 +32,34 @@ const profileRepository: UserRepository = {
 
 const cityResolver: CityResolver = {
   resolve: async () => ({ cityCode: '101020100', cityName: '上海' }),
+};
+
+const weatherProvider: WeatherProvider = {
+  getCurrent: async (input) => ({
+    cityCode: input.cityCode,
+    cityName: input.cityName,
+    localDate: '2026-07-20',
+    condition: '多云',
+    temperatureCelsius: 31,
+    feelsLikeCelsius: 35,
+    humidityPercent: 68,
+    highCelsius: 34,
+    lowCelsius: 27,
+    uvIndex: 7,
+    windSpeedKilometersPerHour: 14,
+    observedAt: '2026-07-20T02:00:00.000Z',
+    source: 'qweather',
+    isStale: false,
+  }),
+};
+
+const weatherCache: WeatherCacheRepository = {
+  find: async () => undefined,
+  save: async () => undefined,
+};
+
+const sceneRepository: SceneRepository = {
+  findCustomByIdentity: async () => [],
 };
 
 test('GET /health 返回统一成功信封', async () => {
@@ -83,6 +116,47 @@ test('POST /v1/location/city 接入城市解析用例', async () => {
   assert.deepEqual(response, {
     data: { cityCode: '101020100', cityName: '上海' }, requestId: 'req_city',
   });
+});
+
+test('GET /v1/weather/current 接入天气用例', async () => {
+  const response = await routeRequest(
+    {
+      method: 'GET',
+      path: '/v1/weather/current',
+      body: { cityCode: '101020100', cityName: '上海' },
+    },
+    { openId: 'trusted-open-id', appId: 'trusted-app-id' },
+    'req_weather',
+    profileRepository,
+    cityResolver,
+    { provider: weatherProvider, cache: weatherCache },
+  );
+  assert.deepEqual(response, {
+    data: await weatherProvider.getCurrent({
+      cityCode: '101020100',
+      cityName: '上海',
+    }),
+    requestId: 'req_weather',
+  });
+});
+
+test('GET /v1/scenes 接入可信身份场景查询', async () => {
+  const response = await routeRequest(
+    { method: 'GET', path: '/v1/scenes' },
+    { openId: 'trusted-open-id', appId: 'trusted-app-id' },
+    'req_scenes',
+    profileRepository,
+    cityResolver,
+    { provider: weatherProvider, cache: weatherCache },
+    sceneRepository,
+  );
+  assert.equal(
+    'data' in response && response.data !== null &&
+      typeof response.data === 'object' &&
+      'items' in response.data &&
+      Array.isArray(response.data.items),
+    true,
+  );
 });
 
 test('未知路由返回不可重试的 NOT_FOUND', async () => {
