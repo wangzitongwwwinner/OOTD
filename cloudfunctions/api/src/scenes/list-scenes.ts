@@ -6,7 +6,6 @@ import {
   type SceneList,
 } from '../../../../packages/contracts/src/index.ts';
 import type { TrustedIdentity } from '../context.ts';
-import { PRESET_SCENES } from './presets.ts';
 import type { SceneRepository } from './scene-repository.ts';
 
 export async function listScenes(
@@ -17,7 +16,7 @@ export async function listScenes(
   try {
     const custom = await repository.findCustomByIdentity(identity);
     return success(
-      sceneListSchema.parse({ items: [...PRESET_SCENES, ...custom] }),
+      sceneListSchema.parse({ items: custom }),
       requestId,
     );
   } catch {

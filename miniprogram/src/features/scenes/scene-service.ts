@@ -17,9 +17,22 @@ export interface Scene {
   version: number;
 }
 
+export interface SceneCreateInput {
+  name: string;
+  category: SceneCategory;
+  estimatedTemperatureCelsius: number;
+  feel: SceneFeel;
+  note?: string;
+}
+
+export interface SceneUpdateInput extends SceneCreateInput {
+  expectedVersion: number;
+}
+
 type Call = (request: {
-  method: 'GET';
-  path: '/v1/scenes';
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  path: string;
+  body?: unknown;
 }) => Promise<unknown>;
 
 export function createSceneService(call: Call) {
@@ -41,6 +54,44 @@ export function createSceneService(call: Call) {
         throw new Error('场景响应异常，请稍后重试');
       }
       return result.data.items;
+    },
+
+    async create(input: SceneCreateInput): Promise<Scene> {
+      let result: unknown;
+      try {
+        result = await call({ method: 'POST', path: '/v1/scenes', body: input });
+      } catch {
+        throw new Error('网络连接失败，请稍后重试');
+      }
+      if (isFailureEnvelope(result)) throw new Error(result.error.message);
+      if (!isSuccessEnvelope(result) || !isScene(result.data)) {
+        throw new Error('场景响应异常，请稍后重试');
+      }
+      return result.data;
+    },
+
+    async update(id: string, input: SceneUpdateInput): Promise<Scene> {
+      let result: unknown;
+      try {
+        result = await call({ method: 'PATCH', path: `/v1/scenes/${id}`, body: input });
+      } catch {
+        throw new Error('网络连接失败，请稍后重试');
+      }
+      if (isFailureEnvelope(result)) throw new Error(result.error.message);
+      if (!isSuccessEnvelope(result) || !isScene(result.data)) {
+        throw new Error('场景响应异常，请稍后重试');
+      }
+      return result.data;
+    },
+
+    async delete(id: string): Promise<void> {
+      let result: unknown;
+      try {
+        result = await call({ method: 'DELETE', path: `/v1/scenes/${id}` });
+      } catch {
+        throw new Error('网络连接失败，请稍后重试');
+      }
+      if (isFailureEnvelope(result)) throw new Error(result.error.message);
     },
   };
 }

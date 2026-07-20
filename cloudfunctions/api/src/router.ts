@@ -11,6 +11,10 @@ import type { CityResolver } from './location/city-resolver.ts';
 import { resolveCity } from './location/resolve-city.ts';
 import { getProfile, updateProfile } from './profile/profile.ts';
 import { listScenes } from './scenes/list-scenes.ts';
+import { createScene, updateScene } from './scenes/manage-scenes.ts';
+import { deleteScene } from './scenes/delete-scene.ts';
+import { getTodayItineraries } from './itineraries/today.ts';
+import type { ItineraryRepository } from './itineraries/repository.ts';
 import type { SceneRepository } from './scenes/scene-repository.ts';
 import { getCurrentWeather } from './weather/current-weather.ts';
 import type {
@@ -45,6 +49,7 @@ export async function routeRequest(
   cityResolver?: CityResolver,
   weather?: WeatherDependencies,
   sceneRepository?: SceneRepository,
+  itineraryRepository?: ItineraryRepository,
 ): Promise<ApiEnvelope<unknown>> {
   createRequestContext(event, identity, requestId);
 
@@ -120,6 +125,60 @@ export async function routeRequest(
       );
     }
     return listScenes(identity, sceneRepository, requestId);
+  }
+
+  if (event.method === 'POST' && event.path === '/v1/scenes') {
+    if (!sceneRepository) {
+      return failure(
+        'INTERNAL_ERROR',
+        '场景服务暂时不可用，请稍后重试',
+        true,
+        requestId,
+      );
+    }
+    return createScene(event.body, identity, sceneRepository, requestId);
+  }
+
+  if (
+    event.method === 'PATCH' &&
+    typeof event.path === 'string' &&
+    event.path.startsWith('/v1/scenes/')
+  ) {
+    const id = (event.path as string).slice('/v1/scenes/'.length);
+    if (!id) {
+      return failure('VALIDATION_ERROR', '缺少场景 ID', false, requestId);
+    }
+    if (!sceneRepository) {
+      return failure(
+        'INTERNAL_ERROR',
+        '场景服务暂时不可用，请稍后重试',
+        true,
+        requestId,
+      );
+    }
+    return updateScene(id, event.body, identity, sceneRepository, requestId);
+  }
+
+  if (
+    event.method === 'DELETE' &&
+    typeof event.path === 'string' &&
+    event.path.startsWith('/v1/scenes/')
+  ) {
+    const id = (event.path as string).slice('/v1/scenes/'.length);
+    if (!id) {
+      return failure('VALIDATION_ERROR', '缺少场景 ID', false, requestId);
+    }
+    if (!sceneRepository) {
+      return failure('INTERNAL_ERROR', '场景服务暂时不可用，请稍后重试', true, requestId);
+    }
+    return deleteScene(id, identity, sceneRepository, requestId);
+  }
+
+  if (event.method === 'GET' && event.path === '/v1/itineraries/today') {
+    if (!itineraryRepository) {
+      return failure('INTERNAL_ERROR', '行程服务暂时不可用，请稍后重试', true, requestId);
+    }
+    return getTodayItineraries(identity, itineraryRepository, requestId);
   }
 
   return failure(

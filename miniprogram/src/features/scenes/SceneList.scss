@@ -1,4 +1,28 @@
-.scene-list {
+
+.scene-list__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+.scene-list__add-scene {
+  background: #333;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.scene-list__edit-scene {
+  background: none;
+  color: #333;
+  padding: 4px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 12px;
+}.scene-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -56,4 +80,28 @@
     flex-direction: column;
     gap: var(--space-3);
   }
+}
+
+
+.scene-list__action,
+.scene-list__delete {
+  background: none;
+  color: #333;
+  padding: 4px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.scene-list__delete {
+  color: #e53935;
+  border-color: #e53935;
+  margin-left: 8px;
+}
+
+.scene-list__global-error {
+  display: block;
+  padding: 8px 0;
+  color: #e53935;
+  font-size: 14px;
 }

@@ -16,6 +16,10 @@
 
 下一任务：**M3-02 自定义场景新增与编辑（未开始）**。
 
+已完成：**M3-02 自定义场景新增与编辑**。`POST /v1/scenes` 和 `PATCH /v1/scenes/:id` 两个新路由已接入，包含严格输入校验、预设保护、乐观锁版本冲突检测。前端已完成 `SceneForm` 组件（名称、类型下拉、温度、体感选择、备注）和 `SceneList` 新增/编辑集成。契约 18 项、云函数 37 项、小程序 48 项测试以及类型检查、lint、`build:cloudfunctions`、`build:weapp` 均通过。
+
+下一任务：**M3-03 场景删除与引用处理（未开始）**。
+
 开发者工具项目入口已调整为仓库根目录 `G:\24级王梓桐\OOTDapp`：根配置将 `miniprogram/dist/` 与 `cloudfunctions/` 同时纳入项目，解决单独导入 `miniprogram` 时无法显示 `api` 云函数的问题。
 
 首次部署排障发现开发者工具在 TLS 断线后留下 Node.js 16.13 的失败函数占位，且原云函数构建产物位于 `dist/index.js`，不符合开发者工具固定的 `index.main` 入口。构建已修正为在函数根目录生成 Node.js 20.19 目标的 `index.js`；待网络稳定后删除失败占位并以 Node.js 20.19 重新部署。

@@ -8,6 +8,7 @@ import { ProfilePreference } from '../../features/profile/ProfilePreference';
 import { LocationStatus } from '../../features/weather/LocationStatus';
 import { locationService } from '../../features/weather/location-service';
 import { WeatherCard } from '../../features/weather/WeatherCard';
+import { TodayItinerary } from '../../features/itinerary/TodayItinerary';
 
 import './index.scss';
 
@@ -69,9 +70,10 @@ export default function IndexPage() {
         你好，{auth.session?.user.nickname}
       </Text>
       <Text className="home-placeholder__copy">
-        登录已完成，天气与全天行程将在下一项任务接入。
+        综合全天行程，编排穿脱方案…
       </Text>
       <ProfilePreference />
+      <TodayItinerary />
     </View>
   );
 }

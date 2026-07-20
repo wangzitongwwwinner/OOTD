@@ -8,6 +8,7 @@ import { trustedIdentityFromWxContext } from './context.ts';
 import { QWeatherCityResolver } from './location/qweather-city-resolver.ts';
 import { routeRequest } from './router.ts';
 import { CloudBaseSceneRepository } from './scenes/cloudbase-scene-repository.ts';
+import { CloudBaseItineraryRepository } from './itineraries/cloudbase-itinerary-repository.ts';
 import { CloudBaseWeatherCache } from './weather/cloudbase-weather-cache.ts';
 import { QWeatherProvider } from './weather/qweather-provider.ts';
 
@@ -16,6 +17,7 @@ const userRepository = new CloudBaseUserRepository(app.database());
 const cityResolver = createCityResolver();
 const weather = createWeatherDependencies();
 const sceneRepository = new CloudBaseSceneRepository(app.database());
+const itineraryRepository = new CloudBaseItineraryRepository(app.database());
 
 interface FunctionContext {
   requestId?: string;
@@ -44,6 +46,7 @@ export async function main(
     cityResolver,
     weather,
     sceneRepository,
+    itineraryRepository,
   );
 }
 

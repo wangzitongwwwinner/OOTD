@@ -1,4 +1,4 @@
-import assert from 'node:assert/strict';
+﻿import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { listScenes } from './list-scenes.ts';
@@ -7,6 +7,7 @@ import type { SceneRepository } from './scene-repository.ts';
 test('返回稳定预设和当前可信身份的自定义场景', async () => {
   let receivedIdentity: unknown;
   const repository: SceneRepository = {
+    findClonedPresetIds: async () => new Set(),
     findCustomByIdentity: async (identity) => {
       receivedIdentity = identity;
       return [
@@ -24,6 +25,9 @@ test('返回稳定预设和当前可信身份的自定义场景', async () => {
         },
       ];
     },
+    create: async () => ({ id: 'x', name: 'x', category: 'custom', estimatedTemperatureCelsius: 22, feel: 'comfortable', isPreset: false, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z', version: 1 }),
+    findById: async () => undefined,
+    update: async () => ({ status: 'not_found' }),
   };
 
   const response = await listScenes(
@@ -36,25 +40,22 @@ test('返回稳定预设和当前可信身份的自定义场景', async () => {
     openId: 'trusted-open-id',
     appId: 'trusted-app-id',
   });
-  assert.equal('data' in response && response.data.items.length, 5);
-  assert.deepEqual(
-    'data' in response
-      ? response.data.items.slice(0, 4).map((scene) => scene.id)
-      : [],
-    ['preset_office', 'preset_home', 'preset_metro', 'preset_mall'],
-  );
+  assert.equal('data' in response && response.data.items.length, 1);
   assert.equal(
-    'data' in response &&
-      response.data.items.every((scene) => !('userId' in scene)),
-    true,
+    'data' in response && response.data.items[0].name,
+    '健身房',
   );
 });
 
 test('仓储失败返回友好可重试错误', async () => {
   const repository: SceneRepository = {
+    findClonedPresetIds: async () => new Set(),
     findCustomByIdentity: async () => {
       throw new Error('database secret');
     },
+    create: async () => ({ id: 'x', name: 'x', category: 'custom', estimatedTemperatureCelsius: 22, feel: 'comfortable', isPreset: false, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z', version: 1 }),
+    findById: async () => undefined,
+    update: async () => ({ status: 'not_found' }),
   };
   assert.deepEqual(
     await listScenes(

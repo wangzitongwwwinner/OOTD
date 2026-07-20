@@ -2,7 +2,7 @@ import { Text, View } from '@tarojs/components';
 
 import { AuthenticatedPage } from '../../features/auth/AuthenticatedPage';
 
-import '../shared-placeholder.scss';
+import './index.scss';
 
 export default function WardrobePage() {
   return (

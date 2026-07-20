@@ -1,4 +1,4 @@
-import { z } from 'zod';
+﻿import { z } from 'zod';
 
 export const sceneCategorySchema = z.enum([
   'office',
@@ -31,9 +31,33 @@ export const sceneSchema = z
   })
   .strict();
 
+export const createSceneRequestSchema = z
+  .object({
+    name: z.string().min(1).max(40),
+    category: sceneCategorySchema,
+    estimatedTemperatureCelsius: z.number().min(-50).max(60),
+    feel: sceneFeelSchema,
+    note: z.string().max(500).optional(),
+  })
+  .strict();
+
+export const updateSceneRequestSchema = z
+  .object({
+    name: z.string().min(1).max(40),
+    category: sceneCategorySchema,
+    estimatedTemperatureCelsius: z.number().min(-50).max(60),
+    feel: sceneFeelSchema,
+    note: z.string().max(500).optional(),
+    expectedVersion: z.number().int().positive(),
+  })
+  .strict();
+
 export const sceneListSchema = z
   .object({ items: z.array(sceneSchema).max(200) })
   .strict();
+
+export type CreateSceneRequest = z.infer<typeof createSceneRequestSchema>;
+export type UpdateSceneRequest = z.infer<typeof updateSceneRequestSchema>;
 
 export type SceneCategory = z.infer<typeof sceneCategorySchema>;
 export type SceneFeel = z.infer<typeof sceneFeelSchema>;
