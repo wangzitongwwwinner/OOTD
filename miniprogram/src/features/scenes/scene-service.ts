@@ -59,7 +59,11 @@ export function createSceneService(call: Call) {
     async create(input: SceneCreateInput): Promise<Scene> {
       let result: unknown;
       try {
-        result = await call({ method: 'POST', path: '/v1/scenes', body: input });
+        result = await call({
+          method: 'POST',
+          path: '/v1/scenes',
+          body: input,
+        });
       } catch {
         throw new Error('网络连接失败，请稍后重试');
       }
@@ -73,7 +77,11 @@ export function createSceneService(call: Call) {
     async update(id: string, input: SceneUpdateInput): Promise<Scene> {
       let result: unknown;
       try {
-        result = await call({ method: 'PATCH', path: `/v1/scenes/${id}`, body: input });
+        result = await call({
+          method: 'PATCH',
+          path: `/v1/scenes/${id}`,
+          body: input,
+        });
       } catch {
         throw new Error('网络连接失败，请稍后重试');
       }

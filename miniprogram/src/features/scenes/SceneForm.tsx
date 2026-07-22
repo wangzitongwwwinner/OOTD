@@ -1,7 +1,12 @@
 ﻿import { Button, Input, Text, View } from '@tarojs/components';
 import { useState } from 'react';
 
-import type { Scene, SceneCategory, SceneCreateInput, SceneFeel } from './scene-service';
+import type {
+  Scene,
+  SceneCategory,
+  SceneCreateInput,
+  SceneFeel,
+} from './scene-service';
 
 import './SceneForm.scss';
 
@@ -68,7 +73,11 @@ export function SceneForm({
         <Text className="scene-form__title">
           {mode === 'create' ? '新增场景' : '编辑场景'}
         </Text>
-        <Button className="scene-form__close" onClick={onClose} disabled={saving}>
+        <Button
+          className="scene-form__close"
+          onClick={onClose}
+          disabled={saving}
+        >
           取消
         </Button>
       </View>
@@ -79,7 +88,7 @@ export function SceneForm({
           className="scene-form__input"
           value={name}
           onInput={(e) => setName(e.detail.value)}
-          placeholder='场景名称，如「健身房」'
+          placeholder="场景名称，如「健身房」"
           maxlength={40}
           disabled={saving}
         />
@@ -88,11 +97,17 @@ export function SceneForm({
       <View className="scene-form__field">
         <Text className="scene-form__label">类型</Text>
         <View
-          className={'scene-form__select' + (showCategory ? ' scene-form__select--open' : '')}
-          onClick={() => {if (!saving) setShowCategory((v) => !v)}}
+          className={
+            'scene-form__select' +
+            (showCategory ? ' scene-form__select--open' : '')
+          }
+          onClick={() => {
+            if (!saving) setShowCategory((v) => !v);
+          }}
         >
           <Text>
-            {CATEGORY_OPTIONS.find((o) => o.value === category)?.label ?? '请选择'}
+            {CATEGORY_OPTIONS.find((o) => o.value === category)?.label ??
+              '请选择'}
           </Text>
         </View>
         {showCategory ? (
@@ -102,7 +117,9 @@ export function SceneForm({
                 key={option.value}
                 className={
                   'scene-form__option' +
-                  (category === option.value ? ' scene-form__option--selected' : '')
+                  (category === option.value
+                    ? ' scene-form__option--selected'
+                    : '')
                 }
                 onClick={() => {
                   setCategory(option.value);
@@ -140,9 +157,13 @@ export function SceneForm({
               key={option.value}
               className={
                 'scene-form__feel-option' +
-                (feel === option.value ? ' scene-form__feel-option--selected' : '')
+                (feel === option.value
+                  ? ' scene-form__feel-option--selected'
+                  : '')
               }
-              onClick={() => {if (!saving) setFeel(option.value)}}
+              onClick={() => {
+                if (!saving) setFeel(option.value);
+              }}
             >
               <Text>{option.label}</Text>
             </View>
@@ -156,7 +177,7 @@ export function SceneForm({
           className="scene-form__input"
           value={note}
           onInput={(e) => setNote(e.detail.value)}
-          placeholder='如「夏天冷气很足」'
+          placeholder="如「夏天冷气很足」"
           maxlength={500}
           disabled={saving}
         />

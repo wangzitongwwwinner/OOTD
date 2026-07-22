@@ -8,7 +8,9 @@ afterEach(cleanup);
 
 vi.mock('@tarojs/taro', () => ({
   default: {
-    cloud: { callFunction: vi.fn() },
+    cloud: { callFunction: vi.fn(), uploadFile: vi.fn() },
+    getSetting: vi.fn(),
+    authorize: vi.fn(),
     getStorageSync: vi.fn(),
     setStorageSync: vi.fn(),
     removeStorageSync: vi.fn(),

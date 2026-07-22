@@ -37,7 +37,11 @@ it('加载失败时可以重试', async () => {
     .fn()
     .mockRejectedValueOnce(new Error('场景加载失败，请稍后重试'))
     .mockResolvedValueOnce([preset]);
-  render(<SceneList service={{ list, create: vi.fn(), update: vi.fn(), delete: vi.fn() }} />);
+  render(
+    <SceneList
+      service={{ list, create: vi.fn(), update: vi.fn(), delete: vi.fn() }}
+    />,
+  );
   expect(
     await screen.findByText('场景加载失败，请稍后重试'),
   ).toBeInTheDocument();

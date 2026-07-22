@@ -1,6 +1,6 @@
 # 穿衣有数｜开发规范
 
-> 本文定义 MVP 生产开发的工程约束。产品边界见 [PRODUCT.md](./PRODUCT.md)，视觉规范见 [DESIGN.md](./DESIGN.md)，技术结构见 [ARCHITECTURE.md](./ARCHITECTURE.md)，微信平台流程见 [WECHAT_MINIPROGRAM.md](./WECHAT_MINIPROGRAM.md)，测试门禁见 [TEST.md](./TEST.md)。
+> 本文定义 MVP 生产开发的工程约束。产品边界见 [PRODUCT.md](./PRODUCT.md)，视觉规范见 [DESIGN.md](./DESIGN.md)，技术结构见 [ARCHITECTURE.md](./ARCHITECTURE.md)，微信平台流程见 [WECHAT_MINIPROGRAM.md](./WECHAT_MINIPROGRAM.md)，指标口径见 [METRICS.md](./METRICS.md)，测试门禁见 [TEST.md](./TEST.md)。
 
 ## 1. 开发目标与原则
 

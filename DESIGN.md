@@ -1,65 +1,65 @@
 ---
 name: Urban Wardrobe Narrative
 colors:
-  surface: '#faf9f7'
-  surface-dim: '#dadad8'
-  surface-bright: '#faf9f7'
-  surface-container-lowest: '#ffffff'
-  surface-container-low: '#f4f3f1'
-  surface-container: '#efeeec'
-  surface-container-high: '#e9e8e6'
-  surface-container-highest: '#e3e2e0'
-  on-surface: '#1a1c1b'
-  on-surface-variant: '#4d4540'
-  inverse-surface: '#2f3130'
-  inverse-on-surface: '#f1f1ef'
-  outline: '#7e756f'
-  outline-variant: '#cfc4bd'
-  primary: '#181512'
-  on-primary: '#ffffff'
-  primary-container: '#2d2926'
-  on-primary-container: '#96908b'
-  secondary: '#685c50'
-  on-secondary: '#ffffff'
-  secondary-container: '#f0e0d0'
-  on-secondary-container: '#6e6256'
-  tertiary: '#161612'
-  on-tertiary: '#ffffff'
-  error: '#ba1a1a'
-  error-container: '#ffdad6'
-  background: '#faf9f7'
-  on-background: '#1a1c1b'
+  surface: "#faf9f7"
+  surface-dim: "#dadad8"
+  surface-bright: "#faf9f7"
+  surface-container-lowest: "#ffffff"
+  surface-container-low: "#f4f3f1"
+  surface-container: "#efeeec"
+  surface-container-high: "#e9e8e6"
+  surface-container-highest: "#e3e2e0"
+  on-surface: "#1a1c1b"
+  on-surface-variant: "#4d4540"
+  inverse-surface: "#2f3130"
+  inverse-on-surface: "#f1f1ef"
+  outline: "#7e756f"
+  outline-variant: "#cfc4bd"
+  primary: "#181512"
+  on-primary: "#ffffff"
+  primary-container: "#2d2926"
+  on-primary-container: "#96908b"
+  secondary: "#685c50"
+  on-secondary: "#ffffff"
+  secondary-container: "#f0e0d0"
+  on-secondary-container: "#6e6256"
+  tertiary: "#161612"
+  on-tertiary: "#ffffff"
+  error: "#ba1a1a"
+  error-container: "#ffdad6"
+  background: "#faf9f7"
+  on-background: "#1a1c1b"
 typography:
   display-serif:
     fontFamily: Noto Serif SC
     fontSize: 32px
-    fontWeight: '600'
+    fontWeight: "600"
     lineHeight: 44px
     letterSpacing: -0.02em
   headline-md:
     fontFamily: Noto Serif SC
     fontSize: 24px
-    fontWeight: '500'
+    fontWeight: "500"
     lineHeight: 32px
   title-lg:
     fontFamily: Plus Jakarta Sans
     fontSize: 18px
-    fontWeight: '600'
+    fontWeight: "600"
     lineHeight: 26px
   body-main:
     fontFamily: Plus Jakarta Sans
     fontSize: 16px
-    fontWeight: '400'
+    fontWeight: "400"
     lineHeight: 24px
   body-sm:
     fontFamily: Inter
     fontSize: 14px
-    fontWeight: '400'
+    fontWeight: "400"
     lineHeight: 20px
   label-caps:
     fontFamily: Inter
     fontSize: 12px
-    fontWeight: '600'
+    fontWeight: "600"
     lineHeight: 16px
     letterSpacing: 0.05em
 rounded:

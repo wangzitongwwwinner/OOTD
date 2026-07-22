@@ -10,6 +10,7 @@
 - [TASK.md](./TASK.md)：开发任务、依赖和节奏。
 - [TEST.md](./TEST.md)：测试策略与发布门禁。
 - [WECHAT_MINIPROGRAM.md](./WECHAT_MINIPROGRAM.md)：微信开发者工具、账号配置、体验版、提审与发布流程。
+- [METRICS.md](./METRICS.md)：MVP 指标口径、数据要求、报告形式与延期评价任务。
 
 ## 本地运行
 

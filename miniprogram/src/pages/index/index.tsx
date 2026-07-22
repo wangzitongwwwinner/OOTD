@@ -9,6 +9,7 @@ import { LocationStatus } from '../../features/weather/LocationStatus';
 import { locationService } from '../../features/weather/location-service';
 import { WeatherCard } from '../../features/weather/WeatherCard';
 import { TodayItinerary } from '../../features/itinerary/TodayItinerary';
+import { RecommendationCard } from '../../features/recommendation/RecommendationCard';
 
 import './index.scss';
 
@@ -66,6 +67,12 @@ export default function IndexPage() {
       <Text className="home-placeholder__eyebrow">TODAY</Text>
       <LocationStatus onLocated={setCity} />
       {city ? <WeatherCard key={city.cityCode} city={city} /> : null}
+      {city ? (
+        <RecommendationCard
+          key={`recommendation-${city.cityCode}`}
+          city={city}
+        />
+      ) : null}
       <Text className="home-placeholder__title">
         你好，{auth.session?.user.nickname}
       </Text>

@@ -1,6 +1,6 @@
 # 穿衣有数｜产品说明
 
-> 本文档是产品事实的单一来源。视觉规范见 [DESIGN.md](./DESIGN.md)，实施状态见 [PROGRESS.md](./PROGRESS.md)，飞书 PRD 与页面说明的访问方式见 [FEISHU_DOCS.md](./FEISHU_DOCS.md)，生产技术方案见 [ARCHITECTURE.md](./ARCHITECTURE.md)。
+> 本文档是产品事实的单一来源。视觉规范见 [DESIGN.md](./DESIGN.md)，实施状态见 [PROGRESS.md](./PROGRESS.md)，飞书 PRD 与页面说明的访问方式见 [FEISHU_DOCS.md](./FEISHU_DOCS.md)，生产技术方案见 [ARCHITECTURE.md](./ARCHITECTURE.md)，指标口径见 [METRICS.md](./METRICS.md)。
 
 ## 1. 产品概览
 
@@ -192,6 +192,7 @@
 - 被引用衣物的软删除与历史搭配占位保护。
 - AI 从衣橱挑选具体衣物、搭配对比、利用率分析和购买建议。
 - OOTD 日历、每日穿搭照片、3:4 分享卡片、社区和电商。
+- AI 穿衣建议评价卡片暂缓至 M10-01，选项为“有帮助 / 一般 / 没帮助”；当前 MVP 不提前实现。
 
 ## 10. 技术方向
 
