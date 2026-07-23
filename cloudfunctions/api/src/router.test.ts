@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import test from "node:test";
 
 import type { Profile } from "../../../packages/contracts/src/index.ts";
@@ -241,6 +241,73 @@ test("PATCH /v1/clothing/:id/source 确认正式云存储文件", async () => {
     "data" in result && (result.data as { version: number }).version,
     2,
   );
+});
+
+test("PATCH /v1/clothing/:id 按可信身份和版本更新已确认衣物", async () => {
+  const clothing: import("./clothing/repository").ClothingRepository = {
+    findByIdentity: async () => [],
+    createUploadDraft: async () => {
+      throw new Error("unused");
+    },
+    completeUpload: async () => {
+      throw new Error("unused");
+    },
+    update: async (id: string, input, identity) => {
+      assert.equal(id, "clothing_3");
+      assert.ok(input.expectedVersion >= 1);
+      assert.deepEqual(identity, {
+        openId: "trusted-open-id",
+        appId: "trusted-app-id",
+      });
+      return {
+        status: "updated",
+        clothing: {
+          id: "clothing_3",
+          name: input.name,
+          category: input.category,
+          color: input.color,
+          sourceFileId: "cloud://source.jpg",
+          processedFileId: "cloud://processed.png",
+          processingStatus: "ready",
+          createdAt: "2026-07-23T08:00:00.000Z",
+          updatedAt: "2026-07-23T08:01:00.000Z",
+          version: input.expectedVersion + 1,
+        },
+      };
+    },
+  };
+  const result = await routeRequest(
+    {
+      method: "PATCH",
+      path: "/v1/clothing/clothing_3",
+      body: {
+        name: "蓝色牛仔裤",
+        category: "bottom",
+        color: "蓝色",
+        expectedVersion: 4,
+      },
+    },
+    { openId: "trusted-open-id", appId: "trusted-app-id" },
+    "req_clothing_update",
+    profileRepository,
+    cityResolver,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    clothing,
+  );
+  assert.equal("data" in result, true);
+  if ("data" in result) {
+    assert.equal(
+      (result.data as { name: string }).name,
+      "蓝色牛仔裤",
+    );
+    assert.equal(
+      (result.data as { category: string }).category,
+      "bottom",
+    );
+  }
 });
 
 test("图片处理任务路由使用可信身份创建和查询任务", async () => {

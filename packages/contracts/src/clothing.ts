@@ -115,6 +115,12 @@ export const retryCutoutJobRequestSchema = z
     expectedVersion: z.number().int().positive(),
   })
   .strict();
+export const deleteClothingRequestSchema = z
+  .object({
+    expectedVersion: z.number().int().positive(),
+  })
+  .strict();
+
 export const confirmCutoutJobRequestSchema = z
   .object({
     expectedVersion: z.number().int().positive(),
@@ -157,6 +163,15 @@ export const cutoutJobSchema = z
     }
   });
 
+export const updateClothingRequestSchema = z
+  .object({
+    name: z.string().trim().min(1).max(80),
+    category: clothingCategorySchema,
+    color: z.string().trim().min(1).max(40),
+    expectedVersion: z.number().int().positive(),
+  })
+  .strict();
+
 export type ClothingCategory = z.infer<typeof clothingCategorySchema>;
 export type PublicClothingProcessingStatus = z.infer<
   typeof clothingProcessingStatusSchema
@@ -181,3 +196,9 @@ export type ConfirmCutoutJobRequest = z.infer<
 >;
 export type CutoutJobStatus = z.infer<typeof cutoutJobStatusSchema>;
 export type CutoutJob = z.infer<typeof cutoutJobSchema>;
+export type DeleteClothingRequest = z.infer<
+  typeof deleteClothingRequestSchema
+>;
+export type UpdateClothingRequest = z.infer<
+  typeof updateClothingRequestSchema
+>;

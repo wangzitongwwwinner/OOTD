@@ -7,6 +7,7 @@ import { WardrobeUploader } from '../../features/wardrobe/WardrobeUploader';
 import { WardrobeBrowser } from '../../features/wardrobe/WardrobeBrowser';
 import {
   confirmCutoutJob,
+  deleteClothing,
   ensureMediaSourceAccess,
   listClothing,
   mediaSelectionErrorMessage,
@@ -154,6 +155,15 @@ export default function WardrobePage() {
     }
   }
 
+  async function handleDelete(clothingId: string, expectedVersion: number) {
+    try {
+      await deleteClothing(clothingId, expectedVersion);
+      setItems((current) => current.filter((item) => item.id !== clothingId));
+    } catch (cause) {
+      setListError(cause instanceof Error ? cause.message : '删除失败，请重试');
+    }
+  }
+
   function resetUploader() {
     if (polling.current) polling.current.cancelled = true;
     setStatus('idle');
@@ -182,7 +192,15 @@ export default function WardrobePage() {
         {listError ? (
           <Text className="wardrobe-page__error">{listError}</Text>
         ) : null}
-        <WardrobeBrowser items={items} />
+        <WardrobeBrowser
+          items={items}
+          onUpdate={(updated) =>
+            setItems((current) =>
+              current.map((i) => (i.id === updated.id ? updated : i)),
+            )
+          }
+          onDelete={(id, version) => void handleDelete(id, version)}
+        />
       </View>
     </AuthenticatedPage>
   );

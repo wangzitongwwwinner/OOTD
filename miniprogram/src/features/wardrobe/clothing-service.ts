@@ -179,6 +179,48 @@ export async function confirmCutoutJob(
   return result.data;
 }
 
+export async function updateClothing(
+  clothingId: string,
+  name: string,
+  category: ClothingCategory,
+  color: string,
+  expectedVersion: number,
+): Promise<PublicClothing> {
+  const result = (
+    await Taro.cloud.callFunction({
+      name: 'api',
+      data: {
+        method: 'PATCH',
+        path: `/v1/clothing/${clothingId}`,
+        body: { name, category, color, expectedVersion },
+      },
+    })
+  ).result;
+  if (isFailure(result)) throw new Error(result.error.message);
+  if (
+    !isPublicClothingEnvelope(result) ||
+    result.data.processingStatus !== 'ready'
+  )
+    throw new Error('衣物编辑响应异常，请稍后重试');
+  return result.data;
+}
+
+export async function deleteClothing(
+  clothingId: string,
+  expectedVersion: number,
+): Promise<void> {
+  const result = (
+    await Taro.cloud.callFunction({
+      name: 'api',
+      data: {
+        method: 'DELETE',
+        path: `/v1/clothing/${clothingId}`,
+        body: { expectedVersion },
+      },
+    })
+  ).result;
+  if (isFailure(result)) throw new Error(result.error.message);
+}
 export async function listClothing(): Promise<PublicClothing[]> {
   const result = (
     await Taro.cloud.callFunction({

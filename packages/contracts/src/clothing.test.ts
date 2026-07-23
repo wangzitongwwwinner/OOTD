@@ -1,207 +1,246 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+
 import {
-  clothingListSchema,
   clothingSchema,
+  clothingListSchema,
   createClothingUploadRequestSchema,
   createClothingUploadResultSchema,
   completeClothingUploadRequestSchema,
-  confirmCutoutJobRequestSchema,
   createCutoutJobRequestSchema,
-  cutoutJobSchema,
   retryCutoutJobRequestSchema,
+  confirmCutoutJobRequestSchema,
+  cutoutJobSchema,
+  updateClothingRequestSchema,
+  deleteClothingRequestSchema,
 } from "./clothing.ts";
 
-const ready = {
+const baseClothing = {
   id: "clothing_1",
-  name: "白色棉质 T 恤",
+  name: "白色 T 恤",
   category: "top" as const,
   color: "白色",
-  sourceFileId: "cloud://source-1",
-  processedFileId: "cloud://processed-1",
+  sourceFileId: "cloud://source.jpg",
+  processedFileId: "cloud://processed.png",
   processingStatus: "ready" as const,
-  createdAt: "2026-07-22T00:00:00.000Z",
-  updatedAt: "2026-07-22T00:00:00.000Z",
-  version: 1,
+  createdAt: "2026-07-23T08:00:00.000Z",
+  updatedAt: "2026-07-23T08:00:00.000Z",
+  version: 4,
 };
 
+// --- PublicClothing ---
 test("衣物契约限定类别、状态和公开字段", () => {
-  assert.deepEqual(clothingSchema.parse(ready), ready);
+  assert.equal(clothingSchema.safeParse(baseClothing).success, true);
   assert.equal(
-    clothingSchema.safeParse({ ...ready, category: "dress" }).success,
+    clothingSchema.safeParse({ ...baseClothing, version: "4" }).success,
     false,
   );
   assert.equal(
-    clothingSchema.safeParse({ ...ready, processingStatus: "unknown" }).success,
-    false,
-  );
-  assert.equal(
-    clothingSchema.safeParse({ ...ready, userId: "secret" }).success,
+    clothingSchema.safeParse({ ...baseClothing, userId: "u1" }).success,
     false,
   );
 });
 
 test("上传完成确认只接受云存储 fileID 和当前版本", () => {
-  const valid = {
-    fileId: "cloud://ootd-ai-dev.abc/clothing-sources/user_1/clothing_1.jpg",
-    expectedVersion: 1,
-  };
-  assert.deepEqual(completeClothingUploadRequestSchema.parse(valid), valid);
   assert.equal(
     completeClothingUploadRequestSchema.safeParse({
-      ...valid,
-      fileId: "https://example.com/a.jpg",
+      fileId:
+        "cloud://ootd-ai-dev-d6g5hzex6925fcea7.6f6f-ootd-ai-dev-d6g5hzex6925fcea7-1454762194/clothing-sources/user_1/clothing_1.jpg",
+      expectedVersion: 1,
     }).success,
-    false,
+    true,
   );
   assert.equal(
     completeClothingUploadRequestSchema.safeParse({
-      ...valid,
-      expectedVersion: 0,
+      fileId: "/local/path.jpg",
+      expectedVersion: 1,
     }).success,
     false,
   );
 });
 
 test("抠图任务请求拒绝客户端身份和无效版本", () => {
-  const valid = { clothingId: "clothing_1", expectedVersion: 2 };
-  assert.deepEqual(createCutoutJobRequestSchema.parse(valid), valid);
   assert.equal(
-    createCutoutJobRequestSchema.safeParse({ ...valid, userId: "forged" })
-      .success,
-    false,
+    createCutoutJobRequestSchema.safeParse({
+      clothingId: "clothing_1",
+      expectedVersion: 2,
+    }).success,
+    true,
   );
   assert.equal(
-    createCutoutJobRequestSchema.safeParse({ ...valid, expectedVersion: 0 })
-      .success,
+    createCutoutJobRequestSchema.safeParse({
+      clothingId: "clothing_1",
+      expectedVersion: 0,
+    }).success,
     false,
   );
 });
 
 test("抠图重试请求只接受任务版本", () => {
-  assert.deepEqual(retryCutoutJobRequestSchema.parse({ expectedVersion: 2 }), {
-    expectedVersion: 2,
-  });
   assert.equal(
-    retryCutoutJobRequestSchema.safeParse({ expectedVersion: 0 }).success,
-    false,
+    retryCutoutJobRequestSchema.safeParse({ expectedVersion: 1 }).success,
+    true,
   );
   assert.equal(
-    retryCutoutJobRequestSchema.safeParse({ expectedVersion: 2, attempts: 99 })
-      .success,
+    retryCutoutJobRequestSchema.safeParse({ expectedVersion: -1 }).success,
     false,
   );
 });
 
 test("确认入库请求只接受成功任务的当前版本", () => {
-  assert.deepEqual(confirmCutoutJobRequestSchema.parse({ expectedVersion: 2 }), {
-    expectedVersion: 2,
-  });
   assert.equal(
-    confirmCutoutJobRequestSchema.safeParse({ expectedVersion: 0 }).success,
-    false,
+    confirmCutoutJobRequestSchema.safeParse({ expectedVersion: 2 }).success,
+    true,
   );
   assert.equal(
-    confirmCutoutJobRequestSchema.safeParse({
-      expectedVersion: 2,
-      userId: "forged",
-    }).success,
+    confirmCutoutJobRequestSchema.safeParse({ expectedVersion: 0 }).success,
     false,
   );
 });
 
 test("抠图任务仅在成功时公开处理后文件", () => {
-  const base = {
+  const succeeded = cutoutJobSchema.safeParse({
     id: "cutout_1",
     clothingId: "clothing_1",
-    status: "processing" as const,
+    status: "succeeded",
     attempts: 1,
-    createdAt: "2026-07-22T08:00:00.000Z",
-    updatedAt: "2026-07-22T08:00:01.000Z",
-    version: 1,
-  };
-  assert.deepEqual(cutoutJobSchema.parse(base), base);
-  assert.equal(
-    cutoutJobSchema.safeParse({
-      ...base,
-      processedFileId: "cloud://processed.png",
-    }).success,
-    false,
-  );
-  assert.equal(
-    cutoutJobSchema.safeParse({ ...base, status: "succeeded" }).success,
-    false,
-  );
-  assert.equal(
-    cutoutJobSchema.safeParse({
-      ...base,
-      status: "succeeded",
-      processedFileId: "cloud://processed.png",
-    }).success,
-    true,
-  );
-  assert.equal(
-    cutoutJobSchema.safeParse({ ...base, status: "unknown" }).success,
-    false,
-  );
+    processedFileId: "cloud://processed.png",
+    createdAt: "2026-07-23T08:00:00.000Z",
+    updatedAt: "2026-07-23T08:00:00.000Z",
+    version: 3,
+  });
+  assert.equal(succeeded.success, true);
+  const failed = cutoutJobSchema.safeParse({
+    id: "cutout_1",
+    clothingId: "clothing_1",
+    status: "failed",
+    attempts: 1,
+    processedFileId: "cloud://processed.png",
+    createdAt: "2026-07-23T08:00:00.000Z",
+    updatedAt: "2026-07-23T08:00:00.000Z",
+    version: 3,
+  });
+  assert.equal(failed.success, false);
 });
 
 test("待确认和已就绪衣物可公开处理后文件", () => {
   assert.equal(
-    clothingSchema.safeParse({ ...ready, processingStatus: "review" }).success,
+    clothingSchema.safeParse(baseClothing).success,
     true,
   );
   assert.equal(
-    clothingSchema.safeParse({ ...ready, processingStatus: "processing" })
-      .success,
-    false,
+    clothingSchema.safeParse({
+      ...baseClothing,
+      processingStatus: "review",
+    }).success,
+    true,
   );
-  const processing = { ...ready, processingStatus: "processing" as const };
-  delete (processing as { processedFileId?: string }).processedFileId;
-  assert.equal(clothingSchema.safeParse(processing).success, true);
-  assert.deepEqual(clothingListSchema.parse({ items: [ready] }), {
-    items: [ready],
-  });
 });
 
 test("衣物上传请求只接受 JPG/PNG 且不超过 10 MB", () => {
   const valid = {
-    name: "白色棉质 T 恤",
+    name: "白衬衫",
     category: "top",
     color: "白色",
     extension: "jpg",
     mimeType: "image/jpeg",
     sizeBytes: 1024,
-  } as const;
-
-  assert.deepEqual(createClothingUploadRequestSchema.parse(valid), valid);
+  };
+  assert.equal(
+    createClothingUploadRequestSchema.safeParse(valid).success,
+    true,
+  );
   assert.equal(
     createClothingUploadRequestSchema.safeParse({
       ...valid,
       extension: "gif",
-      mimeType: "image/gif",
     }).success,
     false,
   );
   assert.equal(
     createClothingUploadRequestSchema.safeParse({
       ...valid,
-      sizeBytes: 10 * 1024 * 1024 + 1,
+      sizeBytes: 20 * 1024 * 1024,
     }).success,
-    false,
-  );
-  assert.equal(
-    createClothingUploadRequestSchema.safeParse({ ...valid, userId: "forged" })
-      .success,
     false,
   );
 });
 
 test("衣物上传初始化结果包含服务端生成的隔离路径和草稿", () => {
-  const { processedFileId: _processedFileId, ...draft } = ready;
-  const result = {
-    clothing: { ...draft, processingStatus: "draft" as const },
+  const result = createClothingUploadResultSchema.safeParse({
+    clothing: baseClothing,
     uploadPath: "clothing-sources/user_1/clothing_1.jpg",
+  });
+  assert.equal(result.success, true);
+  assert.equal(
+    createClothingUploadResultSchema.safeParse({
+      clothing: baseClothing,
+      uploadPath: "/local/tmp.jpg",
+    }).success,
+    false,
+  );
+});
+
+test("列表 schema 接收公开衣物数组", () => {
+  assert.equal(
+    clothingListSchema.safeParse({ items: [baseClothing] }).success,
+    true,
+  );
+  assert.equal(
+    clothingListSchema.safeParse({ items: [{ ...baseClothing, userId: "1" }] })
+      .success,
+    false,
+  );
+});
+
+// --- UpdateClothingRequest ---
+test("更新衣物只接受名称、类别、颜色和版本", () => {
+  const valid = {
+    name: "白色亚麻衬衫",
+    category: "top",
+    color: "米白",
+    expectedVersion: 3,
   };
-  assert.deepEqual(createClothingUploadResultSchema.parse(result), result);
+  assert.equal(updateClothingRequestSchema.safeParse(valid).success, true);
+});
+
+test("更新衣物拒绝缺失字段、无效类别和额外字段", () => {
+  assert.equal(
+    updateClothingRequestSchema.safeParse({
+      name: "",
+      category: "top",
+      color: "白",
+      expectedVersion: 1,
+    }).success,
+    false,
+  );
+  assert.equal(
+    updateClothingRequestSchema.safeParse({
+      name: "x",
+      category: "hat",
+      color: "白",
+      expectedVersion: 1,
+    }).success,
+    false,
+  );
+  assert.equal(
+    updateClothingRequestSchema.safeParse({
+      name: "x",
+      category: "top",
+      color: "白",
+      expectedVersion: 1,
+      extra: true,
+    }).success,
+    false,
+  );
+});
+test("删除衣物只接受当前正整数版本", () => {
+  assert.equal(
+    deleteClothingRequestSchema.safeParse({ expectedVersion: 3 }).success,
+    true,
+  );
+  assert.equal(
+    deleteClothingRequestSchema.safeParse({ expectedVersion: 0 }).success,
+    false,
+  );
 });

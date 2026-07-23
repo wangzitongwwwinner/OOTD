@@ -1,21 +1,120 @@
-﻿.feature-placeholder {
-  padding: 48px 24px;
+.tryon-page {
+  min-height: 100vh;
+  padding-bottom: 40px;
+  background: #f7f4ee;
+}
+.tryon-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 20px 12px;
+}
+.tryon-page__title {
+  font-family: serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #24211d;
+}
+.tryon-page__add-btn {
+  border-radius: 999px;
+  background: #25221e;
+  color: #fff;
+  font-size: 13px;
+}
+.tryon-page__canvas-wrapper {
+  margin: 0 12px;
+  border: 1px solid #ded8cf;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fffdf9;
+}
+.tryon-page__canvas {
+  width: 100%;
+  height: 500px;
+}
+.tryon-page__node {
+  width: 120px;
+  height: 120px;
+}
+.tryon-page__node-inner {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+.tryon-page__node-tools {
+  position: absolute;
+  bottom: -32px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.tryon-page__node-tools button {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(37, 34, 30, 0.75);
+  color: #fff;
+}
+.tryon-page__picker-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+}
+.tryon-page__picker {
+  width: 100%;
+  max-height: 60vh;
+  padding: 24px 20px 32px;
+  border-radius: 20px 20px 0 0;
+  background: #fffdf9;
+}
+.tryon-page__picker-title {
+  display: block;
+  margin-bottom: 16px;
+  font-family: serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #24211d;
+}
+.tryon-page__picker-scroll {
+  max-height: 40vh;
+}
+.tryon-page__picker-empty {
+  display: block;
+  padding: 24px 0;
   text-align: center;
-}
-.feature-placeholder__eyebrow {
-  font-size: 11px;
-  letter-spacing: 2px;
   color: #999;
-}
-.feature-placeholder__title {
-  display: block;
-  margin-top: 12px;
-  font-size: 22px;
-  font-weight: 600;
-}
-.feature-placeholder__copy {
-  display: block;
-  margin-top: 8px;
   font-size: 14px;
-  color: #999;
+}
+.tryon-page__picker-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 8px;
+  border-bottom: 1px solid #efebe4;
+}
+.tryon-page__picker-item image {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  background: #f1ece3;
+}
+.tryon-page__picker-item.is-used {
+  opacity: 0.5;
+}
+.tryon-page__picker-used {
+  margin-left: auto;
+  color: #8b8378;
+  font-size: 12px;
+}
+.tryon-page__picker-close {
+  margin-top: 16px;
+  border-radius: 999px;
+  background: #25221e;
+  color: #fff;
 }

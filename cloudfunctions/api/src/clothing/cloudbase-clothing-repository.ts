@@ -8,6 +8,8 @@ import {
   type CreateClothingUploadResult,
   type CompleteClothingUploadRequest,
   type PublicClothing,
+  type UpdateClothingRequest,
+  type DeleteClothingRequest,
 } from "../../../../packages/contracts/src/index.ts";
 import type { TrustedIdentity } from "../context.ts";
 import type { ClothingRepository } from "./repository.ts";
@@ -104,6 +106,72 @@ export class CloudBaseClothingRepository implements ClothingRepository {
     return { status: "updated" as const, clothing: toPublicClothing(next) };
   }
 
+  async update(
+    id: string,
+    input: UpdateClothingRequest,
+    identity: TrustedIdentity,
+  ) {
+    const userId = await this.resolveUserId(identity);
+    if (!userId) return { status: "not_found" as const };
+    const result = await this.database
+      .collection("clothing")
+      .where({ id, userId, processingStatus: "ready" })
+      .limit(1)
+      .get();
+    const stored = result.data[0] as Record<string, unknown> | undefined;
+    if (!stored) return { status: "not_found" as const };
+    if (stored.version !== input.expectedVersion)
+      return { status: "conflict" as const };
+    const updatedAt = new Date().toISOString();
+    const nextVersion = input.expectedVersion + 1;
+    const next = {
+      ...stored,
+      name: input.name,
+      category: input.category,
+      color: input.color,
+      updatedAt,
+      version: nextVersion,
+    };
+    const updateResult = await this.database
+      .collection("clothing")
+      .where({ id, userId, version: input.expectedVersion })
+      .update({
+        name: input.name,
+        category: input.category,
+        color: input.color,
+        updatedAt,
+        version: nextVersion,
+      });
+    if (updateResult.updated !== 1)
+      return { status: "conflict" as const };
+    return { status: "updated" as const, clothing: toPublicClothing(next) };
+  }
+
+
+  async delete(
+    id: string,
+    input: DeleteClothingRequest,
+    identity: TrustedIdentity,
+  ) {
+    const userId = await this.resolveUserId(identity);
+    if (!userId) return { status: "not_found" as const };
+    const result = await this.database
+      .collection("clothing")
+      .where({ id, userId, processingStatus: "ready" })
+      .limit(1)
+      .get();
+    const stored = result.data[0] as Record<string, unknown> | undefined;
+    if (!stored) return { status: "not_found" as const };
+    if (stored.version !== input.expectedVersion)
+      return { status: "conflict" as const };
+    const removeResult = await this.database
+      .collection("clothing")
+      .where({ id, userId, version: input.expectedVersion })
+      .remove();
+    if (removeResult.deleted !== 1)
+      return { status: "conflict" as const };
+    return { status: "deleted" as const };
+  }
   private async resolveUserId(
     identity: TrustedIdentity,
   ): Promise<string | undefined> {

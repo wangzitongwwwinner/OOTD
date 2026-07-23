@@ -44,4 +44,10 @@ vi.mock('@tarojs/components', () => ({
     }),
   View: (props: React.HTMLAttributes<HTMLDivElement>) =>
     React.createElement('div', props),
+  Picker: (props: Record<string, unknown>) =>
+    React.createElement('div', {
+      ...props,
+      'data-mode': props.mode,
+      'data-value': props.value,
+    }),
 }));

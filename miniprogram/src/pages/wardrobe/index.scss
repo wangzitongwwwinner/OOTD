@@ -184,3 +184,58 @@
   font-size: 14px;
   font-weight: 700;
 }
+
+.wardrobe-browser__edit-btn {
+  margin-top: 6px;
+  border: 1px solid #ded8cf;
+  border-radius: 999px;
+  background: #fffdf9;
+  color: #655e55;
+  font-size: 12px;
+}
+.wardrobe-browser__card--editing input {
+  margin-top: 6px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ded8cf;
+  border-radius: 10px;
+  background: #fffdf9;
+  font-size: 12px;
+}
+.wardrobe-browser__picker {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px solid #ded8cf;
+  border-radius: 10px;
+  background: #fffdf9;
+  color: #655e55;
+  font-size: 12px;
+}
+.wardrobe-browser__edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.wardrobe-browser__edit-actions button {
+  flex: 1;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.wardrobe-browser__edit-actions button:last-child {
+  background: #25221e;
+  color: #fff;
+}
+
+.wardrobe-browser__card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+.wardrobe-browser__del-btn {
+  border: 1px solid #d4a0a0;
+  border-radius: 999px;
+  background: #fff5f5;
+  color: #ad3d32;
+  font-size: 12px;
+}

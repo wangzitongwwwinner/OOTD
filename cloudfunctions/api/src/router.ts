@@ -27,6 +27,8 @@ import type { LlmProvider } from "./recommendation/llm-provider.ts";
 import { listClothing } from "./clothing/list-clothing.ts";
 import { createClothingUpload } from "./clothing/create-upload.ts";
 import { completeClothingUpload } from "./clothing/complete-upload.ts";
+import { deleteClothing } from "./clothing/delete-clothing.ts";
+import { updateClothing } from "./clothing/update-clothing.ts";
 import type { ClothingRepository } from "./clothing/repository.ts";
 import {
   confirmCutoutJob,
@@ -203,7 +205,77 @@ export async function routeRequest(
     );
   }
 
+  if (
+    event.method === "PATCH" &&
+    typeof event.path === "string" &&
+    /^\/v1\/clothing\/[^/]+$/.test(event.path) &&
+    !/\/source$/.test(event.path) &&
+    !/\/confirm$/.test(event.path)
+  ) {
+    if (!clothingRepository)
+      return failure(
+        "INTERNAL_ERROR",
+        "衣橱服务暂时不可用，请稍后重试",
+        true,
+        requestId,
+      );
+    const id = event.path.split("/")[3] ?? "";
+    return updateClothing(
+      id,
+      event.body,
+      identity,
+      clothingRepository,
+      requestId,
+    );
+  }
+
+
+  if (
+    event.method === "DELETE" &&
+    typeof event.path === "string" &&
+    /^\/v1\/clothing\/[^/]+$/.test(event.path)
+  ) {
+    if (!clothingRepository)
+      return failure(
+        "INTERNAL_ERROR",
+        "衣橱服务暂时不可用，请稍后重试",
+        true,
+        requestId,
+      );
+    const id = event.path.split("/")[3] ?? "";
+    return deleteClothing(
+      id,
+      event.body,
+      identity,
+      clothingRepository,
+      requestId,
+    );
+  }
   if (event.method === "POST" && event.path === "/v1/image-processing/jobs") {
+  if (
+    event.method === "PATCH" &&
+    typeof event.path === "string" &&
+    /^\/v1\/clothing\/[^/]+$/.test(event.path) &&
+    !/\/source$/.test(event.path) &&
+    !/\/confirm$/.test(event.path)
+  ) {
+    if (!clothingRepository)
+      return failure(
+        "INTERNAL_ERROR",
+        "衣橱服务暂时不可用，请稍后重试",
+        true,
+        requestId,
+      );
+    const id = event.path.split("/")[3] ?? "";
+    return updateClothing(
+      id,
+      event.body,
+      identity,
+      clothingRepository,
+      requestId,
+    );
+  }
+
     if (!imageProcessing)
       return failure(
         "EXTERNAL_SERVICE_ERROR",
