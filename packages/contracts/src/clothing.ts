@@ -9,6 +9,7 @@ export const clothingCategorySchema = z.enum([
 export const clothingProcessingStatusSchema = z.enum([
   "draft",
   "processing",
+  "review",
   "ready",
   "failed",
 ]);
@@ -29,6 +30,7 @@ export const clothingSchema = z
   .strict()
   .superRefine((value, context) => {
     if (
+      value.processingStatus !== "review" &&
       value.processingStatus !== "ready" &&
       value.processedFileId !== undefined
     ) {
@@ -39,7 +41,8 @@ export const clothingSchema = z
       });
     }
     if (
-      value.processingStatus === "ready" &&
+      (value.processingStatus === "review" ||
+        value.processingStatus === "ready") &&
       value.processedFileId === undefined
     ) {
       context.addIssue({
@@ -112,6 +115,11 @@ export const retryCutoutJobRequestSchema = z
     expectedVersion: z.number().int().positive(),
   })
   .strict();
+export const confirmCutoutJobRequestSchema = z
+  .object({
+    expectedVersion: z.number().int().positive(),
+  })
+  .strict();
 
 export const cutoutJobStatusSchema = z.enum([
   "queued",
@@ -168,5 +176,8 @@ export type CreateCutoutJobRequest = z.infer<
   typeof createCutoutJobRequestSchema
 >;
 export type RetryCutoutJobRequest = z.infer<typeof retryCutoutJobRequestSchema>;
+export type ConfirmCutoutJobRequest = z.infer<
+  typeof confirmCutoutJobRequestSchema
+>;
 export type CutoutJobStatus = z.infer<typeof cutoutJobStatusSchema>;
 export type CutoutJob = z.infer<typeof cutoutJobSchema>;

@@ -1,11 +1,14 @@
 import {
   createCutoutJobRequestSchema,
+  clothingSchema,
+  confirmCutoutJobRequestSchema,
   cutoutJobSchema,
   failure,
   retryCutoutJobRequestSchema,
   success,
   type ApiEnvelope,
   type CutoutJob,
+  type PublicClothing,
 } from "../../../../packages/contracts/src/index.ts";
 import type { TrustedIdentity } from "../context.ts";
 import type { CutoutProvider } from "./provider.ts";
@@ -145,6 +148,47 @@ export async function retryCutoutJob(
     return failure(
       "EXTERNAL_SERVICE_ERROR",
       "智能抠图暂时不可用，请稍后重试",
+      true,
+      requestId,
+    );
+  }
+}
+
+export async function confirmCutoutJob(
+  id: string,
+  body: unknown,
+  identity: TrustedIdentity,
+  dependencies: Dependencies,
+  requestId: string,
+): Promise<ApiEnvelope<PublicClothing>> {
+  const input = confirmCutoutJobRequestSchema.safeParse(body);
+  if (!id || !input.success)
+    return failure(
+      "VALIDATION_ERROR",
+      "确认请求无效，请刷新后重试",
+      false,
+      requestId,
+    );
+  try {
+    const result = await dependencies.repository.confirm(
+      id,
+      input.data.expectedVersion,
+      identity,
+    );
+    if (result.status === "not_found")
+      return failure("NOT_FOUND", "抠图任务不存在", false, requestId);
+    if (result.status === "conflict")
+      return failure(
+        "CONFLICT",
+        "任务状态已更新，请刷新后重试",
+        true,
+        requestId,
+      );
+    return success(clothingSchema.parse(result.clothing), requestId);
+  } catch {
+    return failure(
+      "INTERNAL_ERROR",
+      "确认入库失败，请稍后重试",
       true,
       requestId,
     );

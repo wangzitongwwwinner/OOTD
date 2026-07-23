@@ -7,6 +7,7 @@ type Status =
   | 'uploaded'
   | 'failed'
   | 'processing'
+  | 'confirming'
   | 'succeeded'
   | 'cutout_failed';
 
@@ -17,6 +18,8 @@ interface Props {
   processedFileId?: string;
   onChoose: (source: Source) => void;
   onRetry?: () => void;
+  onConfirm?: () => void;
+  onRetake?: () => void;
 }
 
 export function WardrobeUploader({
@@ -26,8 +29,13 @@ export function WardrobeUploader({
   processedFileId,
   onChoose,
   onRetry,
+  onConfirm,
+  onRetake,
 }: Props) {
-  const busy = status === 'uploading' || status === 'processing';
+  const busy =
+    status === 'uploading' ||
+    status === 'processing' ||
+    status === 'confirming';
   return (
     <View className="wardrobe-upload">
       <Text className="wardrobe-upload__eyebrow">ADD A PIECE</Text>
@@ -56,15 +64,29 @@ export function WardrobeUploader({
           <Button onClick={onRetry}>重新抠图</Button>
         </View>
       ) : null}
-      {status === 'succeeded' && sourcePreview && processedFileId ? (
-        <View className="wardrobe-upload__comparison">
-          <View aria-label="抠图前">
-            <Text>抠图前</Text>
-            <Image src={sourcePreview} mode="aspectFit" />
+      {(status === 'succeeded' || status === 'confirming') &&
+      sourcePreview &&
+      processedFileId ? (
+        <View>
+          <View className="wardrobe-upload__comparison">
+            <View aria-label="抠图前">
+              <Text>抠图前</Text>
+              <Image src={sourcePreview} mode="aspectFit" />
+            </View>
+            <View aria-label="抠图后">
+              <Text>抠图后</Text>
+              <Image src={processedFileId} mode="aspectFit" />
+            </View>
           </View>
-          <View aria-label="抠图后">
-            <Text>抠图后</Text>
-            <Image src={processedFileId} mode="aspectFit" />
+          <View className="wardrobe-upload__review-actions">
+            <Button onClick={onRetake}>重新拍摄</Button>
+            <Button
+              loading={status === 'confirming'}
+              disabled={status === 'confirming'}
+              onClick={onConfirm}
+            >
+              {status === 'confirming' ? '正在入库…' : '确认入库'}
+            </Button>
           </View>
         </View>
       ) : null}

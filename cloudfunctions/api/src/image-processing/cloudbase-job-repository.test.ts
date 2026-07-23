@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { CloudBaseCutoutJobRepository } from "./cloudbase-job-repository.ts";
 
-function databaseFixture(clothingVersion = 2) {
+function databaseFixture(clothingVersion = 2, readyForReview = false) {
   const added: Record<string, unknown>[] = [];
   const updates: Record<string, unknown>[] = [];
   const users = [
@@ -17,8 +17,16 @@ function databaseFixture(clothingVersion = 2) {
     {
       id: "clothing_1",
       userId: "user_1",
+      name: "白色 T 恤",
+      category: "top",
+      color: "白色",
       sourceFileId: "cloud://source.jpg",
-      processingStatus: "draft",
+      ...(readyForReview
+        ? { processedFileId: "cloud://processed.png" }
+        : {}),
+      processingStatus: readyForReview ? "review" : "draft",
+      createdAt: "2026-07-22T08:00:00.000Z",
+      updatedAt: "2026-07-22T08:00:00.000Z",
       version: clothingVersion,
     },
   ];
@@ -27,10 +35,13 @@ function databaseFixture(clothingVersion = 2) {
       id: "cutout_existing",
       clothingId: "clothing_1",
       userId: "user_1",
-      status: "processing",
+      status: readyForReview ? "succeeded" : "processing",
       attempts: 1,
       sourceFileId: "cloud://source.jpg",
       providerTaskId: "mps_1",
+      ...(readyForReview
+        ? { processedFileId: "cloud://processed.png" }
+        : {}),
       createdAt: "2026-07-22T08:00:00.000Z",
       updatedAt: "2026-07-22T08:00:00.000Z",
       version: 1,
@@ -112,4 +123,26 @@ test("查询任务时移除用户和数据库内部字段", async () => {
   assert.equal(job?.providerTaskId, "mps_1");
   assert.equal(job?.sourceFileId, "cloud://source.jpg");
   assert.equal("userId" in (job ?? {}), false);
+});
+
+test("仅将当前用户待确认的抠图结果转为已入库", async () => {
+  const fixture = databaseFixture(3, true);
+  const repository = new CloudBaseCutoutJobRepository(fixture.database);
+  const result = await repository.confirm(
+    "cutout_existing",
+    1,
+    { openId: "trusted-open-id", appId: "trusted-app-id" },
+  );
+  assert.equal(result.status, "confirmed");
+  assert.equal(
+    result.status === "confirmed"
+      ? result.clothing.processingStatus
+      : undefined,
+    "ready",
+  );
+  assert.deepEqual(fixture.updates[0], {
+    processingStatus: "ready",
+    updatedAt: fixture.updates[0]?.updatedAt,
+    version: 4,
+  });
 });

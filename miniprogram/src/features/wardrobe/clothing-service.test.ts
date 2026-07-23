@@ -2,7 +2,9 @@ import Taro from '@tarojs/taro';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  confirmCutoutJob,
   ensureMediaSourceAccess,
+  listClothing,
   mediaSelectionErrorMessage,
   pollCutoutJob,
   retryCutoutJob,
@@ -197,6 +199,19 @@ describe('clothing service', () => {
     expect(result.processedFileId).toBe('cloud://processed.png');
   });
 
+  it('使用小程序兼容的取消标记停止轮询', async () => {
+    const cancellation = { cancelled: true };
+
+    await expect(
+      pollCutoutJob('cutout_1', {
+        intervalMs: 0,
+        maxPolls: 1,
+        cancellation,
+      }),
+    ).rejects.toThrow('抠图查询已取消');
+    expect(Taro.cloud.callFunction).not.toHaveBeenCalled();
+  });
+
   it('失败任务按当前版本显式重试', async () => {
     vi.mocked(Taro.cloud.callFunction).mockResolvedValueOnce({
       result: {
@@ -222,5 +237,32 @@ describe('clothing service', () => {
       },
     });
     expect(result.attempts).toBe(2);
+  });
+
+  it('确认抠图结果入库并读取正式衣物列表', async () => {
+    const ready = {
+      id: 'clothing_1',
+      name: '白色 T 恤',
+      category: 'top',
+      color: '白色',
+      sourceFileId: 'cloud://source.jpg',
+      processedFileId: 'cloud://processed.png',
+      processingStatus: 'ready',
+      createdAt: '2026-07-22T08:00:00.000Z',
+      updatedAt: '2026-07-22T08:03:00.000Z',
+      version: 4,
+    };
+    vi.mocked(Taro.cloud.callFunction)
+      .mockResolvedValueOnce({
+        result: { data: ready, requestId: 'req_confirm' },
+      } as never)
+      .mockResolvedValueOnce({
+        result: { data: { items: [ready] }, requestId: 'req_list' },
+      } as never);
+
+    expect((await confirmCutoutJob('cutout_1', 2)).processingStatus).toBe(
+      'ready',
+    );
+    expect(await listClothing()).toEqual([ready]);
   });
 });

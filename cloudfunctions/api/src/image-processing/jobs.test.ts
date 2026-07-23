@@ -1,9 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { CutoutJob } from "../../../../packages/contracts/src/index.ts";
+import type {
+  CutoutJob,
+  PublicClothing,
+} from "../../../../packages/contracts/src/index.ts";
 import type { TrustedIdentity } from "../context.ts";
-import { getCutoutJob, retryCutoutJob, startCutoutJob } from "./jobs.ts";
+import {
+  confirmCutoutJob,
+  getCutoutJob,
+  retryCutoutJob,
+  startCutoutJob,
+} from "./jobs.ts";
 import type { CutoutProvider } from "./provider.ts";
 import type { CutoutJobRepository, InternalCutoutJob } from "./repository.ts";
 
@@ -59,6 +67,24 @@ function repository(
         sourceFileId: "cloud://source.jpg",
       },
     }),
+    confirm: async (_id, _expectedVersion, received) => {
+      assert.deepEqual(received, identity);
+      return {
+        status: "confirmed",
+        clothing: {
+          id: "clothing_1",
+          name: "白色 T 恤",
+          category: "top",
+          color: "白色",
+          sourceFileId: "cloud://source.jpg",
+          processedFileId: "cloud://processed.png",
+          processingStatus: "ready",
+          createdAt: "2026-07-22T08:00:00.000Z",
+          updatedAt: "2026-07-22T08:01:00.000Z",
+          version: 4,
+        } satisfies PublicClothing,
+      };
+    },
     ...overrides,
   };
 }
@@ -210,4 +236,22 @@ test("供应商提交失败时将已创建任务标记为失败", async () => {
     "error" in result && result.error.code,
     "EXTERNAL_SERVICE_ERROR",
   );
+});
+
+test("成功任务按可信身份和当前版本确认入库", async () => {
+  const result = await confirmCutoutJob(
+    "cutout_1",
+    { expectedVersion: 2 },
+    identity,
+    {
+      repository: repository(),
+      provider: {
+        submit: async () => ({ taskId: "unused" }),
+        inspect: async () => ({ status: "processing" }),
+      },
+    },
+    "req_confirm",
+  );
+
+  assert.equal("data" in result && result.data.processingStatus, "ready");
 });

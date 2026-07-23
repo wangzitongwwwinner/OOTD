@@ -1,9 +1,11 @@
 import { randomUUID } from "node:crypto";
 import type { Db } from "@cloudbase/database";
 import {
+  clothingSchema,
   cutoutJobSchema,
   type CreateCutoutJobRequest,
   type CutoutJob,
+  type PublicClothing,
   type RetryCutoutJobRequest,
 } from "../../../../packages/contracts/src/index.ts";
 import type { TrustedIdentity } from "../context.ts";
@@ -114,7 +116,7 @@ export class CloudBaseCutoutJobRepository implements CutoutJobRepository {
     await this.database
       .collection("clothing")
       .where({ id: job.clothingId, processingStatus: "processing" })
-      .update({ processingStatus: "ready", processedFileId, updatedAt: now });
+      .update({ processingStatus: "review", processedFileId, updatedAt: now });
     await this.database
       .collection("image_processing_jobs")
       .where({ id: job.id })
@@ -191,6 +193,73 @@ export class CloudBaseCutoutJobRepository implements CutoutJobRepository {
     return { status: "retried" as const, job: next };
   }
 
+  async confirm(
+    id: string,
+    expectedVersion: number,
+    identity: TrustedIdentity,
+  ) {
+    const userId = await this.resolveUserId(identity);
+    if (!userId) return { status: "not_found" as const };
+    const jobResult = await this.database
+      .collection("image_processing_jobs")
+      .where({ id, userId })
+      .limit(1)
+      .get();
+    const storedJob = jobResult.data[0] as
+      | Record<string, unknown>
+      | undefined;
+    if (!storedJob) return { status: "not_found" as const };
+    if (
+      storedJob.status !== "succeeded" ||
+      storedJob.version !== expectedVersion ||
+      typeof storedJob.clothingId !== "string" ||
+      typeof storedJob.processedFileId !== "string"
+    ) {
+      return { status: "conflict" as const };
+    }
+    const clothingResult = await this.database
+      .collection("clothing")
+      .where({ id: storedJob.clothingId, userId })
+      .limit(1)
+      .get();
+    const storedClothing = clothingResult.data[0] as
+      | Record<string, unknown>
+      | undefined;
+    if (!storedClothing) return { status: "not_found" as const };
+    if (
+      storedClothing.processingStatus !== "review" ||
+      storedClothing.processedFileId !== storedJob.processedFileId ||
+      typeof storedClothing.version !== "number"
+    ) {
+      return { status: "conflict" as const };
+    }
+    const now = new Date().toISOString();
+    const nextVersion = storedClothing.version + 1;
+    const updated = await this.database
+      .collection("clothing")
+      .where({
+        id: storedJob.clothingId,
+        userId,
+        processingStatus: "review",
+        version: storedClothing.version,
+      })
+      .update({
+        processingStatus: "ready",
+        updatedAt: now,
+        version: nextVersion,
+      });
+    if (updated.updated !== 1) return { status: "conflict" as const };
+    return {
+      status: "confirmed" as const,
+      clothing: toPublicClothing({
+        ...storedClothing,
+        processingStatus: "ready",
+        updatedAt: now,
+        version: nextVersion,
+      }),
+    };
+  }
+
   private async resolveUserId(
     identity: TrustedIdentity,
   ): Promise<string | undefined> {
@@ -202,6 +271,11 @@ export class CloudBaseCutoutJobRepository implements CutoutJobRepository {
     const user = users.data[0] as { id?: unknown } | undefined;
     return user && typeof user.id === "string" ? user.id : undefined;
   }
+}
+
+function toPublicClothing(stored: Record<string, unknown>): PublicClothing {
+  const { userId: _user, _id: _databaseId, ...publicFields } = stored;
+  return clothingSchema.parse(publicFields);
 }
 
 function toInternalJob(stored: unknown): InternalCutoutJob {

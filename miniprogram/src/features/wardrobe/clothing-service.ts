@@ -21,6 +21,13 @@ export interface ClothingDraft {
   updatedAt: string;
   version: number;
 }
+export interface PublicClothing extends Omit<
+  ClothingDraft,
+  'processingStatus'
+> {
+  processedFileId?: string;
+  processingStatus: 'draft' | 'processing' | 'review' | 'ready' | 'failed';
+}
 export interface CutoutJob {
   id: string;
   clothingId: string;
@@ -31,6 +38,9 @@ export interface CutoutJob {
   createdAt: string;
   updatedAt: string;
   version: number;
+}
+export interface PollCancellation {
+  cancelled: boolean;
 }
 
 export async function ensureMediaSourceAccess(
@@ -146,25 +156,66 @@ export async function retryCutoutJob(
   });
 }
 
+export async function confirmCutoutJob(
+  jobId: string,
+  expectedVersion: number,
+): Promise<PublicClothing> {
+  const result = (
+    await Taro.cloud.callFunction({
+      name: 'api',
+      data: {
+        method: 'POST',
+        path: `/v1/image-processing/jobs/${jobId}/confirm`,
+        body: { expectedVersion },
+      },
+    })
+  ).result;
+  if (isFailure(result)) throw new Error(result.error.message);
+  if (
+    !isPublicClothingEnvelope(result) ||
+    result.data.processingStatus !== 'ready'
+  )
+    throw new Error('确认入库响应异常，请稍后重试');
+  return result.data;
+}
+
+export async function listClothing(): Promise<PublicClothing[]> {
+  const result = (
+    await Taro.cloud.callFunction({
+      name: 'api',
+      data: { method: 'GET', path: '/v1/clothing' },
+    })
+  ).result;
+  if (isFailure(result)) throw new Error(result.error.message);
+  if (
+    !isRecord(result) ||
+    !isRecord(result.data) ||
+    !Array.isArray(result.data.items) ||
+    !result.data.items.every(isPublicClothing)
+  )
+    throw new Error('衣橱加载失败，请稍后重试');
+  return result.data.items.filter((item) => item.processingStatus === 'ready');
+}
+
 export async function pollCutoutJob(
   jobId: string,
   options: {
     intervalMs?: number;
     maxPolls?: number;
-    signal?: AbortSignal;
+    cancellation?: PollCancellation;
   } = {},
 ): Promise<CutoutJob> {
   const intervalMs = options.intervalMs ?? 1000;
   const maxPolls = options.maxPolls ?? 12;
   for (let attempt = 0; attempt < maxPolls; attempt += 1) {
-    if (options.signal?.aborted) throw new Error('抠图查询已取消');
+    if (options.cancellation?.cancelled) throw new Error('抠图查询已取消');
     const job = await callCutoutApi({
       method: 'GET',
       path: `/v1/image-processing/jobs/${jobId}`,
     });
     if (job.status === 'succeeded' || job.status === 'failed') return job;
     if (attempt + 1 < maxPolls && intervalMs > 0)
-      await delay(intervalMs, options.signal);
+      await delay(intervalMs, options.cancellation);
   }
   throw new Error('处理时间较长，请稍后重试查询');
 }
@@ -184,17 +235,15 @@ async function callCutoutApi(
   return result.data;
 }
 
-function delay(milliseconds: number, signal?: AbortSignal): Promise<void> {
+function delay(
+  milliseconds: number,
+  cancellation?: PollCancellation,
+): Promise<void> {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(resolve, milliseconds);
-    signal?.addEventListener(
-      'abort',
-      () => {
-        clearTimeout(timer);
-        reject(new Error('抠图查询已取消'));
-      },
-      { once: true },
-    );
+    setTimeout(() => {
+      if (cancellation?.cancelled) reject(new Error('抠图查询已取消'));
+      else resolve();
+    }, milliseconds);
   });
 }
 
@@ -229,6 +278,24 @@ function isClothingEnvelope(value: unknown): value is { data: ClothingDraft } {
     isRecord(value.data) &&
     typeof value.data.id === 'string' &&
     value.data.processingStatus === 'draft'
+  );
+}
+function isPublicClothingEnvelope(
+  value: unknown,
+): value is { data: PublicClothing } {
+  return isRecord(value) && isPublicClothing(value.data);
+}
+function isPublicClothing(value: unknown): value is PublicClothing {
+  return (
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    typeof value.name === 'string' &&
+    typeof value.color === 'string' &&
+    ['top', 'bottom', 'shoes', 'accessory'].includes(String(value.category)) &&
+    ['draft', 'processing', 'review', 'ready', 'failed'].includes(
+      String(value.processingStatus),
+    ) &&
+    typeof value.version === 'number'
   );
 }
 function isCutoutJobEnvelope(value: unknown): value is { data: CutoutJob } {

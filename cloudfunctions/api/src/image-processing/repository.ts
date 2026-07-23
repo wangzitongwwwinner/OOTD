@@ -1,6 +1,7 @@
 import type {
   CreateCutoutJobRequest,
   CutoutJob,
+  PublicClothing,
   RetryCutoutJobRequest,
 } from "../../../../packages/contracts/src/index.ts";
 import type { TrustedIdentity } from "../context.ts";
@@ -38,5 +39,14 @@ export interface CutoutJobRepository {
     | { status: "not_found" }
     | { status: "conflict" }
     | { status: "exhausted" }
+  >;
+  confirm(
+    id: string,
+    expectedVersion: number,
+    identity: TrustedIdentity,
+  ): Promise<
+    | { status: "confirmed"; clothing: PublicClothing }
+    | { status: "not_found" }
+    | { status: "conflict" }
   >;
 }

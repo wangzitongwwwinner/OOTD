@@ -6,6 +6,7 @@ import {
   createClothingUploadRequestSchema,
   createClothingUploadResultSchema,
   completeClothingUploadRequestSchema,
+  confirmCutoutJobRequestSchema,
   createCutoutJobRequestSchema,
   cutoutJobSchema,
   retryCutoutJobRequestSchema,
@@ -92,6 +93,23 @@ test("抠图重试请求只接受任务版本", () => {
   );
 });
 
+test("确认入库请求只接受成功任务的当前版本", () => {
+  assert.deepEqual(confirmCutoutJobRequestSchema.parse({ expectedVersion: 2 }), {
+    expectedVersion: 2,
+  });
+  assert.equal(
+    confirmCutoutJobRequestSchema.safeParse({ expectedVersion: 0 }).success,
+    false,
+  );
+  assert.equal(
+    confirmCutoutJobRequestSchema.safeParse({
+      expectedVersion: 2,
+      userId: "forged",
+    }).success,
+    false,
+  );
+});
+
 test("抠图任务仅在成功时公开处理后文件", () => {
   const base = {
     id: "cutout_1",
@@ -128,7 +146,11 @@ test("抠图任务仅在成功时公开处理后文件", () => {
   );
 });
 
-test("只有已就绪衣物可公开处理后文件", () => {
+test("待确认和已就绪衣物可公开处理后文件", () => {
+  assert.equal(
+    clothingSchema.safeParse({ ...ready, processingStatus: "review" }).success,
+    true,
+  );
   assert.equal(
     clothingSchema.safeParse({ ...ready, processingStatus: "processing" })
       .success,

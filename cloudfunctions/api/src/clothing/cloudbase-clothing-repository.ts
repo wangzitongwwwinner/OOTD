@@ -25,7 +25,7 @@ export class CloudBaseClothingRepository implements ClothingRepository {
     if (!user || typeof user.id !== "string") return [];
     const result = await this.database
       .collection("clothing")
-      .where({ userId: user.id })
+      .where({ userId: user.id, processingStatus: "ready" })
       .orderBy("updatedAt", "desc")
       .limit(500)
       .get();

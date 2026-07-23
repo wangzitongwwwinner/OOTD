@@ -9,6 +9,7 @@ import { trustedIdentityFromWxContext } from "./context.ts";
 import { CloudBaseItineraryRepository } from "./itineraries/cloudbase-itinerary-repository.ts";
 import { CloudBaseClothingRepository } from "./clothing/cloudbase-clothing-repository.ts";
 import { CloudBaseCutoutJobRepository } from "./image-processing/cloudbase-job-repository.ts";
+import { readMpsEnvironment } from "./image-processing/mps-config.ts";
 import {
   TencentMpsCutoutProvider,
   type MpsClient,
@@ -66,19 +67,10 @@ export async function main(
 }
 
 function createImageProcessingDependencies() {
-  const secretId = process.env.TENCENTCLOUD_SECRET_ID?.trim();
-  const secretKey = process.env.TENCENTCLOUD_SECRET_KEY?.trim();
-  const outputBucket = process.env.MPS_OUTPUT_BUCKET?.trim();
-  const outputRegion = process.env.MPS_OUTPUT_REGION?.trim();
-  const outputFileIdPrefix = process.env.MPS_OUTPUT_FILE_ID_PREFIX?.trim();
-  if (
-    !secretId ||
-    !secretKey ||
-    !outputBucket ||
-    !outputRegion ||
-    !outputFileIdPrefix
-  )
-    return undefined;
+  const config = readMpsEnvironment(process.env);
+  if (!config) return undefined;
+  const { secretId, secretKey, outputBucket, outputRegion, outputFileIdPrefix } =
+    config;
 
   const Client = mps.v20190612.Client;
   const client = new Client({

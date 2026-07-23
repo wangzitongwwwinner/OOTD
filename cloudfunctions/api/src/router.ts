@@ -29,6 +29,7 @@ import { createClothingUpload } from "./clothing/create-upload.ts";
 import { completeClothingUpload } from "./clothing/complete-upload.ts";
 import type { ClothingRepository } from "./clothing/repository.ts";
 import {
+  confirmCutoutJob,
   getCutoutJob,
   retryCutoutJob,
   startCutoutJob,
@@ -243,6 +244,28 @@ export async function routeRequest(
       );
     const id = event.path.split("/")[4] ?? "";
     return retryCutoutJob(id, event.body, identity, imageProcessing, requestId);
+  }
+
+  if (
+    event.method === "POST" &&
+    typeof event.path === "string" &&
+    /^\/v1\/image-processing\/jobs\/[^/]+\/confirm$/.test(event.path)
+  ) {
+    if (!imageProcessing)
+      return failure(
+        "EXTERNAL_SERVICE_ERROR",
+        "智能抠图暂未配置，请稍后重试",
+        true,
+        requestId,
+      );
+    const id = event.path.split("/")[4] ?? "";
+    return confirmCutoutJob(
+      id,
+      event.body,
+      identity,
+      imageProcessing,
+      requestId,
+    );
   }
 
   if (event.method === "POST" && event.path === "/v1/scenes") {

@@ -33,12 +33,16 @@ describe('WardrobeUploader', () => {
 
   it('展示抠图处理中、前后对比和失败重试', () => {
     const onRetry = vi.fn();
+    const onConfirm = vi.fn();
+    const onRetake = vi.fn();
     const { rerender } = render(
       <WardrobeUploader
         status="processing"
         sourcePreview="/tmp/source.jpg"
         onChoose={vi.fn()}
         onRetry={onRetry}
+        onConfirm={onConfirm}
+        onRetake={onRetake}
       />,
     );
     expect(screen.getAllByText('正在智能抠图…').length).toBeGreaterThan(0);
@@ -49,6 +53,8 @@ describe('WardrobeUploader', () => {
         processedFileId="cloud://processed.png"
         onChoose={vi.fn()}
         onRetry={onRetry}
+        onConfirm={onConfirm}
+        onRetake={onRetake}
       />,
     );
     expect(
@@ -57,6 +63,10 @@ describe('WardrobeUploader', () => {
     expect(
       screen.getByLabelText('抠图后').querySelector('img'),
     ).toHaveAttribute('src', 'cloud://processed.png');
+    fireEvent.click(screen.getByRole('button', { name: '确认入库' }));
+    fireEvent.click(screen.getByRole('button', { name: '重新拍摄' }));
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+    expect(onRetake).toHaveBeenCalledTimes(1);
     rerender(
       <WardrobeUploader
         status="cutout_failed"

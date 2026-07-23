@@ -292,6 +292,21 @@ test("图片处理任务路由使用可信身份创建和查询任务", async ()
         version: 2,
       },
     }),
+    confirm: async () => ({
+      status: "confirmed",
+      clothing: {
+        id: "clothing_2",
+        name: "白色 T 恤",
+        category: "top",
+        color: "白色",
+        sourceFileId: "cloud://source.jpg",
+        processedFileId: "cloud://processed.png",
+        processingStatus: "ready",
+        createdAt: "2026-07-22T08:00:00.000Z",
+        updatedAt: "2026-07-22T08:03:00.000Z",
+        version: 4,
+      },
+    }),
   };
   const provider: CutoutProvider = {
     submit: async () => ({ taskId: "mps_1" }),
@@ -355,6 +370,28 @@ test("图片处理任务路由使用可信身份创建和查询任务", async ()
   assert.equal(
     "data" in retried && (retried.data as { attempts: number }).attempts,
     2,
+  );
+  const confirmed = await routeRequest(
+    {
+      method: "POST",
+      path: "/v1/image-processing/jobs/cutout_1/confirm",
+      body: { expectedVersion: 1 },
+    },
+    { openId: "trusted-open-id", appId: "trusted-app-id" },
+    "req_job_confirm",
+    profileRepository,
+    cityResolver,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    { repository: jobRepository, provider },
+  );
+  assert.equal(
+    "data" in confirmed &&
+      (confirmed.data as { processingStatus: string }).processingStatus,
+    "ready",
   );
 });
 

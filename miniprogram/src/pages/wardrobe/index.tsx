@@ -4,8 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 
 import { AuthenticatedPage } from '../../features/auth/AuthenticatedPage';
 import { WardrobeUploader } from '../../features/wardrobe/WardrobeUploader';
+import { WardrobeBrowser } from '../../features/wardrobe/WardrobeBrowser';
 import {
+  confirmCutoutJob,
   ensureMediaSourceAccess,
+  listClothing,
   mediaSelectionErrorMessage,
   pollCutoutJob,
   retryCutoutJob,
@@ -13,6 +16,8 @@ import {
   uploadClothingSource,
   type ClothingDraft,
   type CutoutJob,
+  type PollCancellation,
+  type PublicClothing,
 } from '../../features/wardrobe/clothing-service';
 
 import './index.scss';
@@ -24,6 +29,7 @@ export default function WardrobePage() {
     | 'uploaded'
     | 'failed'
     | 'processing'
+    | 'confirming'
     | 'succeeded'
     | 'cutout_failed'
   >('idle');
@@ -32,18 +38,41 @@ export default function WardrobePage() {
   const [processedFileId, setProcessedFileId] = useState<string>();
   const [clothing, setClothing] = useState<ClothingDraft>();
   const [job, setJob] = useState<CutoutJob>();
-  const polling = useRef<AbortController>();
+  const [items, setItems] = useState<PublicClothing[]>([]);
+  const [listError, setListError] = useState<string>();
+  const polling = useRef<PollCancellation>();
 
-  useEffect(() => () => polling.current?.abort(), []);
+  useEffect(
+    () => () => {
+      if (polling.current) polling.current.cancelled = true;
+    },
+    [],
+  );
+  useEffect(() => {
+    let active = true;
+    void listClothing()
+      .then((result) => {
+        if (active) setItems(result);
+      })
+      .catch((cause) => {
+        if (active)
+          setListError(
+            cause instanceof Error ? cause.message : '衣橱加载失败，请重试',
+          );
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   async function waitForJob(nextJob: CutoutJob) {
-    polling.current?.abort();
-    const controller = new AbortController();
-    polling.current = controller;
+    if (polling.current) polling.current.cancelled = true;
+    const cancellation: PollCancellation = { cancelled: false };
+    polling.current = cancellation;
     setJob(nextJob);
     setStatus('processing');
     const completed = await pollCutoutJob(nextJob.id, {
-      signal: controller.signal,
+      cancellation,
     });
     setJob(completed);
     if (completed.status === 'succeeded' && completed.processedFileId) {
@@ -65,7 +94,7 @@ export default function WardrobePage() {
       });
       const file = selection.tempFiles[0];
       if (!file) return;
-      polling.current?.abort();
+      if (polling.current) polling.current.cancelled = true;
       setStatus('uploading');
       setError(undefined);
       setSourcePreview(file.tempFilePath);
@@ -83,6 +112,7 @@ export default function WardrobePage() {
       await waitForJob(started);
     } catch (cause) {
       const detail = cause instanceof Error ? cause.message : '';
+      if (detail === '抠图查询已取消') return;
       const message = /^chooseMedia:/i.test(detail)
         ? mediaSelectionErrorMessage(cause)
         : detail || '图片上传失败，请重试';
@@ -108,6 +138,32 @@ export default function WardrobePage() {
     }
   }
 
+  async function confirmProcessing() {
+    if (!job || job.status !== 'succeeded') return;
+    try {
+      setStatus('confirming');
+      const confirmed = await confirmCutoutJob(job.id, job.version);
+      setItems((current) => [
+        confirmed,
+        ...current.filter((item) => item.id !== confirmed.id),
+      ]);
+      resetUploader();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '确认入库失败，请重试');
+      setStatus('succeeded');
+    }
+  }
+
+  function resetUploader() {
+    if (polling.current) polling.current.cancelled = true;
+    setStatus('idle');
+    setError(undefined);
+    setSourcePreview(undefined);
+    setProcessedFileId(undefined);
+    setClothing(undefined);
+    setJob(undefined);
+  }
+
   return (
     <AuthenticatedPage>
       <View className="wardrobe-page">
@@ -120,7 +176,13 @@ export default function WardrobePage() {
           processedFileId={processedFileId}
           onChoose={(source) => void chooseAndUpload(source)}
           onRetry={() => void retryProcessing()}
+          onConfirm={() => void confirmProcessing()}
+          onRetake={resetUploader}
         />
+        {listError ? (
+          <Text className="wardrobe-page__error">{listError}</Text>
+        ) : null}
+        <WardrobeBrowser items={items} />
       </View>
     </AuthenticatedPage>
   );

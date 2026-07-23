@@ -31,6 +31,17 @@ vi.mock('@tarojs/components', () => ({
     React.createElement('span', props),
   Image: (props: React.ImgHTMLAttributes<HTMLImageElement>) =>
     React.createElement('img', props),
+  Input: ({
+    onInput,
+    ...props
+  }: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onInput'> & {
+    onInput?: (event: { detail: { value: string } }) => void;
+  }) =>
+    React.createElement('input', {
+      ...props,
+      onInput: (event: React.FormEvent<HTMLInputElement>) =>
+        onInput?.({ detail: { value: event.currentTarget.value } }),
+    }),
   View: (props: React.HTMLAttributes<HTMLDivElement>) =>
     React.createElement('div', props),
 }));
