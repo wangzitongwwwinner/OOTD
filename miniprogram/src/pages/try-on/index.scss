@@ -118,3 +118,104 @@
   background: #25221e;
   color: #fff;
 }
+
+.outfit-manager {
+  margin: 16px 12px 0;
+  padding: 20px;
+  border: 1px solid #ded8cf;
+  border-radius: 16px;
+  background: #fffdf9;
+}
+
+.outfit-manager__title {
+  display: block;
+  margin: 8px 0 12px;
+  font-family: serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #24211d;
+}
+
+.outfit-manager input {
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid #ded8cf;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.outfit-manager button {
+  margin-bottom: 8px;
+  border-radius: 999px;
+  background: #25221e;
+  color: #fff;
+  font-size: 13px;
+}
+
+.outfit-manager__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 12px;
+  border: 1px solid #e7e1d8;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.outfit-manager__item-summary {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.outfit-manager__item-name,
+.outfit-manager__item-count {
+  display: block;
+}
+
+.outfit-manager__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.outfit-manager__tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(167, 153, 139, 0.12);
+  color: #685c50;
+  font-size: 12px;
+}
+
+.outfit-manager__item-name {
+  overflow: hidden;
+  color: #24211d;
+  font-size: 15px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.outfit-manager__item-count {
+  color: #766f66;
+  font-size: 12px;
+}
+
+.outfit-manager__item button {
+  flex: none;
+  min-width: 72px;
+  margin: 0;
+}
+
+.outfit-manager__message,
+.outfit-manager__empty {
+  display: block;
+  padding: 8px 0;
+  color: #766f66;
+  font-size: 13px;
+}

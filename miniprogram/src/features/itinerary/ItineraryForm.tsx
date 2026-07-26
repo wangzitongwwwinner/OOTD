@@ -1,5 +1,5 @@
 ﻿import { Button, Input, Picker, Text, View } from '@tarojs/components';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { Itinerary, ItineraryCreateInput } from './itinerary-service';
 
 interface Props {
@@ -26,16 +26,13 @@ export function ItineraryForm({
   saving,
   error,
 }: Props) {
-  const [sceneIndex, setSceneIndex] = useState(0);
+  const [sceneIndex, setSceneIndex] = useState(() => {
+    if (!item) return 0;
+    const index = scenes.findIndex((scene) => scene.id === item.sceneId);
+    return index >= 0 ? index : 0;
+  });
   const [startTime, setStartTime] = useState(item?.startTime ?? '09:00');
   const [duration, setDuration] = useState(String(item?.durationMinutes ?? 60));
-
-  useEffect(() => {
-    if (item && scenes.length) {
-      const idx = scenes.findIndex((s) => s.id === item.sceneId);
-      if (idx >= 0) setSceneIndex(idx);
-    }
-  }, [item, scenes]);
 
   function handleSave() {
     const scene = scenes[sceneIndex];

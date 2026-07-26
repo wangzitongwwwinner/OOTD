@@ -43,6 +43,13 @@ export interface PollCancellation {
   cancelled: boolean;
 }
 
+export class ReferencedClothingError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ReferencedClothingError';
+  }
+}
+
 export async function ensureMediaSourceAccess(
   source: 'camera' | 'album',
 ): Promise<void> {
@@ -208,6 +215,7 @@ export async function updateClothing(
 export async function deleteClothing(
   clothingId: string,
   expectedVersion: number,
+  confirmReferencedRemoval = false,
 ): Promise<void> {
   const result = (
     await Taro.cloud.callFunction({
@@ -215,11 +223,18 @@ export async function deleteClothing(
       data: {
         method: 'DELETE',
         path: `/v1/clothing/${clothingId}`,
-        body: { expectedVersion },
+        body: confirmReferencedRemoval
+          ? { expectedVersion, confirmReferencedRemoval: true }
+          : { expectedVersion },
       },
     })
   ).result;
-  if (isFailure(result)) throw new Error(result.error.message);
+  if (isFailure(result)) {
+    if (result.error.code === 'CLOTHING_REFERENCED') {
+      throw new ReferencedClothingError(result.error.message);
+    }
+    throw new Error(result.error.message);
+  }
 }
 export async function listClothing(): Promise<PublicClothing[]> {
   const result = (
@@ -292,7 +307,9 @@ function delay(
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
-function isFailure(value: unknown): value is { error: { message: string } } {
+function isFailure(
+  value: unknown,
+): value is { error: { code?: string; message: string } } {
   return (
     isRecord(value) &&
     isRecord(value.error) &&

@@ -14,6 +14,9 @@ vi.mock('@tarojs/taro', () => ({
     getStorageSync: vi.fn(),
     setStorageSync: vi.fn(),
     removeStorageSync: vi.fn(),
+    showModal: vi.fn(),
+    reLaunch: vi.fn(),
+    navigateTo: vi.fn(),
   },
 }));
 

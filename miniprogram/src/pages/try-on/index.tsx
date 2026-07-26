@@ -8,7 +8,7 @@ import {
   View,
 } from '@tarojs/components';
 import { useEffect, useRef, useState } from 'react';
-import Taro from '@tarojs/taro';
+import Taro, { useDidShow } from '@tarojs/taro';
 
 import { AuthenticatedPage } from '../../features/auth/AuthenticatedPage';
 import {
@@ -17,11 +17,14 @@ import {
 } from '../../features/wardrobe/clothing-service';
 import {
   CLOTHING_NODE_SIZE,
+  bringNodeToFront,
   createOutfitNode,
   nodeToMovable,
   movableToNode,
+  normalizeScale,
   type OutfitNode,
 } from '../../features/try-on/outfit-model';
+import { OutfitManager } from '../../features/try-on/OutfitManager';
 
 import './index.scss';
 
@@ -29,19 +32,22 @@ export default function TryOnPage() {
   const [wardrobe, setWardrobe] = useState<PublicClothing[]>([]);
   const [nodes, setNodes] = useState<OutfitNode[]>([]);
   const [showPicker, setShowPicker] = useState(false);
+  const [outfitRefreshKey, setOutfitRefreshKey] = useState(0);
   const pinchRef = useRef<{ dist: number; scale: number }>();
   const [canvasSize, setCanvasSize] = useState({ w: 375, h: 500 });
-  const areaRef = useRef<string>('');
 
-  useEffect(() => {
-    let active = true;
+  useDidShow(() => {
     void listClothing()
-      .then((items) => active && setWardrobe(items))
+      .then((items) => {
+        const availableIds = new Set(items.map((item) => item.id));
+        setWardrobe(items);
+        setNodes((current) =>
+          current.filter((node) => availableIds.has(node.clothingId)),
+        );
+      })
       .catch(() => {});
-    return () => {
-      active = false;
-    };
-  }, []);
+    setOutfitRefreshKey((current) => current + 1);
+  });
 
   useEffect(() => {
     const query = Taro.createSelectorQuery();
@@ -69,12 +75,7 @@ export default function TryOnPage() {
   }
 
   function handleBringToFront(nodeId: string) {
-    setNodes((current) => {
-      const maxZ = current.reduce((m, n) => Math.max(m, n.zIndex), 0);
-      return current.map((n) =>
-        n.id === nodeId ? { ...n, zIndex: maxZ + 1 } : n,
-      );
-    });
+    setNodes((current) => bringNodeToFront(current, nodeId));
   }
 
   function getClothing(id: string) {
@@ -138,9 +139,8 @@ export default function TryOnPage() {
                       const dy = touches[0].clientY - touches[1].clientY;
                       const newDist = Math.sqrt(dx * dx + dy * dy);
                       const ratio = newDist / (pinchRef.current.dist || 1);
-                      const newScale = Math.max(
-                        0.3,
-                        Math.min(3, pinchRef.current.scale * ratio),
+                      const newScale = normalizeScale(
+                        pinchRef.current.scale * ratio,
                       );
                       setNodes((current) =>
                         current.map((n) =>
@@ -154,17 +154,15 @@ export default function TryOnPage() {
                   }}
                   onChange={(e) => {
                     if (!e.detail.source) return;
-                    const nx = e.detail.x - CLOTHING_NODE_SIZE / 2;
-                    const ny = e.detail.y - CLOTHING_NODE_SIZE / 2;
                     setNodes((current) =>
                       current.map((n) =>
                         n.id === node.id
                           ? movableToNode(
                               n,
-                              Math.max(0, nx),
-                              Math.max(0, ny),
-                              canvasSize.w - CLOTHING_NODE_SIZE,
-                              canvasSize.h - CLOTHING_NODE_SIZE,
+                              e.detail.x,
+                              e.detail.y,
+                              canvasSize.w,
+                              canvasSize.h,
                               n.scale,
                             )
                           : n,
@@ -177,7 +175,7 @@ export default function TryOnPage() {
                         n.id === node.id
                           ? {
                               ...n,
-                              scale: Math.max(0.3, Math.min(3, e.detail.scale)),
+                              scale: normalizeScale(e.detail.scale),
                             }
                           : n,
                       ),
@@ -224,6 +222,12 @@ export default function TryOnPage() {
             })}
           </MovableArea>
         </View>
+
+        <OutfitManager
+          nodes={nodes}
+          onLoad={setNodes}
+          refreshKey={outfitRefreshKey}
+        />
 
         {showPicker ? (
           <View

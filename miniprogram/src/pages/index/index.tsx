@@ -1,5 +1,5 @@
 import Taro from '@tarojs/taro';
-import { Text, View } from '@tarojs/components';
+import { Button, Text, View } from '@tarojs/components';
 import { useEffect, useState } from 'react';
 
 import { LoginPage } from '../../features/auth/LoginPage';
@@ -76,6 +76,12 @@ export default function IndexPage() {
       <Text className="home-placeholder__title">
         你好，{auth.session?.user.nickname}
       </Text>
+      <Button
+        aria-label="打开用户中心"
+        onClick={() => void Taro.navigateTo({ url: '/pages/profile/index' })}
+      >
+        用户中心
+      </Button>
       <Text className="home-placeholder__copy">
         综合全天行程，编排穿脱方案…
       </Text>

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   confirmCutoutJob,
+  deleteClothing,
   ensureMediaSourceAccess,
   listClothing,
   mediaSelectionErrorMessage,
@@ -11,10 +12,42 @@ import {
   startCutoutJob,
   uploadClothingSource,
   validateClothingImage,
+  ReferencedClothingError,
 } from './clothing-service';
 
 describe('clothing service', () => {
   beforeEach(() => vi.clearAllMocks());
+
+  it('被搭配引用时抛出可识别错误，确认重试时携带确认标记', async () => {
+    vi.mocked(Taro.cloud.callFunction)
+      .mockResolvedValueOnce({
+        result: {
+          error: {
+            code: 'CLOTHING_REFERENCED',
+            message: '该衣物被 2 个搭配引用',
+            retryable: false,
+          },
+          requestId: 'req_1',
+        },
+      } as never)
+      .mockResolvedValueOnce({
+        result: { data: {}, requestId: 'req_2' },
+      } as never);
+
+    await expect(deleteClothing('clothing_1', 4)).rejects.toBeInstanceOf(
+      ReferencedClothingError,
+    );
+    await deleteClothing('clothing_1', 4, true);
+
+    expect(Taro.cloud.callFunction).toHaveBeenLastCalledWith({
+      name: 'api',
+      data: {
+        method: 'DELETE',
+        path: '/v1/clothing/clothing_1',
+        body: { expectedVersion: 4, confirmReferencedRemoval: true },
+      },
+    });
+  });
 
   it('拒绝非 JPG/PNG 或超过 10 MB 的原图', () => {
     expect(() =>

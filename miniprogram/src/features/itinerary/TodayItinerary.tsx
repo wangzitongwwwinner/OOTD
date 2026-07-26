@@ -5,7 +5,6 @@ import {
   itineraryService,
   type Itinerary,
   type ItineraryCreateInput,
-  type ItineraryUpdateInput,
 } from './itinerary-service';
 import { ItineraryForm } from './ItineraryForm';
 
@@ -61,7 +60,18 @@ export function TodayItinerary() {
     };
   }, []);
   useEffect(() => {
-    void loadScenes();
+    let active = true;
+    sceneService
+      .list()
+      .then((result) => {
+        if (active) setScenes(result);
+      })
+      .catch(() => {
+        /* ignore */
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   async function handleCreate(input: ItineraryCreateInput) {

@@ -4,6 +4,7 @@ export default defineAppConfig({
     'pages/scenes/index',
     'pages/wardrobe/index',
     'pages/try-on/index',
+    'pages/profile/index',
   ],
   tabBar: {
     color: '#685c50',

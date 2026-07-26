@@ -1,0 +1,45 @@
+.profile-center {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-center__card {
+  padding: 20px;
+  border: 1px solid #e5e1da;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.profile-center__name,
+.profile-center__meta {
+  display: block;
+}
+
+.profile-center__name {
+  color: #2d2926;
+  font-family: serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.profile-center__meta {
+  margin-top: 8px;
+  color: #685c50;
+  font-size: 14px;
+}
+
+.profile-center button {
+  margin: 0;
+  border: 1px solid #e5e1da;
+  border-radius: 8px;
+  background: #fff;
+  color: #2d2926;
+  text-align: left;
+}
+
+.profile-center .profile-center__danger {
+  border-color: rgba(180, 35, 24, 0.25);
+  color: #b42318;
+  text-align: center;
+}

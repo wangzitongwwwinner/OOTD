@@ -1,0 +1,25 @@
+.profile-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 24px;
+  background: #faf9f7;
+}
+
+.profile-page__eyebrow,
+.profile-page__title {
+  display: block;
+}
+
+.profile-page__eyebrow {
+  color: #a7998b;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+.profile-page__title {
+  margin: 8px 0 24px;
+  color: #2d2926;
+  font-family: serif;
+  font-size: 32px;
+  font-weight: 700;
+}

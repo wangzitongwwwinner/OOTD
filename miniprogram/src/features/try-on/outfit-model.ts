@@ -23,11 +23,14 @@ export function nodeToMovable(
   node: OutfitNode,
   canvasWidth: number,
   canvasHeight: number,
+  nodeSize = CLOTHING_NODE_SIZE,
 ): { x: number; y: number; scale: number } {
+  const movableWidth = Math.max(1, canvasWidth - nodeSize);
+  const movableHeight = Math.max(1, canvasHeight - nodeSize);
   return {
-    x: Math.round(node.x * canvasWidth),
-    y: Math.round(node.y * canvasHeight),
-    scale: node.scale,
+    x: Math.round(node.x * movableWidth),
+    y: Math.round(node.y * movableHeight),
+    scale: normalizeScale(node.scale),
   };
 }
 
@@ -39,13 +42,33 @@ export function movableToNode(
   canvasWidth: number,
   canvasHeight: number,
   scale: number,
+  nodeSize = CLOTHING_NODE_SIZE,
 ): OutfitNode {
+  const movableWidth = Math.max(1, canvasWidth - nodeSize);
+  const movableHeight = Math.max(1, canvasHeight - nodeSize);
   return {
     ...node,
-    x: Math.max(0, Math.min(1, pixelX / canvasWidth)),
-    y: Math.max(0, Math.min(1, pixelY / canvasHeight)),
-    scale,
+    x: Math.max(0, Math.min(1, pixelX / movableWidth)),
+    y: Math.max(0, Math.min(1, pixelY / movableHeight)),
+    scale: normalizeScale(scale),
   };
+}
+
+export function normalizeScale(scale: number): number {
+  return Math.max(0.3, Math.min(3, scale));
+}
+
+export function bringNodeToFront(
+  nodes: OutfitNode[],
+  nodeId: string,
+): OutfitNode[] {
+  const maxZ = nodes.reduce(
+    (maximum, node) => Math.max(maximum, node.zIndex),
+    0,
+  );
+  return nodes.map((node) =>
+    node.id === nodeId ? { ...node, zIndex: maxZ + 1 } : node,
+  );
 }
 
 export function createOutfitNode(

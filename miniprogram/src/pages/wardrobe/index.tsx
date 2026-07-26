@@ -19,6 +19,7 @@ import {
   type CutoutJob,
   type PollCancellation,
   type PublicClothing,
+  ReferencedClothingError,
 } from '../../features/wardrobe/clothing-service';
 
 import './index.scss';
@@ -160,6 +161,30 @@ export default function WardrobePage() {
       await deleteClothing(clothingId, expectedVersion);
       setItems((current) => current.filter((item) => item.id !== clothingId));
     } catch (cause) {
+      if (cause instanceof ReferencedClothingError) {
+        const modal = await Taro.showModal({
+          title: '衣物已用于搭配',
+          content: `${cause.message}。删除后，已保存搭配中的这件衣物也会被移除。`,
+          confirmText: '确认删除',
+          confirmColor: '#b42318',
+          cancelText: '取消',
+        });
+        if (!modal.confirm) return;
+        try {
+          await deleteClothing(clothingId, expectedVersion, true);
+          setItems((current) =>
+            current.filter((item) => item.id !== clothingId),
+          );
+          return;
+        } catch (confirmedCause) {
+          setListError(
+            confirmedCause instanceof Error
+              ? confirmedCause.message
+              : '删除失败，请重试',
+          );
+          return;
+        }
+      }
       setListError(cause instanceof Error ? cause.message : '删除失败，请重试');
     }
   }
