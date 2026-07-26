@@ -20,6 +20,7 @@ function repositoryFixture(
     update:
       opts.update ??
       (async () => ({ status: "updated", clothing: baseClothing })),
+    delete: async () => ({ status: "not_found" }),
   };
 }
 

@@ -15,6 +15,8 @@ import {
   type MpsClient,
 } from "./image-processing/tencent-mps-provider.ts";
 import { QWeatherCityResolver } from "./location/qweather-city-resolver.ts";
+import { CloudBaseOutfitRepository } from "./outfits/cloudbase-outfit-repository.ts";
+import { CloudBaseMetricsRecorder } from "./metrics/cloudbase-metrics-recorder.ts";
 import { HunyuanProvider } from "./recommendation/hunyuan-provider.ts";
 import { routeRequest } from "./router.ts";
 import { CloudBaseSceneRepository } from "./scenes/cloudbase-scene-repository.ts";
@@ -28,8 +30,10 @@ const weather = createWeatherDependencies();
 const sceneRepository = new CloudBaseSceneRepository(app.database());
 const itineraryRepository = new CloudBaseItineraryRepository(app.database());
 const clothingRepository = new CloudBaseClothingRepository(app.database());
+const outfitRepository = new CloudBaseOutfitRepository(app.database());
 const llmProvider = createLlmProvider();
 const imageProcessing = createImageProcessingDependencies();
+const metricsRecorder = new CloudBaseMetricsRecorder(app.database());
 
 interface FunctionContext {
   requestId?: string;
@@ -63,14 +67,21 @@ export async function main(
     llmProvider,
     clothingRepository,
     imageProcessing,
+    outfitRepository,
+    metricsRecorder,
   );
 }
 
 function createImageProcessingDependencies() {
   const config = readMpsEnvironment(process.env);
   if (!config) return undefined;
-  const { secretId, secretKey, outputBucket, outputRegion, outputFileIdPrefix } =
-    config;
+  const {
+    secretId,
+    secretKey,
+    outputBucket,
+    outputRegion,
+    outputFileIdPrefix,
+  } = config;
 
   const Client = mps.v20190612.Client;
   const client = new Client({

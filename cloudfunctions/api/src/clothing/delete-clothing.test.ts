@@ -45,3 +45,21 @@ test("仓储异常返回可重试内部错误", async () => {
   assert.equal("error" in result, true);
   if ("error" in result) assert.equal(result.error.retryable, true);
 });
+
+test("被搭配引用且未确认时返回专用错误", async () => {
+  const repo = repoFixture({
+    delete: async () => ({ status: "referenced", referenceCount: 2 }),
+  });
+  const result = await deleteClothing(
+    "clothing_1",
+    { expectedVersion: 4 },
+    { openId: "o", appId: "a" },
+    repo,
+    "req",
+  );
+  assert.equal("error" in result, true);
+  if ("error" in result) {
+    assert.equal(result.error.code, "CLOTHING_REFERENCED");
+    assert.equal(result.error.retryable, false);
+  }
+});

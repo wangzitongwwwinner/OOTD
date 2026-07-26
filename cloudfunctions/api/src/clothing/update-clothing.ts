@@ -16,13 +16,13 @@ export async function updateClothing(
   requestId: string,
 ): Promise<ApiEnvelope<PublicClothing>> {
   if (!id || typeof id !== "string" || id.length === 0) {
-    return failure("INVALID_REQUEST", "衣物 ID 不能为空", false, requestId);
+    return failure("VALIDATION_ERROR", "衣物 ID 不能为空", false, requestId);
   }
 
   const parsed = updateClothingRequestSchema.safeParse(body);
   if (!parsed.success) {
     return failure(
-      "INVALID_REQUEST",
+      "VALIDATION_ERROR",
       "请填写完整的衣物名称、类别和颜色",
       false,
       requestId,

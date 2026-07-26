@@ -155,22 +155,62 @@ export class CloudBaseClothingRepository implements ClothingRepository {
   ) {
     const userId = await this.resolveUserId(identity);
     if (!userId) return { status: "not_found" as const };
-    const result = await this.database
-      .collection("clothing")
-      .where({ id, userId, processingStatus: "ready" })
-      .limit(1)
-      .get();
-    const stored = result.data[0] as Record<string, unknown> | undefined;
-    if (!stored) return { status: "not_found" as const };
-    if (stored.version !== input.expectedVersion)
-      return { status: "conflict" as const };
-    const removeResult = await this.database
-      .collection("clothing")
-      .where({ id, userId, version: input.expectedVersion })
-      .remove();
-    if (removeResult.deleted !== 1)
-      return { status: "conflict" as const };
-    return { status: "deleted" as const };
+    return this.database.runTransaction(async (
+      transaction: Pick<Db, "collection">,
+    ) => {
+      const result = await transaction
+        .collection("clothing")
+        .where({ id, userId, processingStatus: "ready" })
+        .limit(1)
+        .get();
+      const stored = result.data[0] as Record<string, unknown> | undefined;
+      if (!stored) return { status: "not_found" as const };
+      if (stored.version !== input.expectedVersion)
+        return { status: "conflict" as const };
+
+      const outfitResult = await transaction
+        .collection("outfits")
+        .where({ userId })
+        .limit(500)
+        .get();
+      const referenced = outfitResult.data.filter((outfit: unknown) =>
+        storedOutfitNodes(outfit).some((node) => node.clothingId === id),
+      );
+      if (referenced.length > 0 && !input.confirmReferencedRemoval) {
+        return {
+          status: "referenced" as const,
+          referenceCount: referenced.length,
+        };
+      }
+
+      const now = new Date().toISOString();
+      for (const outfit of referenced as Array<Record<string, unknown>>) {
+        if (typeof outfit._id !== "string") throw new Error("Invalid outfit");
+        const nextNodes = storedOutfitNodes(outfit).filter(
+          (node) => node.clothingId !== id,
+        );
+        const outfitDocument = transaction
+          .collection("outfits")
+          .doc(outfit._id);
+        if (nextNodes.length === 0) {
+          await outfitDocument.remove();
+        } else {
+          await outfitDocument.update({
+            nodes: nextNodes,
+            updatedAt: now,
+            version:
+              typeof outfit.version === "number" ? outfit.version + 1 : 1,
+          });
+        }
+      }
+      const removeResult = await transaction
+        .collection("clothing")
+        .where({ id, userId, version: input.expectedVersion })
+        .remove();
+      if (removeResult.deleted !== 1)
+        return { status: "conflict" as const };
+      return { status: "deleted" as const };
+    });
   }
   private async resolveUserId(
     identity: TrustedIdentity,
@@ -183,6 +223,19 @@ export class CloudBaseClothingRepository implements ClothingRepository {
     const user = users.data[0] as { id?: unknown } | undefined;
     return user && typeof user.id === "string" ? user.id : undefined;
   }
+}
+
+function storedOutfitNodes(
+  stored: unknown,
+): Array<Record<string, unknown> & { clothingId?: unknown }> {
+  if (typeof stored !== "object" || stored === null) return [];
+  const nodes = (stored as Record<string, unknown>).nodes;
+  return Array.isArray(nodes)
+    ? (nodes.filter(
+        (node): node is Record<string, unknown> =>
+          typeof node === "object" && node !== null,
+      ) as Array<Record<string, unknown> & { clothingId?: unknown }>)
+    : [];
 }
 
 function toPublicClothing(stored: unknown): PublicClothing {

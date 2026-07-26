@@ -15,11 +15,11 @@ export async function deleteClothing(
   requestId: string,
 ): Promise<ApiEnvelope<Record<string, never>>> {
   if (!id || typeof id !== "string" || id.length === 0) {
-    return failure("INVALID_REQUEST", "衣物 ID 不能为空", false, requestId);
+    return failure("VALIDATION_ERROR", "衣物 ID 不能为空", false, requestId);
   }
   const parsed = deleteClothingRequestSchema.safeParse(body);
   if (!parsed.success) {
-    return failure("INVALID_REQUEST", "请求参数无效", false, requestId);
+    return failure("VALIDATION_ERROR", "请求参数无效", false, requestId);
   }
   try {
     const result = await repository.delete(id, parsed.data, identity);
@@ -28,6 +28,14 @@ export async function deleteClothing(
     }
     if (result.status === "conflict") {
       return failure("CONFLICT", "衣物信息已被更新，请刷新后重试", true, requestId);
+    }
+    if (result.status === "referenced") {
+      return failure(
+        "CLOTHING_REFERENCED",
+        `该衣物被 ${result.referenceCount} 个搭配引用，确认后将同步移除`,
+        false,
+        requestId,
+      );
     }
     return success({}, requestId);
   } catch {

@@ -28,6 +28,8 @@ function repository(
   return {
     findByIdentity: async () => [],
     completeUpload: async () => ({ status: "not_found" }),
+    update: async () => ({ status: "not_found" }),
+    delete: async () => ({ status: "not_found" }),
     createUploadDraft: async (_input, receivedIdentity) => {
       assert.deepEqual(receivedIdentity, identity);
       return {

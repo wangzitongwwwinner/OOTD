@@ -27,6 +27,8 @@ test("仅以可信身份确认上传后的正式 fileID", async () => {
       received = trusted;
       return { status: "updated", clothing };
     },
+    update: async () => ({ status: "not_found" }),
+    delete: async () => ({ status: "not_found" }),
   };
   const result = await completeClothingUpload(
     "clothing_1",
@@ -49,6 +51,8 @@ test("其他用户或不存在草稿统一返回 NOT_FOUND", async () => {
       throw new Error("unused");
     },
     completeUpload: async () => ({ status: "not_found" }),
+    update: async () => ({ status: "not_found" }),
+    delete: async () => ({ status: "not_found" }),
   };
   const result = await completeClothingUpload(
     "clothing_1",

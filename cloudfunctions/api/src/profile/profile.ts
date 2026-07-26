@@ -8,6 +8,8 @@ import {
 
 import type { UserRepository } from '../auth/user-repository.ts';
 import type { TrustedIdentity } from '../context.ts';
+import { recordMetricSafely } from '../metrics/cloudbase-metrics-recorder.ts';
+import type { MetricsRecorder } from '../metrics/metrics-recorder.ts';
 
 export async function getProfile(
   identity: TrustedIdentity,
@@ -31,6 +33,7 @@ export async function updateProfile(
   repository: UserRepository,
   requestId: string,
   clock: () => Date = () => new Date(),
+  metrics?: MetricsRecorder,
 ): Promise<ApiEnvelope<Profile>> {
   const parsed = updateProfileRequestSchema.safeParse(body);
   if (!parsed.success) {
@@ -44,6 +47,15 @@ export async function updateProfile(
       now: clock().toISOString(),
     });
     if (result.status === 'updated') {
+      if (metrics) {
+        await recordMetricSafely(() =>
+          metrics.markFirstSuccess(
+            identity,
+            'firstFeelPreferenceModifiedAt',
+            clock().toISOString(),
+          ),
+        );
+      }
       return success(result.profile, requestId);
     }
     if (result.status === 'conflict') {

@@ -38,6 +38,7 @@ export interface ClothingRepository {
     identity: TrustedIdentity,
   ): Promise<
     | { status: "deleted" }
+    | { status: "referenced"; referenceCount: number }
     | { status: "not_found" }
     | { status: "conflict" }
   >;

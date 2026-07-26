@@ -38,6 +38,14 @@ import {
 } from "./image-processing/jobs.ts";
 import type { CutoutProvider } from "./image-processing/provider.ts";
 import type { CutoutJobRepository } from "./image-processing/repository.ts";
+import {
+  createOutfit,
+  deleteOutfit,
+  getOutfit,
+  listOutfits,
+} from "./outfits/manage-outfits.ts";
+import type { OutfitRepository } from "./outfits/repository.ts";
+import type { MetricsRecorder } from "./metrics/metrics-recorder.ts";
 import type {
   WeatherCacheRepository,
   WeatherProvider,
@@ -79,6 +87,8 @@ export async function routeRequest(
   llmProvider?: LlmProvider,
   clothingRepository?: ClothingRepository,
   imageProcessing?: ImageProcessingDependencies,
+  outfitRepository?: OutfitRepository,
+  metrics?: MetricsRecorder,
 ): Promise<ApiEnvelope<unknown>> {
   createRequestContext(event, identity, requestId);
 
@@ -112,7 +122,14 @@ export async function routeRequest(
     }
     return event.method === "GET"
       ? getProfile(identity, userRepository, requestId)
-      : updateProfile(event.body, identity, userRepository, requestId);
+      : updateProfile(
+          event.body,
+          identity,
+          userRepository,
+          requestId,
+          undefined,
+          metrics,
+        );
   }
 
   if (event.method === "POST" && event.path === "/v1/location/city") {
@@ -229,6 +246,69 @@ export async function routeRequest(
     );
   }
 
+  if (event.method === "GET" && event.path === "/v1/outfits") {
+    if (!outfitRepository) {
+      return failure(
+        "INTERNAL_ERROR",
+        "搭配服务暂时不可用，请稍后重试",
+        true,
+        requestId,
+      );
+    }
+    return listOutfits(identity, outfitRepository, requestId);
+  }
+
+  if (event.method === "POST" && event.path === "/v1/outfits") {
+    if (!outfitRepository || !clothingRepository) {
+      return failure(
+        "INTERNAL_ERROR",
+        "搭配服务暂时不可用，请稍后重试",
+        true,
+        requestId,
+      );
+    }
+    return createOutfit(
+      event.body,
+      identity,
+      outfitRepository,
+      clothingRepository,
+      requestId,
+    );
+  }
+
+  if (
+    event.method === "DELETE" &&
+    typeof event.path === "string" &&
+    /^\/v1\/outfits\/[^/]+$/.test(event.path)
+  ) {
+    if (!outfitRepository) {
+      return failure("INTERNAL_ERROR", "搭配服务暂时不可用，请稍后重试", true, requestId);
+    }
+    return deleteOutfit(
+      event.path.slice("/v1/outfits/".length),
+      event.body,
+      identity,
+      outfitRepository,
+      requestId,
+    );
+  }
+
+  if (
+    event.method === "GET" &&
+    typeof event.path === "string" &&
+    /^\/v1\/outfits\/[^/]+$/.test(event.path)
+  ) {
+    if (!outfitRepository) {
+      return failure(
+        "INTERNAL_ERROR",
+        "搭配服务暂时不可用，请稍后重试",
+        true,
+        requestId,
+      );
+    }
+    const id = event.path.split("/")[3] ?? "";
+    return getOutfit(id, identity, outfitRepository, requestId);
+  }
 
   if (
     event.method === "DELETE" &&
@@ -252,30 +332,6 @@ export async function routeRequest(
     );
   }
   if (event.method === "POST" && event.path === "/v1/image-processing/jobs") {
-  if (
-    event.method === "PATCH" &&
-    typeof event.path === "string" &&
-    /^\/v1\/clothing\/[^/]+$/.test(event.path) &&
-    !/\/source$/.test(event.path) &&
-    !/\/confirm$/.test(event.path)
-  ) {
-    if (!clothingRepository)
-      return failure(
-        "INTERNAL_ERROR",
-        "衣橱服务暂时不可用，请稍后重试",
-        true,
-        requestId,
-      );
-    const id = event.path.split("/")[3] ?? "";
-    return updateClothing(
-      id,
-      event.body,
-      identity,
-      clothingRepository,
-      requestId,
-    );
-  }
-
     if (!imageProcessing)
       return failure(
         "EXTERNAL_SERVICE_ERROR",
@@ -369,7 +425,14 @@ export async function routeRequest(
         requestId,
       );
     }
-    return updateScene(id, event.body, identity, sceneRepository, requestId);
+    return updateScene(
+      id,
+      event.body,
+      identity,
+      sceneRepository,
+      requestId,
+      metrics,
+    );
   }
 
   if (
@@ -412,6 +475,7 @@ export async function routeRequest(
       identity,
       itineraryRepository,
       requestId,
+      metrics,
     );
   }
 
@@ -431,6 +495,7 @@ export async function routeRequest(
       identity,
       itineraryRepository,
       requestId,
+      metrics,
     );
   }
 
@@ -463,6 +528,7 @@ export async function routeRequest(
         users: userRepository,
         itineraries: itineraryRepository,
         weather,
+        ...(metrics ? { metrics } : {}),
         ...(llmProvider ? { llm: llmProvider } : {}),
       },
       requestId,

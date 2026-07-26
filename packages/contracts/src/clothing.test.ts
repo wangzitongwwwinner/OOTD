@@ -28,6 +28,23 @@ const baseClothing = {
   version: 4,
 };
 
+test("删除衣物请求仅接受可选的引用移除确认标记", () => {
+  assert.equal(
+    deleteClothingRequestSchema.safeParse({
+      expectedVersion: 2,
+      confirmReferencedRemoval: true,
+    }).success,
+    true,
+  );
+  assert.equal(
+    deleteClothingRequestSchema.safeParse({
+      expectedVersion: 2,
+      confirmReferencedRemoval: "true",
+    }).success,
+    false,
+  );
+});
+
 // --- PublicClothing ---
 test("衣物契约限定类别、状态和公开字段", () => {
   assert.equal(clothingSchema.safeParse(baseClothing).success, true);

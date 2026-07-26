@@ -31,6 +31,8 @@ function repository(
       throw new Error("unused");
     },
     completeUpload: async () => ({ status: "not_found" }),
+    update: async () => ({ status: "not_found" }),
+    delete: async () => ({ status: "not_found" }),
   };
 }
 

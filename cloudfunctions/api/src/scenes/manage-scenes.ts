@@ -8,6 +8,8 @@ import {
 } from '../../../../packages/contracts/src/index.ts';
 
 import type { TrustedIdentity } from '../context.ts';
+import { recordMetricSafely } from '../metrics/cloudbase-metrics-recorder.ts';
+import type { MetricsRecorder } from '../metrics/metrics-recorder.ts';
 import type { SceneRepository } from './scene-repository.ts';
 
 export async function createScene(
@@ -35,6 +37,8 @@ export async function updateScene(
   identity: TrustedIdentity,
   repository: SceneRepository,
   requestId: string,
+  metrics?: MetricsRecorder,
+  clock: () => Date = () => new Date(),
 ): Promise<ApiEnvelope<Scene>> {
   const parsed = updateSceneRequestSchema.safeParse(body);
   if (!parsed.success) {
@@ -49,6 +53,15 @@ export async function updateScene(
 
     const result = await repository.update(id, parsed.data, identity);
     if (result.status === 'updated') {
+      if (metrics) {
+        await recordMetricSafely(() =>
+          metrics.markFirstSuccess(
+            identity,
+            'firstSceneEditedAt',
+            clock().toISOString(),
+          ),
+        );
+      }
       return success(result.scene, requestId);
     }
     if (result.status === 'conflict') {

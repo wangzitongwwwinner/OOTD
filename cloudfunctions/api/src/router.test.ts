@@ -13,6 +13,7 @@ import type { SceneRepository } from "./scenes/scene-repository.ts";
 import type { ItineraryRepository } from "./itineraries/repository.ts";
 import type { LlmProvider } from "./recommendation/llm-provider.ts";
 import type { ClothingRepository } from "./clothing/repository.ts";
+import type { OutfitRepository } from "./outfits/repository.ts";
 import type { CutoutProvider } from "./image-processing/provider.ts";
 import type { CutoutJobRepository } from "./image-processing/repository.ts";
 import type {
@@ -84,6 +85,27 @@ const sceneRepository: SceneRepository = {
   delete: async () => ({ status: "not_found" }),
 };
 
+const savedOutfit = {
+  id: "outfit_1",
+  name: "周一通勤",
+  seasonTags: ["春秋"],
+  colorTags: ["米白"],
+  canvasVersion: 1 as const,
+  nodes: [
+    {
+      clothingId: "clothing_1",
+      x: 0.4,
+      y: 0.2,
+      scale: 1,
+      rotation: 0,
+      zIndex: 1,
+    },
+  ],
+  createdAt: "2026-07-26T08:00:00.000Z",
+  updatedAt: "2026-07-26T08:00:00.000Z",
+  version: 1,
+};
+
 test("GET /health 返回统一成功信封", async () => {
   const response = await routeRequest(
     { method: "GET", path: "/health" },
@@ -98,6 +120,8 @@ test("GET /health 返回统一成功信封", async () => {
 
 test("GET /v1/clothing 接入可信身份衣物列表", async () => {
   const clothing: ClothingRepository = {
+    update: async () => ({ status: "not_found" }),
+    delete: async () => ({ status: "not_found" }),
     findByIdentity: async () => [
       {
         id: "clothing_1",
@@ -143,6 +167,8 @@ test("GET /v1/clothing 接入可信身份衣物列表", async () => {
 test("POST /v1/clothing/uploads 创建可信身份的上传草稿", async () => {
   let receivedIdentity: TrustedIdentity | undefined;
   const clothing: ClothingRepository = {
+    update: async () => ({ status: "not_found" }),
+    delete: async () => ({ status: "not_found" }),
     findByIdentity: async () => [],
     completeUpload: async () => ({ status: "not_found" }),
     createUploadDraft: async (_input, identity) => {
@@ -199,6 +225,8 @@ test("POST /v1/clothing/uploads 创建可信身份的上传草稿", async () => 
 
 test("PATCH /v1/clothing/:id/source 确认正式云存储文件", async () => {
   const clothing: ClothingRepository = {
+    update: async () => ({ status: "not_found" }),
+    delete: async () => ({ status: "not_found" }),
     findByIdentity: async () => [],
     createUploadDraft: async () => {
       throw new Error("unused");
@@ -245,6 +273,7 @@ test("PATCH /v1/clothing/:id/source 确认正式云存储文件", async () => {
 
 test("PATCH /v1/clothing/:id 按可信身份和版本更新已确认衣物", async () => {
   const clothing: import("./clothing/repository").ClothingRepository = {
+    delete: async () => ({ status: "not_found" }),
     findByIdentity: async () => [],
     createUploadDraft: async () => {
       throw new Error("unused");
@@ -299,15 +328,93 @@ test("PATCH /v1/clothing/:id 按可信身份和版本更新已确认衣物", asy
   );
   assert.equal("data" in result, true);
   if ("data" in result) {
-    assert.equal(
-      (result.data as { name: string }).name,
-      "蓝色牛仔裤",
-    );
-    assert.equal(
-      (result.data as { category: string }).category,
-      "bottom",
-    );
+    assert.equal((result.data as { name: string }).name, "蓝色牛仔裤");
+    assert.equal((result.data as { category: string }).category, "bottom");
   }
+});
+
+test("搭配保存、列表和详情路由使用可信身份仓储", async () => {
+  const outfits: OutfitRepository = {
+    listByIdentity: async () => [savedOutfit],
+    findById: async () => savedOutfit,
+    create: async () => savedOutfit,
+    delete: async () => ({ status: "not_found" }),
+  };
+  const clothing: ClothingRepository = {
+    findByIdentity: async () => [
+      {
+        id: "clothing_1",
+        name: "白衬衫",
+        category: "top",
+        color: "白色",
+        sourceFileId: "cloud://source.jpg",
+        processedFileId: "cloud://processed.png",
+        processingStatus: "ready",
+        createdAt: "2026-07-26T07:00:00.000Z",
+        updatedAt: "2026-07-26T07:00:00.000Z",
+        version: 1,
+      },
+    ],
+    createUploadDraft: async () => {
+      throw new Error("unused");
+    },
+    completeUpload: async () => ({ status: "not_found" }),
+    update: async () => ({ status: "not_found" }),
+    delete: async () => ({ status: "not_found" }),
+  };
+  const dependencies = [
+    profileRepository,
+    cityResolver,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    clothing,
+    undefined,
+    outfits,
+  ] as const;
+
+  const created = await routeRequest(
+    {
+      method: "POST",
+      path: "/v1/outfits",
+      body: {
+        name: "周一通勤",
+        seasonTags: ["春秋"],
+        colorTags: ["米白"],
+        canvasVersion: 1,
+        nodes: savedOutfit.nodes,
+      },
+    },
+    { openId: "trusted-open-id", appId: "trusted-app-id" },
+    "req_outfit_create",
+    ...dependencies,
+  );
+  const listed = await routeRequest(
+    { method: "GET", path: "/v1/outfits" },
+    { openId: "trusted-open-id", appId: "trusted-app-id" },
+    "req_outfit_list",
+    ...dependencies,
+  );
+  const detail = await routeRequest(
+    { method: "GET", path: "/v1/outfits/outfit_1" },
+    { openId: "trusted-open-id", appId: "trusted-app-id" },
+    "req_outfit_detail",
+    ...dependencies,
+  );
+
+  assert.deepEqual(created, {
+    data: savedOutfit,
+    requestId: "req_outfit_create",
+  });
+  assert.deepEqual(listed, {
+    data: { items: [savedOutfit] },
+    requestId: "req_outfit_list",
+  });
+  assert.deepEqual(detail, {
+    data: savedOutfit,
+    requestId: "req_outfit_detail",
+  });
 });
 
 test("图片处理任务路由使用可信身份创建和查询任务", async () => {

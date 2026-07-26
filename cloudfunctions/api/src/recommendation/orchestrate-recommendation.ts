@@ -7,6 +7,8 @@ import {
 import type { UserRepository } from "../auth/user-repository.ts";
 import type { TrustedIdentity } from "../context.ts";
 import type { ItineraryRepository } from "../itineraries/repository.ts";
+import { recordMetricSafely } from "../metrics/cloudbase-metrics-recorder.ts";
+import type { MetricsRecorder } from "../metrics/metrics-recorder.ts";
 import { getCurrentWeather } from "../weather/current-weather.ts";
 import type {
   WeatherCacheRepository,
@@ -20,6 +22,7 @@ interface RecommendationDependencies {
   itineraries: ItineraryRepository;
   weather: { provider: WeatherProvider; cache: WeatherCacheRepository };
   llm?: LlmProvider;
+  metrics?: MetricsRecorder;
 }
 
 export async function orchestrateRecommendation(
@@ -27,6 +30,7 @@ export async function orchestrateRecommendation(
   identity: TrustedIdentity,
   dependencies: RecommendationDependencies,
   requestId: string,
+  clock: () => Date = () => new Date(),
 ): Promise<ApiEnvelope<Recommendation>> {
   const request = recommendationRequestSchema.safeParse(body);
   if (!request.success)
@@ -60,7 +64,7 @@ export async function orchestrateRecommendation(
         requestId,
       );
 
-    return generateRecommendation(
+    const response = await generateRecommendation(
       {
         outdoorHighCelsius: weatherResponse.data.highCelsius,
         outdoorLowCelsius: weatherResponse.data.lowCelsius,
@@ -75,6 +79,16 @@ export async function orchestrateRecommendation(
       dependencies.llm,
       requestId,
     );
+    if ("data" in response && dependencies.metrics) {
+      await recordMetricSafely(() =>
+        dependencies.metrics!.recordRecommendation(identity, {
+          recommendationId: requestId,
+          source: response.data.source,
+          createdAt: clock().toISOString(),
+        }),
+      );
+    }
+    return response;
   } catch {
     return failure(
       "INTERNAL_ERROR",

@@ -118,6 +118,7 @@ export const retryCutoutJobRequestSchema = z
 export const deleteClothingRequestSchema = z
   .object({
     expectedVersion: z.number().int().positive(),
+    confirmReferencedRemoval: z.boolean().optional(),
   })
   .strict();
 
