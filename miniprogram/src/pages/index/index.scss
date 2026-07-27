@@ -7,37 +7,11 @@
   font-size: var(--font-size-small);
 }
 
-.home-placeholder {
-  display: flex;
+.home-page {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 104px var(--space-page);
-  flex-direction: column;
 
-  &__eyebrow,
-  &__title,
-  &__copy {
-    display: block;
-  }
-
-  &__eyebrow {
-    color: var(--color-secondary);
-    font-size: var(--font-size-label);
-    font-weight: 600;
-    letter-spacing: 0.06em;
-  }
-
-  &__title {
-    margin-top: var(--space-3);
-    font-family: var(--font-serif);
-    font-size: var(--font-size-display);
-    font-weight: 600;
-  }
-
-  &__copy {
-    margin-top: var(--space-4);
-    color: var(--color-text-muted);
-    font-size: var(--font-size-small);
-    line-height: 20px;
+  &__content {
+    padding: 24px var(--space-page) 40px;
   }
 }

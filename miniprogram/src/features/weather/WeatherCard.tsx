@@ -5,6 +5,29 @@ import type { CityLocation } from './location-service';
 import { weatherService, type WeatherInfo } from './weather-service';
 import './WeatherCard.scss';
 
+function formatDate(value: string) {
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return value;
+  return `${date.getMonth() + 1}月${date.getDate()}日星期${
+    '日一二三四五六'[date.getDay()]
+  }`;
+}
+
+function uvLabel(value?: number) {
+  if (value === undefined) return '未知';
+  if (value <= 2) return '弱';
+  if (value <= 5) return '中等';
+  if (value <= 7) return '较强';
+  return '强';
+}
+
+function windLevel(speed?: number) {
+  if (speed === undefined) return '未知';
+  const level =
+    speed <= 1 ? 0 : speed <= 5 ? 1 : speed <= 11 ? 2 : speed <= 19 ? 3 : 4;
+  return `${level <= 3 ? '微风' : '和风'} ${level}级`;
+}
+
 interface Props {
   city: CityLocation;
   service?: Pick<typeof weatherService, 'get'>;
@@ -79,44 +102,62 @@ export function WeatherCard({ city, service = weatherService }: Props) {
   return (
     <View className="weather-card">
       <View className="weather-card__header">
-        <View>
-          <Text className="weather-card__date">{weather.localDate}</Text>
-          <Text className="weather-card__source">
-            {weather.isStale ? '和风天气 · 缓存数据' : '和风天气'}
-          </Text>
+        <View className="weather-card__city">
+          <Text className="weather-card__pin">⌖</Text>
+          <Text className="weather-card__city-name">{city.cityName}</Text>
+          <View className="weather-card__city-divider" />
+          <Text className="weather-card__location-source">微信定位</Text>
         </View>
-        <Button
-          className="weather-card__refresh"
-          disabled={refreshing}
-          onClick={() => void load(true)}
-        >
-          {refreshing ? '刷新中…' : '刷新天气'}
-        </Button>
+        <View className="weather-card__header-actions">
+          <Text className="weather-card__source">
+            {weather.isStale ? '和风天气 · 缓存数据' : '和风天气实时同步'}
+          </Text>
+          <Button
+            className="weather-card__refresh"
+            aria-label={refreshing ? '刷新中…' : '刷新天气'}
+            disabled={refreshing}
+            onClick={() => void load(true)}
+          >
+            {refreshing ? '…' : '↻'}
+          </Button>
+        </View>
       </View>
       <View className="weather-card__main">
-        <Text className="weather-card__temperature">
-          {weather.temperatureCelsius}°
-        </Text>
         <View>
-          <Text className="weather-card__condition">{weather.condition}</Text>
-          <Text className="weather-card__feels">
-            体感 {weather.feelsLikeCelsius}°
+          <Text className="weather-card__date">
+            {formatDate(weather.localDate)}
           </Text>
+          <Text className="weather-card__temperature">
+            {weather.temperatureCelsius}°C
+          </Text>
+          <Text className="weather-card__condition">{weather.condition}</Text>
         </View>
-      </View>
-      <Text className="weather-card__range">
-        最高 {weather.highCelsius}° / 最低 {weather.lowCelsius}°
-      </Text>
-      <View className="weather-card__details">
-        {weather.humidityPercent === undefined ? null : (
-          <Text>湿度 {weather.humidityPercent}%</Text>
-        )}
-        {weather.uvIndex === undefined ? null : (
-          <Text>紫外线 {weather.uvIndex}</Text>
-        )}
-        {weather.windSpeedKilometersPerHour === undefined ? null : (
-          <Text>风速 {weather.windSpeedKilometersPerHour} km/h</Text>
-        )}
+        <View className="weather-card__summary">
+          <View className="weather-card__stat">
+            <Text className="weather-card__stat-label">体感温:</Text>
+            <Text className="weather-card__stat-value">
+              {weather.feelsLikeCelsius}°C
+            </Text>
+          </View>
+          <View className="weather-card__stat">
+            <Text className="weather-card__stat-label">全温差:</Text>
+            <Text className="weather-card__stat-value">
+              {weather.lowCelsius}°C ~ {weather.highCelsius}°C
+            </Text>
+          </View>
+          <View className="weather-card__stat">
+            <Text className="weather-card__stat-label">紫外线:</Text>
+            <Text className="weather-card__stat-value">
+              {uvLabel(weather.uvIndex)}
+            </Text>
+          </View>
+          <View className="weather-card__stat">
+            <Text className="weather-card__stat-label">风速级:</Text>
+            <Text className="weather-card__stat-value">
+              {windLevel(weather.windSpeedKilometersPerHour)}
+            </Text>
+          </View>
+        </View>
       </View>
       {error ? <Text className="weather-card__error">{error}</Text> : null}
     </View>

@@ -25,6 +25,21 @@ describe('设计令牌', () => {
     expect(tokens).toMatch(
       /--font-sans: ['"]PingFang SC['"], ['"]Microsoft YaHei['"], sans-serif/,
     );
+    expect(tokens).toMatch(
+      /--font-kai: ['"]LXGW WenKai Login['"], KaiTi, ['"]Kaiti SC['"], STKaiti, cursive/,
+    );
     expect(tokens).not.toMatch(/https?:\/\/|@font-face/);
+  });
+
+  it('将登录页楷体作为本地字体打包而非依赖系统字体', () => {
+    const appStyles = readFileSync(
+      resolve(process.cwd(), 'src/app.scss'),
+      'utf8',
+    );
+    expect(appStyles).toContain("font-family: 'LXGW WenKai Login'");
+    expect(appStyles).toContain(
+      "url('./assets/fonts/lxgw-wenkai-login.woff2')",
+    );
+    expect(appStyles).not.toMatch(/https?:\/\//);
   });
 });

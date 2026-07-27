@@ -23,6 +23,8 @@ import type { ItineraryRepository } from "./itineraries/repository.ts";
 import type { SceneRepository } from "./scenes/scene-repository.ts";
 import { getCurrentWeather } from "./weather/current-weather.ts";
 import { orchestrateRecommendation } from "./recommendation/orchestrate-recommendation.ts";
+import { saveRecommendationFeedback } from "./recommendation/manage-feedback.ts";
+import type { FeedbackRepository } from "./recommendation/feedback-repository.ts";
 import type { LlmProvider } from "./recommendation/llm-provider.ts";
 import { listClothing } from "./clothing/list-clothing.ts";
 import { createClothingUpload } from "./clothing/create-upload.ts";
@@ -89,6 +91,7 @@ export async function routeRequest(
   imageProcessing?: ImageProcessingDependencies,
   outfitRepository?: OutfitRepository,
   metrics?: MetricsRecorder,
+  feedbackRepository?: FeedbackRepository,
 ): Promise<ApiEnvelope<unknown>> {
   createRequestContext(event, identity, requestId);
 
@@ -282,7 +285,12 @@ export async function routeRequest(
     /^\/v1\/outfits\/[^/]+$/.test(event.path)
   ) {
     if (!outfitRepository) {
-      return failure("INTERNAL_ERROR", "搭配服务暂时不可用，请稍后重试", true, requestId);
+      return failure(
+        "INTERNAL_ERROR",
+        "搭配服务暂时不可用，请稍后重试",
+        true,
+        requestId,
+      );
     }
     return deleteOutfit(
       event.path.slice("/v1/outfits/".length),
@@ -531,6 +539,27 @@ export async function routeRequest(
         ...(metrics ? { metrics } : {}),
         ...(llmProvider ? { llm: llmProvider } : {}),
       },
+      requestId,
+    );
+  }
+
+  if (
+    event.method === "PUT" &&
+    typeof event.path === "string" &&
+    event.path.startsWith("/v1/recommendations/") &&
+    event.path.endsWith("/feedback")
+  ) {
+    if (!feedbackRepository)
+      return failure("INTERNAL_ERROR", "评价服务暂时不可用", true, requestId);
+    const recommendationId = event.path.slice(
+      "/v1/recommendations/".length,
+      -"/feedback".length,
+    );
+    return saveRecommendationFeedback(
+      recommendationId,
+      event.body,
+      identity,
+      feedbackRepository,
       requestId,
     );
   }

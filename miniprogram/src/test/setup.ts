@@ -7,6 +7,7 @@ import { afterEach, vi } from 'vitest';
 afterEach(cleanup);
 
 vi.mock('@tarojs/taro', () => ({
+  useDidShow: vi.fn((callback: () => void) => callback()),
   default: {
     cloud: { callFunction: vi.fn(), uploadFile: vi.fn() },
     getSetting: vi.fn(),
@@ -17,6 +18,8 @@ vi.mock('@tarojs/taro', () => ({
     showModal: vi.fn(),
     reLaunch: vi.fn(),
     navigateTo: vi.fn(),
+    switchTab: vi.fn(),
+    hideTabBar: vi.fn(),
   },
 }));
 
@@ -44,6 +47,18 @@ vi.mock('@tarojs/components', () => ({
       ...props,
       onInput: (event: React.FormEvent<HTMLInputElement>) =>
         onInput?.({ detail: { value: event.currentTarget.value } }),
+    }),
+  Slider: ({
+    onChange,
+    ...props
+  }: React.InputHTMLAttributes<HTMLInputElement> & {
+    onChange?: (event: { detail: { value: number } }) => void;
+  }) =>
+    React.createElement('input', {
+      ...props,
+      type: 'range',
+      onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
+        onChange?.({ detail: { value: Number(event.currentTarget.value) } }),
     }),
   View: (props: React.HTMLAttributes<HTMLDivElement>) =>
     React.createElement('div', props),

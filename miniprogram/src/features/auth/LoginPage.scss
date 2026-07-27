@@ -2,58 +2,77 @@
   display: flex;
   box-sizing: border-box;
   min-height: 100vh;
-  padding: 104px var(--space-page) calc(40px + env(safe-area-inset-bottom));
+  padding: 48px 32px calc(32px + env(safe-area-inset-bottom));
   flex-direction: column;
   justify-content: space-between;
   background: var(--color-background);
 
   &__brand {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     flex-direction: column;
+    margin-top: 64px;
+    text-align: center;
   }
 
   &__logo {
-    width: 72px;
-    height: 72px;
-    margin-bottom: var(--space-8);
-    border-radius: 24px;
+    width: 96px;
+    height: 96px;
+    padding: 2px;
+    margin-bottom: 24px;
+    border: 1px solid var(--color-outline);
+    border-radius: 50%;
+    background: var(--color-surface);
+    box-shadow: 0 2px 8px rgb(45 41 38 / 6%);
   }
 
-  &__eyebrow,
   &__title,
   &__subtitle,
   &__error {
     display: block;
   }
 
-  &__eyebrow {
-    color: var(--color-secondary);
-    font-size: 10px;
+  &__title {
+    font-family: var(--font-kai);
+    font-size: 32px;
     font-weight: 600;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.2em;
+    line-height: 1.25;
   }
 
-  &__title {
-    margin-top: var(--space-3);
-    font-family: var(--font-serif);
-    font-size: 42px;
-    font-weight: 600;
-    line-height: 1.15;
+  &__divider {
+    width: 48px;
+    height: 1px;
+    margin: 24px 0;
+    background: var(--color-outline);
   }
 
   &__subtitle {
     max-width: 280px;
-    margin-top: var(--space-4);
     color: var(--color-text-muted);
-    font-size: var(--font-size-body);
-    line-height: 24px;
+    font-family: var(--font-kai);
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    line-height: 26px;
   }
 
   &__action {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
+
+    .ui-button--primary {
+      min-height: 52px;
+      border-radius: var(--radius-full);
+      background: #07c160;
+      box-shadow: 0 6px 18px rgb(7 193 96 / 18%);
+      letter-spacing: 0.12em;
+    }
+  }
+
+  &__wechat-icon {
+    margin-right: 8px;
+    font-size: 13px;
   }
 
   &__consent {

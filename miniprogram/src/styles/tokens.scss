@@ -1,21 +1,27 @@
 :root,
 page {
   --color-primary: #2d2926;
+  --color-onyx-wool: #2d2926;
   --color-on-primary: #ffffff;
   --color-secondary: #685c50;
+  --color-warm-taupe: #a7998b;
   --color-secondary-soft: #f0e0d0;
   --color-canvas: #faf9f7;
+  --color-canvas-warm: #f9f8f6;
   --color-surface: #ffffff;
   --color-surface-muted: #f4f3f1;
   --color-text: #1a1c1b;
   --color-text-muted: #4d4540;
   --color-outline: #e5e1da;
+  --color-pebble: #e5e1da;
   --color-accent: #d4a373;
+  --color-camel: #d4a373;
   --color-error: #ba1a1a;
   --color-error-soft: #ffdad6;
 
   --font-serif: 'Noto Serif SC', 'Songti SC', SimSun, serif;
   --font-sans: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-kai: 'LXGW WenKai Login', KaiTi, 'Kaiti SC', STKaiti, cursive;
   --font-size-display: 32px;
   --font-size-headline: 24px;
   --font-size-title: 18px;

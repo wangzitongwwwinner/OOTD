@@ -1,5 +1,6 @@
 ﻿import { Button, Text, View } from '@tarojs/components';
 import { useEffect, useState } from 'react';
+import { Image } from '@tarojs/components';
 import { sceneService, type Scene } from '../scenes/scene-service';
 import {
   itineraryService,
@@ -7,6 +8,7 @@ import {
   type ItineraryCreateInput,
 } from './itinerary-service';
 import { ItineraryForm } from './ItineraryForm';
+import './TodayItinerary.scss';
 
 export function TodayItinerary() {
   const [items, setItems] = useState<Itinerary[]>();
@@ -158,36 +160,84 @@ export function TodayItinerary() {
     return (
       <View className="itinerary">
         <View className="itinerary__header">
-          <Text className="itinerary__title">今天行程</Text>
+          <View className="itinerary__heading">
+            <View className="itinerary__calendar" aria-hidden="true" />
+            <Text className="itinerary__title">今日通勤行程</Text>
+          </View>
           <Button className="itinerary__add" onClick={openCreate}>
-            新增
+            ＋ 添加行程
           </Button>
         </View>
         {items.map((item) => (
           <View className="itinerary__item" key={item.id}>
-            <View>
+            <View className="itinerary__time-group">
               <Text className="itinerary__time">{item.startTime}</Text>
-              <Text className="itinerary__scene">{item.sceneName}</Text>
-              <Text className="itinerary__meta">
-                {item.estimatedTemperatureCelsius +
-                  '°C · ' +
-                  item.durationMinutes +
-                  '分钟'}
+              <Text className="itinerary__duration">
+                {item.durationMinutes % 60 === 0
+                  ? `${item.durationMinutes / 60}h`
+                  : `${item.durationMinutes}m`}
               </Text>
             </View>
-            <View>
+            <View className="itinerary__divider" />
+            <View className="itinerary__content">
+              <View className="itinerary__scene-line">
+                <Text className="itinerary__scene">{item.sceneName}</Text>
+                {scenes.find((scene) => scene.id === item.sceneId)?.note ? (
+                  <Text className="itinerary__note">
+                    {scenes.find((scene) => scene.id === item.sceneId)?.note}
+                  </Text>
+                ) : null}
+              </View>
+              <View className="itinerary__meta-line">
+                <Text className="itinerary__meta">
+                  预估环境：{item.estimatedTemperatureCelsius}°C
+                </Text>
+                {scenes.find((scene) => scene.id === item.sceneId)?.feel ? (
+                  <Text
+                    className={`itinerary__feel itinerary__feel--${
+                      scenes.find((scene) => scene.id === item.sceneId)!.feel
+                    }`}
+                  >
+                    体感：
+                    {
+                      {
+                        cold: '偏冷',
+                        comfortable: '舒适',
+                        stuffy: '闷热',
+                        cool: '微凉',
+                      }[scenes.find((scene) => scene.id === item.sceneId)!.feel]
+                    }
+                  </Text>
+                ) : null}
+              </View>
+            </View>
+            <View className="itinerary__actions">
               <Button
                 className="itinerary__edit"
+                aria-label={`编辑 ${item.sceneName}`}
                 onClick={() => openEdit(item)}
               >
-                编辑
+                <Image
+                  className="itinerary__action-icon"
+                  src="/assets/icons/edit.svg"
+                  mode="aspectFit"
+                />
               </Button>
               <Button
                 className="itinerary__delete"
+                aria-label={`删除 ${item.sceneName}`}
                 disabled={deleting === item.id}
                 onClick={() => handleDelete(item)}
               >
-                {deleting === item.id ? '删除中…' : '删除'}
+                {deleting === item.id ? (
+                  '…'
+                ) : (
+                  <Image
+                    className="itinerary__action-icon"
+                    src="/assets/icons/trash.svg"
+                    mode="aspectFit"
+                  />
+                )}
               </Button>
             </View>
           </View>
@@ -199,16 +249,27 @@ export function TodayItinerary() {
   if (error) return <Text className="itinerary__error">{error}</Text>;
   return (
     <View className="itinerary">
-      <Text className="itinerary__empty">还没有行程</Text>
-      <Button
-        className="itinerary__add-first"
-        onClick={() => {
-          void loadScenes();
-          openCreate();
-        }}
-      >
-        添加今天行程
-      </Button>
+      <View className="itinerary__header">
+        <View className="itinerary__heading">
+          <View className="itinerary__calendar" aria-hidden="true" />
+          <Text className="itinerary__title">今日通勤行程</Text>
+        </View>
+        <Button
+          className="itinerary__add"
+          onClick={() => {
+            void loadScenes();
+            openCreate();
+          }}
+        >
+          ＋ 添加行程
+        </Button>
+      </View>
+      <View className="itinerary__empty-card">
+        <Text className="itinerary__empty">今天还没有行程</Text>
+        <Text className="itinerary__empty-hint">
+          添加通勤、办公或休闲场景，让建议覆盖全天温差。
+        </Text>
+      </View>
     </View>
   );
 }

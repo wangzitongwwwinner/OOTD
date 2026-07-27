@@ -1,30 +1,29 @@
 import Taro from '@tarojs/taro';
-import { Button, Text, View } from '@tarojs/components';
+import { Text, View } from '@tarojs/components';
 import { useEffect, useState } from 'react';
 
 import { LoginPage } from '../../features/auth/LoginPage';
 import { useAuthSession } from '../../features/auth/useAuthSession';
-import { ProfilePreference } from '../../features/profile/ProfilePreference';
+import { HomeHeader } from '../../features/home/HomeHeader';
 import { LocationStatus } from '../../features/weather/LocationStatus';
 import { locationService } from '../../features/weather/location-service';
 import { WeatherCard } from '../../features/weather/WeatherCard';
 import { TodayItinerary } from '../../features/itinerary/TodayItinerary';
 import { RecommendationCard } from '../../features/recommendation/RecommendationCard';
+import { setTabBarAuthenticated } from '../../custom-tab-bar/visibility';
+import { useSyncTabBar } from '../../custom-tab-bar/active-tab';
 
 import './index.scss';
 
 const AGREEMENT_VERSION = '2026-07-18';
 
 export default function IndexPage() {
+  useSyncTabBar('home');
   const auth = useAuthSession();
   const [city, setCity] = useState(() => locationService.restore());
 
   useEffect(() => {
-    if (auth.status === 'authenticated') {
-      void Taro.showTabBar();
-    } else {
-      void Taro.hideTabBar();
-    }
+    setTabBarAuthenticated(auth.status === 'authenticated');
   }, [auth.status]);
 
   if (auth.status === 'restoring') {
@@ -63,30 +62,25 @@ export default function IndexPage() {
   }
 
   return (
-    <View className="home-placeholder">
-      <Text className="home-placeholder__eyebrow">TODAY</Text>
-      <LocationStatus onLocated={setCity} />
-      {city ? <WeatherCard key={city.cityCode} city={city} /> : null}
-      {city ? (
-        <RecommendationCard
-          key={`recommendation-${city.cityCode}`}
-          city={city}
-        />
-      ) : null}
-      <Text className="home-placeholder__title">
-        你好，{auth.session?.user.nickname}
-      </Text>
-      <Button
-        aria-label="打开用户中心"
-        onClick={() => void Taro.navigateTo({ url: '/pages/profile/index' })}
-      >
-        用户中心
-      </Button>
-      <Text className="home-placeholder__copy">
-        综合全天行程，编排穿脱方案…
-      </Text>
-      <ProfilePreference />
-      <TodayItinerary />
+    <View className="home-page">
+      <HomeHeader
+        nickname={auth.session?.user.nickname ?? '我'}
+        avatarFileId={auth.session?.user.avatarFileId}
+        onOpenProfile={() =>
+          void Taro.navigateTo({ url: '/pages/profile/index' })
+        }
+      />
+      <View className="home-page__content">
+        {city ? null : <LocationStatus onLocated={setCity} />}
+        {city ? <WeatherCard key={city.cityCode} city={city} /> : null}
+        {city ? (
+          <RecommendationCard
+            key={`recommendation-${city.cityCode}`}
+            city={city}
+          />
+        ) : null}
+        <TodayItinerary />
+      </View>
     </View>
   );
 }

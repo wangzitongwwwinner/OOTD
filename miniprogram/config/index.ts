@@ -20,6 +20,14 @@ export default defineConfig({
         from: 'src/sitemap.json',
         to: 'dist/sitemap.json',
       },
+      {
+        from: 'src/assets/tabbar',
+        to: 'dist/assets/tabbar',
+      },
+      {
+        from: 'src/assets/icons',
+        to: 'dist/assets/icons',
+      },
     ],
     options: {},
   },

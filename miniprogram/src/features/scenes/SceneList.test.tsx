@@ -28,8 +28,14 @@ it('展示所有场景并提供编辑按钮', async () => {
   );
   expect(screen.getByText('正在加载场景…')).toBeInTheDocument();
   expect(await screen.findByText('办公室')).toBeInTheDocument();
-  expect(screen.getByText('22°C · 偏冷')).toBeInTheDocument();
-  expect(screen.getByText('编辑')).toBeInTheDocument();
+  expect(screen.getByText(/22°C/)).toBeInTheDocument();
+  expect(screen.getByText('体感: 偏冷')).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: '编辑 办公室' }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: '添加新场景' }),
+  ).toBeInTheDocument();
 });
 
 it('加载失败时可以重试', async () => {

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AuthenticatedPage } from '../../features/auth/AuthenticatedPage';
 import { WardrobeUploader } from '../../features/wardrobe/WardrobeUploader';
 import { WardrobeBrowser } from '../../features/wardrobe/WardrobeBrowser';
+import { useSyncTabBar } from '../../custom-tab-bar/active-tab';
 import {
   confirmCutoutJob,
   deleteClothing,
@@ -25,6 +26,7 @@ import {
 import './index.scss';
 
 export default function WardrobePage() {
+  useSyncTabBar('wardrobe');
   const [status, setStatus] = useState<
     | 'idle'
     | 'uploading'

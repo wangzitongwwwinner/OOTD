@@ -1,5 +1,6 @@
 ﻿import { Button, Text, View } from '@tarojs/components';
 import { useCallback, useEffect, useState } from 'react';
+import { Image } from '@tarojs/components';
 
 import {
   sceneService,
@@ -15,6 +16,15 @@ const FEEL_LABELS: Record<Scene['feel'], string> = {
   comfortable: '舒适',
   stuffy: '闷热',
   cool: '微凉',
+};
+
+const CATEGORY_ICONS: Record<Scene['category'], string> = {
+  office: '/assets/icons/scene-office.svg',
+  home: '/assets/icons/scene-home.svg',
+  metro: '/assets/icons/scene-metro.svg',
+  mall: '/assets/icons/scene-mall.svg',
+  outdoor: '/assets/icons/scene-outdoor.svg',
+  custom: '/assets/icons/scene-custom.svg',
 };
 
 interface Props {
@@ -169,48 +179,79 @@ export function SceneList({ service = sceneService }: Props) {
   return (
     <View className="scene-list">
       {error ? <Text className="scene-list__global-error">{error}</Text> : null}
-      <View className="scene-list__header">
-        <Text className="scene-list__section-title">全部场景</Text>
-        <Button className="scene-list__add-scene" onClick={openCreate}>
-          新增场景
-        </Button>
-      </View>
       {scenes.length ? (
-        <View>
+        <View className="scene-list__cards">
           {scenes.map((scene) => (
             <View className="scene-list__card" key={scene.id}>
-              <View>
-                <Text className="scene-list__name">{scene.name}</Text>
-                <Text className="scene-list__meta">
-                  {scene.estimatedTemperatureCelsius +
-                    '°C · ' +
-                    FEEL_LABELS[scene.feel]}
-                </Text>
-                {scene.note ? (
-                  <Text className="scene-list__note">{scene.note}</Text>
-                ) : null}
+              <View className="scene-list__icon-wrap">
+                <Image
+                  className="scene-list__icon"
+                  src={CATEGORY_ICONS[scene.category]}
+                  mode="aspectFit"
+                />
               </View>
-              <Button
-                className="scene-list__action"
-                onClick={() => (editingScene ? undefined : openEdit(scene))}
-              >
-                {editingScene && editingScene.id === scene.id
-                  ? '编辑中'
-                  : '编辑'}
-              </Button>
-              <Button
-                className="scene-list__delete"
-                disabled={deleting === scene.id}
-                onClick={() => handleDelete(scene)}
-              >
-                {deleting === scene.id ? '删除中…' : '删除'}
-              </Button>
+              <View className="scene-list__content">
+                <View className="scene-list__name-line">
+                  <Text className="scene-list__name">{scene.name}</Text>
+                  {scene.note ? (
+                    <Text className="scene-list__note">{scene.note}</Text>
+                  ) : null}
+                </View>
+                <View className="scene-list__meta-line">
+                  <View className="scene-list__temperature">
+                    <Image
+                      className="scene-list__temperature-icon"
+                      src="/assets/icons/thermometer.svg"
+                      mode="aspectFit"
+                    />
+                    <Text>{scene.estimatedTemperatureCelsius}°C</Text>
+                  </View>
+                  <Text
+                    className={`scene-list__feel scene-list__feel--${scene.feel}`}
+                  >
+                    体感: {FEEL_LABELS[scene.feel]}
+                  </Text>
+                </View>
+              </View>
+              <View className="scene-list__actions">
+                <Button
+                  className="scene-list__action"
+                  aria-label={`编辑 ${scene.name}`}
+                  onClick={() => (editingScene ? undefined : openEdit(scene))}
+                >
+                  <Image src="/assets/icons/edit.svg" mode="aspectFit" />
+                </Button>
+                <Button
+                  className="scene-list__delete"
+                  aria-label={`删除 ${scene.name}`}
+                  disabled={deleting === scene.id}
+                  onClick={() => handleDelete(scene)}
+                >
+                  {deleting === scene.id ? (
+                    '…'
+                  ) : (
+                    <Image src="/assets/icons/trash.svg" mode="aspectFit" />
+                  )}
+                </Button>
+              </View>
             </View>
           ))}
         </View>
       ) : (
         <Text className="scene-list__empty">还没有场景</Text>
       )}
+      <Button
+        className="scene-list__add-card"
+        aria-label="添加新场景"
+        onClick={openCreate}
+      >
+        <Image
+          className="scene-list__add-icon"
+          src="/assets/icons/add-circle.svg"
+          mode="aspectFit"
+        />
+        <Text className="scene-list__add-text">添加新场景</Text>
+      </Button>
     </View>
   );
 }

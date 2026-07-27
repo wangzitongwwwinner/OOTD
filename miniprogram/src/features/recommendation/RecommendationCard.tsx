@@ -1,6 +1,7 @@
-import { Button, Text, View } from '@tarojs/components';
+import { Button, Image, Text, View } from '@tarojs/components';
 import { useState } from 'react';
 import type { CityLocation } from '../weather/location-service';
+import { RecommendationFeedback } from './RecommendationFeedback';
 import {
   recommendationService,
   type Recommendation,
@@ -46,11 +47,27 @@ export function RecommendationCard({
   }
 
   return (
-    <View className="recommendation-card">
+    <View
+      className={`recommendation-card ${
+        recommendation
+          ? 'recommendation-card--result'
+          : 'recommendation-card--empty'
+      }`}
+    >
       <View className="recommendation-card__header">
-        <View>
-          <Text className="recommendation-card__eyebrow">AI 全天穿衣建议</Text>
-          <Text className="recommendation-card__title">随温度灵活穿脱</Text>
+        <View className="recommendation-card__heading">
+          {recommendation ? (
+            <Image
+              className="recommendation-card__robot-image"
+              src="/assets/icons/robot-black-v2.svg"
+              mode="aspectFit"
+            />
+          ) : (
+            <Text className="recommendation-card__brain">♧</Text>
+          )}
+          <Text className="recommendation-card__title">
+            {recommendation ? 'AI 智能穿衣建议' : '点击生成 AI 全天通勤建议'}
+          </Text>
         </View>
         {recommendation ? (
           <Text
@@ -62,10 +79,13 @@ export function RecommendationCard({
       </View>
       {recommendation ? (
         <View className="recommendation-card__result">
-          <Text className="recommendation-card__summary">
-            {recommendation.summary}
-          </Text>
-          <View className="recommendation-card__layers">
+          <View className="recommendation-card__outfit">
+            <Text className="recommendation-card__eyebrow">
+              今日穿配叠穿方案
+            </Text>
+            <Text className="recommendation-card__summary">
+              {recommendation.summary}
+            </Text>
             {recommendation.layers.map((layer, index) => (
               <View
                 className="recommendation-card__layer"
@@ -78,8 +98,17 @@ export function RecommendationCard({
               </View>
             ))}
           </View>
+          <Text className="recommendation-card__section-title">
+            气温与层叠逻辑依据
+          </Text>
+          <Text className="recommendation-card__logic">
+            全天温差与不同场景体感均已纳入建议，采用可灵活穿脱的分层方案。
+          </Text>
           {recommendation.tips.length ? (
             <View className="recommendation-card__tips">
+              <Text className="recommendation-card__section-title">
+                全天通勤细节贴士
+              </Text>
               {recommendation.tips.map((tip, index) => (
                 <Text className="recommendation-card__tip" key={index}>
                   · {tip}
@@ -90,7 +119,7 @@ export function RecommendationCard({
         </View>
       ) : (
         <Text className="recommendation-card__empty">
-          结合当地天气、今日行程和体感偏好，生成一套全天方案。
+          融合当前城市的室外气温、空气湿度、紫外线及您今日的整套多场景行程，推荐最合理的穿脱搭配组合。
         </Text>
       )}
       {error ? (
@@ -101,14 +130,27 @@ export function RecommendationCard({
         disabled={loading}
         onClick={() => void generate()}
       >
-        {loading
-          ? '综合全天行程，编排穿脱方案…'
-          : error
-            ? '重试'
-            : recommendation
-              ? '刷新建议'
-              : '生成建议'}
+        {loading ? (
+          <View className="recommendation-card__loading">
+            <View className="recommendation-card__spinner" />
+            <Text>
+              {recommendation ? '正在重新分析今日搭配…' : '正在生成全天建议…'}
+            </Text>
+          </View>
+        ) : error ? (
+          '重试'
+        ) : recommendation ? (
+          '重新分析今日搭配'
+        ) : (
+          '生成穿衣决策'
+        )}
       </Button>
+      {recommendation ? (
+        <RecommendationFeedback
+          key={recommendation.recommendationId}
+          recommendationId={recommendation.recommendationId}
+        />
+      ) : null}
     </View>
   );
 }

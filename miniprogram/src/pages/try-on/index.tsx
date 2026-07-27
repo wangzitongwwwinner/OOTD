@@ -25,10 +25,12 @@ import {
   type OutfitNode,
 } from '../../features/try-on/outfit-model';
 import { OutfitManager } from '../../features/try-on/OutfitManager';
+import { useSyncTabBar } from '../../custom-tab-bar/active-tab';
 
 import './index.scss';
 
 export default function TryOnPage() {
+  useSyncTabBar('tryon');
   const [wardrobe, setWardrobe] = useState<PublicClothing[]>([]);
   const [nodes, setNodes] = useState<OutfitNode[]>([]);
   const [showPicker, setShowPicker] = useState(false);

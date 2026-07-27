@@ -23,6 +23,7 @@
 ### Task 1: 全局视觉令牌与导航
 
 **Files:**
+
 - Modify: `miniprogram/src/styles/tokens.scss`
 - Modify: `miniprogram/src/app.scss`
 - Modify: `miniprogram/src/app.config.ts`
@@ -39,6 +40,7 @@
 ### Task 2: 登录页与首页还原
 
 **Files:**
+
 - Modify: `miniprogram/src/features/auth/LoginPage.tsx`
 - Modify: `miniprogram/src/features/auth/LoginPage.scss`
 - Modify: `miniprogram/src/pages/index/index.tsx`
@@ -58,6 +60,7 @@
 ### Task 3: 场景库与衣橱还原
 
 **Files:**
+
 - Modify: `miniprogram/src/features/scenes/SceneList.tsx`
 - Modify: `miniprogram/src/features/scenes/SceneList.scss`
 - Modify: `miniprogram/src/features/scenes/SceneForm.tsx`
@@ -77,6 +80,7 @@
 ### Task 4: 试穿与用户中心还原
 
 **Files:**
+
 - Modify: `miniprogram/src/pages/try-on/index.tsx`
 - Modify: `miniprogram/src/pages/try-on/index.scss`
 - Modify: `miniprogram/src/features/try-on/OutfitManager.tsx`
@@ -96,6 +100,7 @@
 ### Task 5: 原型还原总验收
 
 **Files:**
+
 - Modify: `TEST.md`
 - Modify: `PROGRESS.md`
 
@@ -108,6 +113,7 @@
 ### Task 6: AI 建议评价契约与云端存储
 
 **Files:**
+
 - Create: `packages/contracts/src/recommendation-feedback.ts`
 - Create: `packages/contracts/src/recommendation-feedback.test.ts`
 - Create: `cloudfunctions/api/src/recommendation/feedback-repository.ts`
@@ -123,32 +129,49 @@
 - [ ] 增加 `recommendationFeedbacks` 集合、`userId + recommendationId` 唯一约束和仅云函数访问规则。
 - [ ] 运行契约、云函数测试、类型检查和构建；获得授权后部署。
 
-### Task 7: AI 建议评价卡片与指标
+### Task 7: AI 建议评价卡片
 
 **Files:**
+
 - Create: `miniprogram/src/features/recommendation/RecommendationFeedback.tsx`
 - Create: `miniprogram/src/features/recommendation/RecommendationFeedback.scss`
 - Create: `miniprogram/src/features/recommendation/RecommendationFeedback.test.tsx`
 - Create: `miniprogram/src/features/recommendation/feedback-service.ts`
 - Create: `miniprogram/src/features/recommendation/feedback-service.test.ts`
 - Modify: `miniprogram/src/features/recommendation/RecommendationCard.tsx`
-- Modify: `cloudfunctions/api/src/metrics/calculate-metrics.ts`
-- Modify: `cloudfunctions/api/src/metrics/render-metric-report.ts`
-- Test: corresponding metrics tests
-
 - [ ] 写失败组件测试，覆盖未评价、提交中、成功选中、失败重试和修改评价。
 - [ ] 在首页 AI 建议卡底部增加“有帮助 / 一般 / 没帮助”。
 - [ ] 防重复点击；失败保留选择并可重试；修改评价更新原记录。
-- [ ] 写失败指标夹具并实现有用率、正向反馈率和评价覆盖率。
-- [ ] 完成 Android 重复点击、弱网、失败恢复、修改评价及统计回归。
+- [ ] 完成 Android 重复点击、弱网、失败恢复和修改评价回归。
+- [ ] 项目所有者确认评价交互与云端记录验收通过后，才启动指标任务。
 
-### Task 8: 新体验版、审核与发布
+### Task 8: AI 建议评价指标埋点与报告
 
 **Files:**
+
+- Modify: `cloudfunctions/api/src/metrics/calculate-metrics.ts`
+- Modify: `cloudfunctions/api/src/metrics/calculate-metrics.test.ts`
+- Modify: `cloudfunctions/api/src/metrics/render-metric-report.ts`
+- Modify: `cloudfunctions/api/src/metrics/render-metric-report.test.ts`
+- Modify: `cloudfunctions/api/scripts/generate-metrics-report.ts`
+- Modify: `METRICS.md`
+
+- [ ] 写失败夹具，覆盖有用率、正向反馈率、评价覆盖率、测试用户排除、重复记录、修改评价和零分母。
+- [ ] 扩展只读统计输入，按 `userId + recommendationId` 读取唯一有效评价。
+- [ ] 实现三项评价指标计算，并把“暂不可用”替换为真实分子、分母和百分比。
+- [ ] 验证未评价不进入评价分母，修改评价不重复计数，评价覆盖率分母使用成功展示的去重建议。
+- [ ] 用脱敏云端导出数据生成 Markdown/CSV，人工核对分子、分母、截止时间和口径版本。
+- [ ] 指标测试、云函数测试、类型检查、构建及云端样本验收全部通过后，才启动发布准备。
+
+### Task 9: 新体验版、审核与发布
+
+**Files:**
+
 - Modify: `TASK.md`
 - Modify: `PROGRESS.md`
 - Modify: `WECHAT_MINIPROGRAM.md` only if platform facts change
 
+- [ ] 确认原型还原、评价卡片和评价指标三个阶段均有项目所有者验收记录。
 - [ ] 重新运行全部测试、类型、Lint、格式、生产构建、包体与差异检查。
 - [ ] 经授权 commit/push，并上传高于 `0.9.0` 的新开发版本。
 - [ ] 设置体验版与体验成员，回归登录、定位、天气、建议、评价、行程、场景、衣橱、试穿、搭配和退出登录。

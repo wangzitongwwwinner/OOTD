@@ -4,6 +4,27 @@ import { describe, expect, it, vi } from 'vitest';
 import { LoginPage } from './LoginPage';
 
 describe('登录页', () => {
+  it('按原型展示居中品牌秩序且不保留英文眉题', () => {
+    const { container } = render(
+      <LoginPage
+        status="unauthenticated"
+        onLogin={vi.fn()}
+        onOpenLegal={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('穿衣有数')).toBeInTheDocument();
+    expect(
+      screen.getByText('让每一天的穿衣决策，都成为一种享受。'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('YOUR DAILY DRESSING EDITOR')).toBeNull();
+    expect(container.querySelector('.login-page__divider')).not.toBeNull();
+    expect(container.querySelector('.login-page__wechat-icon')).not.toBeNull();
+    expect(container.querySelector('.login-page')).toHaveClass(
+      'login-page--kai',
+    );
+  });
+
   it('未同意协议时阻止登录请求并提示用户', () => {
     const onLogin = vi.fn();
     render(

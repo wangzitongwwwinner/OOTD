@@ -1,0 +1,61 @@
+.home-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  min-height: 68px;
+  padding: 14px var(--space-page);
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(229 225 218 / 55%);
+  background: rgb(255 255 255 / 92%);
+  backdrop-filter: blur(16px);
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__brand-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  &__brand-name {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  &__profile {
+    display: flex;
+    width: 38px;
+    height: 38px;
+    min-height: 38px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    overflow: hidden;
+    border: 4px solid #fff;
+    border-radius: 50%;
+    background: #2d2926;
+    box-shadow: 0 2px 8px rgb(31 36 48 / 18%);
+
+    &::after {
+      border: 0;
+    }
+  }
+
+  &__avatar {
+    width: 100%;
+    height: 100%;
+  }
+
+  &__avatar-fallback {
+    color: #e9dfc7;
+    font-size: 24px;
+    font-weight: 600;
+  }
+}

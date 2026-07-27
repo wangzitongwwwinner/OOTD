@@ -18,6 +18,7 @@ import { QWeatherCityResolver } from "./location/qweather-city-resolver.ts";
 import { CloudBaseOutfitRepository } from "./outfits/cloudbase-outfit-repository.ts";
 import { CloudBaseMetricsRecorder } from "./metrics/cloudbase-metrics-recorder.ts";
 import { HunyuanProvider } from "./recommendation/hunyuan-provider.ts";
+import { CloudBaseFeedbackRepository } from "./recommendation/cloudbase-feedback-repository.ts";
 import { routeRequest } from "./router.ts";
 import { CloudBaseSceneRepository } from "./scenes/cloudbase-scene-repository.ts";
 import { CloudBaseWeatherCache } from "./weather/cloudbase-weather-cache.ts";
@@ -34,6 +35,7 @@ const outfitRepository = new CloudBaseOutfitRepository(app.database());
 const llmProvider = createLlmProvider();
 const imageProcessing = createImageProcessingDependencies();
 const metricsRecorder = new CloudBaseMetricsRecorder(app.database());
+const feedbackRepository = new CloudBaseFeedbackRepository(app.database());
 
 interface FunctionContext {
   requestId?: string;
@@ -69,6 +71,7 @@ export async function main(
     imageProcessing,
     outfitRepository,
     metricsRecorder,
+    feedbackRepository,
   );
 }
 

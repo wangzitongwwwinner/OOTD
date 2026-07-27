@@ -15,7 +15,10 @@ describe('recommendation service', () => {
       .fn()
       .mockResolvedValue({ data: recommendation, requestId: 'req_1' });
     const result = await createRecommendationService(call).generate(city);
-    expect(result).toEqual(recommendation);
+    expect(result).toEqual({
+      ...recommendation,
+      recommendationId: 'req_1',
+    });
     expect(call).toHaveBeenCalledWith({
       method: 'POST',
       path: '/v1/recommendations',

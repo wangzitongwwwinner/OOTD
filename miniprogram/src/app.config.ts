@@ -7,6 +7,7 @@ export default defineAppConfig({
     'pages/profile/index',
   ],
   tabBar: {
+    custom: true,
     color: '#685c50',
     selectedColor: '#2d2926',
     backgroundColor: '#faf9f7',

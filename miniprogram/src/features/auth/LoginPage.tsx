@@ -33,17 +33,17 @@ export function LoginPage({
   };
 
   return (
-    <View className="login-page">
+    <View className="login-page login-page--kai">
       <View className="login-page__brand">
         <Image
           className="login-page__logo"
           src={productLogo}
           mode="aspectFill"
         />
-        <Text className="login-page__eyebrow">YOUR DAILY DRESSING EDITOR</Text>
         <Text className="login-page__title">穿衣有数</Text>
+        <View className="login-page__divider" />
         <Text className="login-page__subtitle">
-          让天气、场景与体感，成为每天穿衣的依据。
+          让每一天的穿衣决策，都成为一种享受。
         </Text>
       </View>
 
@@ -53,7 +53,10 @@ export function LoginPage({
           loadingText="登录中…"
           onClick={handleLogin}
         >
-          微信一键登录
+          <Text className="login-page__wechat-icon" aria-hidden="true">
+            ●
+          </Text>
+          <Text>微信一键登录</Text>
         </Button>
         <View className="login-page__consent">
           <View

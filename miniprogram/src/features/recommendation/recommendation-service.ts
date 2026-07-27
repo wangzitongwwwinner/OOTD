@@ -7,6 +7,7 @@ export interface RecommendationLayer {
   description: string;
 }
 export interface Recommendation {
+  recommendationId: string;
   summary: string;
   layers: RecommendationLayer[];
   tips: string[];
@@ -37,7 +38,7 @@ export function createRecommendationService(call: Call) {
       if (!isSuccessEnvelope(result) || !isRecommendation(result.data)) {
         throw new Error('建议响应异常，请稍后重试');
       }
-      return result.data;
+      return { ...result.data, recommendationId: result.requestId };
     },
   };
 }
@@ -74,8 +75,15 @@ function isRecommendation(value: unknown): value is Recommendation {
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
-function isSuccessEnvelope(value: unknown): value is { data: unknown } {
-  return isRecord(value) && 'data' in value;
+function isSuccessEnvelope(
+  value: unknown,
+): value is { data: unknown; requestId: string } {
+  return (
+    isRecord(value) &&
+    'data' in value &&
+    typeof value.requestId === 'string' &&
+    Boolean(value.requestId)
+  );
 }
 function isFailureEnvelope(
   value: unknown,

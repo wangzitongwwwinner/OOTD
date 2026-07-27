@@ -24,14 +24,16 @@ it('首次加载后展示完整天气字段和来源', async () => {
   const service = { get: vi.fn().mockResolvedValue(weather) };
   render(<WeatherCard city={city} service={service} />);
   expect(screen.getByText('正在加载天气…')).toBeInTheDocument();
-  expect(await screen.findByText('31°')).toBeInTheDocument();
+  expect(await screen.findByText('31°C')).toBeInTheDocument();
+  expect(screen.getByText('上海')).toBeInTheDocument();
+  expect(screen.getByText('微信定位')).toBeInTheDocument();
   expect(screen.getByText('多云')).toBeInTheDocument();
-  expect(screen.getByText('体感 35°')).toBeInTheDocument();
-  expect(screen.getByText('最高 34° / 最低 27°')).toBeInTheDocument();
-  expect(screen.getByText('湿度 68%')).toBeInTheDocument();
-  expect(screen.getByText('紫外线 7')).toBeInTheDocument();
-  expect(screen.getByText('风速 14 km/h')).toBeInTheDocument();
-  expect(screen.getByText('和风天气')).toBeInTheDocument();
+  expect(screen.getByText('体感温:')).toBeInTheDocument();
+  expect(screen.getByText('全温差:')).toBeInTheDocument();
+  expect(screen.getByText('紫外线:')).toBeInTheDocument();
+  expect(screen.getByText('风速级:')).toBeInTheDocument();
+  expect(screen.getByText('较强')).toBeInTheDocument();
+  expect(screen.getByText('和风天气实时同步')).toBeInTheDocument();
 });
 
 it('刷新时强制请求且禁止重复点击', async () => {
@@ -48,7 +50,7 @@ it('刷新时强制请求且禁止重复点击', async () => {
       ),
   };
   render(<WeatherCard city={city} service={service} />);
-  await screen.findByText('31°');
+  await screen.findByText('31°C');
   fireEvent.click(screen.getByRole('button', { name: '刷新天气' }));
   const refreshing = screen.getByRole('button', { name: '刷新中…' });
   expect(refreshing).toBeDisabled();
