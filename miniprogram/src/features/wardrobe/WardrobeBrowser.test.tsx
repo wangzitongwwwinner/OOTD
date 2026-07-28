@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { WardrobeBrowser } from './WardrobeBrowser';
 import type { PublicClothing } from './clothing-service';
@@ -34,6 +34,10 @@ const items: PublicClothing[] = [
 describe('WardrobeBrowser', () => {
   it('支持按名称搜索以及类别和颜色组合筛选', () => {
     render(<WardrobeBrowser items={items} />);
+    expect(screen.getByLabelText('搜索衣物名称')).toHaveClass(
+      'wardrobe-browser__search',
+    );
+    expect(screen.getAllByText('上装')).toHaveLength(2);
     fireEvent.input(screen.getByLabelText('搜索衣物名称'), {
       target: { value: '黑色' },
     });
@@ -46,5 +50,34 @@ describe('WardrobeBrowser', () => {
     fireEvent.click(screen.getByRole('button', { name: '上装' }));
     fireEvent.click(screen.getByRole('button', { name: '黑色' }));
     expect(screen.getByText('暂无符合条件的衣物')).toBeInTheDocument();
+  });
+
+  it('衣物卡片使用统一的标签和操作按钮样式', () => {
+    render(
+      <WardrobeBrowser
+        items={[items[0]]}
+        onUpdate={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    );
+
+    const tags = screen.getAllByTestId('clothing-tag');
+    expect(tags).toHaveLength(2);
+    expect(tags[0]).toHaveClass('wardrobe-browser__tag');
+    expect(tags[1]).toHaveClass('wardrobe-browser__tag');
+    expect(screen.getByRole('button', { name: '编辑' })).toHaveClass(
+      'wardrobe-browser__card-action',
+    );
+    expect(screen.getByRole('button', { name: '删除' })).toHaveClass(
+      'wardrobe-browser__card-action',
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '编辑' }));
+    expect(screen.getByLabelText('衣物名称')).toHaveClass(
+      'wardrobe-browser__edit-input',
+    );
+    expect(screen.getByLabelText('衣物颜色')).toHaveClass(
+      'wardrobe-browser__edit-input',
+    );
   });
 });

@@ -1,6 +1,14 @@
-import { Button, Image, Text, View } from '@tarojs/components';
+import { Button, Image, Input, Picker, Text, View } from '@tarojs/components';
+import { useState } from 'react';
+
+import type { ClothingCategory } from './clothing-service';
 
 type Source = 'camera' | 'album';
+export interface ClothingBasics {
+  name: string;
+  category: ClothingCategory;
+  color: string;
+}
 type Status =
   | 'idle'
   | 'uploading'
@@ -16,9 +24,9 @@ interface Props {
   error?: string;
   sourcePreview?: string;
   processedFileId?: string;
-  onChoose: (source: Source) => void;
+  onChoose: (source: Source, basics: ClothingBasics) => void;
   onRetry?: () => void;
-  onConfirm?: () => void;
+  onConfirm?: (basics: ClothingBasics) => void;
   onRetake?: () => void;
 }
 
@@ -32,19 +40,86 @@ export function WardrobeUploader({
   onConfirm,
   onRetake,
 }: Props) {
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState<ClothingCategory>('top');
+  const [color, setColor] = useState('黑色');
   const busy =
     status === 'uploading' ||
     status === 'processing' ||
     status === 'confirming';
+  const basics = { name: name.trim() || '未命名衣物', category, color };
+  const categories: Array<{ value: ClothingCategory; label: string }> = [
+    { value: 'top', label: '上装' },
+    { value: 'bottom', label: '下装' },
+    { value: 'shoes', label: '鞋履' },
+    { value: 'accessory', label: '配饰' },
+  ];
+  const colors = [
+    '黑色',
+    '白色',
+    '灰色',
+    '蓝色',
+    '绿色',
+    '棕色',
+    '卡其色',
+    '米色',
+  ];
+
   return (
     <View className="wardrobe-upload">
-      <Text className="wardrobe-upload__eyebrow">ADD A PIECE</Text>
-      <Text className="wardrobe-upload__title">录入一件衣物</Text>
       <View className="wardrobe-upload__guide">
-        <Text className="wardrobe-upload__guide-title">拍摄指南</Text>
-        <Text>将衣物平铺，使用纯色高对比背景，保持正面和光线均匀。</Text>
-        <Text>支持 JPG、PNG，图片不超过 10 MB。</Text>
+        <Text>
+          💡 <Text className="wardrobe-upload__guide-title">拍照提示：</Text>
+          将衣物平铺、使用与衣物颜色对比明显的背景，系统抠图效果将更完美。
+        </Text>
       </View>
+      <View className="wardrobe-upload__field">
+        <Text>衣物名称</Text>
+        <Input
+          aria-label="衣物名称"
+          value={name}
+          maxlength={40}
+          placeholder="如：黑色轻薄防晒衫、纯羊毛直筒裤"
+          onInput={(event) => setName(event.detail.value)}
+        />
+      </View>
+      <View className="wardrobe-upload__field">
+        <Text>分类</Text>
+        <View className="wardrobe-upload__categories">
+          {categories.map((item) => (
+            <Button
+              key={item.value}
+              className={category === item.value ? 'is-active' : ''}
+              onClick={() => setCategory(item.value)}
+            >
+              {item.label}
+            </Button>
+          ))}
+        </View>
+      </View>
+      <View className="wardrobe-upload__field">
+        <Text>主色调</Text>
+        <Picker
+          mode="selector"
+          range={colors}
+          value={Math.max(0, colors.indexOf(color))}
+          onChange={(event) =>
+            setColor(colors[Number(event.detail.value)] ?? '黑色')
+          }
+        >
+          <View className="wardrobe-upload__color-picker">
+            <Text>{color}</Text>
+            <Text>⌄</Text>
+          </View>
+        </Picker>
+      </View>
+      {status === 'idle' || status === 'failed' ? (
+        <>
+          <Text className="wardrobe-upload__source-label">
+            拍照或上传衣物原图
+          </Text>
+        </>
+      ) : null}
       {status === 'failed' ? (
         <Text className="wardrobe-upload__error">{error}</Text>
       ) : null}
@@ -83,7 +158,7 @@ export function WardrobeUploader({
             <Button
               loading={status === 'confirming'}
               disabled={status === 'confirming'}
-              onClick={onConfirm}
+              onClick={() => onConfirm?.(basics)}
             >
               {status === 'confirming' ? '正在入库…' : '确认入库'}
             </Button>
@@ -92,9 +167,10 @@ export function WardrobeUploader({
       ) : null}
       <View className="wardrobe-upload__actions">
         <Button
+          className="wardrobe-upload__action--camera"
           disabled={busy}
           loading={busy}
-          onClick={() => onChoose('camera')}
+          onClick={() => onChoose('camera', basics)}
         >
           {status === 'uploading'
             ? '正在上传…'
@@ -102,7 +178,11 @@ export function WardrobeUploader({
               ? '正在智能抠图…'
               : '拍照上传'}
         </Button>
-        <Button disabled={busy} onClick={() => onChoose('album')}>
+        <Button
+          className="wardrobe-upload__action--album"
+          disabled={busy}
+          onClick={() => onChoose('album', basics)}
+        >
           相册选择
         </Button>
       </View>

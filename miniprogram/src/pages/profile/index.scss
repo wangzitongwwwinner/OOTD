@@ -1,25 +1,51 @@
 .profile-page {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 24px;
   background: #faf9f7;
 }
 
-.profile-page__eyebrow,
-.profile-page__title {
-  display: block;
+.profile-page__header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  box-sizing: border-box;
+  border-bottom: 1px solid #f0ede8;
+  background: rgb(255 255 255 / 92%);
+  backdrop-filter: blur(14px);
 }
 
-.profile-page__eyebrow {
-  color: #a7998b;
-  font-size: 12px;
-  letter-spacing: 2px;
+.profile-page__header-inner {
+  display: grid;
+  min-height: 44px;
+  padding: 0 96px 0 12px;
+  box-sizing: border-box;
+  align-items: center;
+  grid-template-columns: 40px 1fr 40px;
 }
 
-.profile-page__title {
-  margin: 8px 0 24px;
+.profile-page__header-inner button {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: transparent;
   color: #2d2926;
+  font-size: 23px;
+
+  &::after {
+    border: 0;
+  }
+}
+
+.profile-page__header-inner > text {
+  color: #1d1a17;
   font-family: serif;
-  font-size: 32px;
+  font-size: 18px;
   font-weight: 700;
+  text-align: center;
 }

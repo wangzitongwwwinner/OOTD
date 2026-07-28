@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import {
   bringNodeToFront,
   movableToNode,
+  moveNodeDown,
+  moveNodeUp,
   nodeToMovable,
   normalizeScale,
   type OutfitNode,
@@ -58,5 +60,44 @@ describe('outfit model', () => {
       nodes[1],
       nodes[2],
     ]);
+  });
+
+  it('moves the selected node up exactly one adjacent layer', () => {
+    const nodes = [
+      node,
+      { ...node, id: 'node-2', zIndex: 7 },
+      { ...node, id: 'node-3', zIndex: 4 },
+    ];
+
+    expect(moveNodeUp(nodes, 'node-1')).toEqual([
+      { ...node, zIndex: 4 },
+      nodes[1],
+      { ...nodes[2], zIndex: 2 },
+    ]);
+  });
+
+  it('moves the selected node down exactly one adjacent layer', () => {
+    const nodes = [
+      node,
+      { ...node, id: 'node-2', zIndex: 7 },
+      { ...node, id: 'node-3', zIndex: 4 },
+    ];
+
+    expect(moveNodeDown(nodes, 'node-2')).toEqual([
+      nodes[0],
+      { ...nodes[1], zIndex: 4 },
+      { ...nodes[2], zIndex: 7 },
+    ]);
+  });
+
+  it('keeps nodes unchanged at the top and bottom boundaries', () => {
+    const nodes = [
+      node,
+      { ...node, id: 'node-2', zIndex: 7 },
+      { ...node, id: 'node-3', zIndex: 4 },
+    ];
+
+    expect(moveNodeUp(nodes, 'node-2')).toEqual(nodes);
+    expect(moveNodeDown(nodes, 'node-1')).toEqual(nodes);
   });
 });

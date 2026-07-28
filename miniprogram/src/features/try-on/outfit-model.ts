@@ -71,6 +71,45 @@ export function bringNodeToFront(
   );
 }
 
+function moveNodeOneLayer(
+  nodes: OutfitNode[],
+  nodeId: string,
+  direction: 'up' | 'down',
+): OutfitNode[] {
+  const ordered = [...nodes].sort((a, b) => a.zIndex - b.zIndex);
+  const currentIndex = ordered.findIndex((node) => node.id === nodeId);
+  const adjacentIndex =
+    direction === 'up' ? currentIndex + 1 : currentIndex - 1;
+  if (
+    currentIndex === -1 ||
+    adjacentIndex < 0 ||
+    adjacentIndex >= ordered.length
+  ) {
+    return nodes;
+  }
+
+  const current = ordered[currentIndex];
+  const adjacent = ordered[adjacentIndex];
+  return nodes.map((node) =>
+    node.id === current.id
+      ? { ...node, zIndex: adjacent.zIndex }
+      : node.id === adjacent.id
+        ? { ...node, zIndex: current.zIndex }
+        : node,
+  );
+}
+
+export function moveNodeUp(nodes: OutfitNode[], nodeId: string): OutfitNode[] {
+  return moveNodeOneLayer(nodes, nodeId, 'up');
+}
+
+export function moveNodeDown(
+  nodes: OutfitNode[],
+  nodeId: string,
+): OutfitNode[] {
+  return moveNodeOneLayer(nodes, nodeId, 'down');
+}
+
 export function createOutfitNode(
   clothingId: string,
   zIndex: number,

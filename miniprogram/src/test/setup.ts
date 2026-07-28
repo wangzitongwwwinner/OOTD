@@ -10,8 +10,20 @@ vi.mock('@tarojs/taro', () => ({
   useDidShow: vi.fn((callback: () => void) => callback()),
   default: {
     cloud: { callFunction: vi.fn(), uploadFile: vi.fn() },
-    getSetting: vi.fn(),
+    getSetting: vi.fn().mockResolvedValue({ authSetting: {} }),
+    getLocation: vi.fn(),
     authorize: vi.fn(),
+    openSetting: vi.fn().mockResolvedValue({ authSetting: {} }),
+    showActionSheet: vi.fn(),
+    previewImage: vi.fn(),
+    chooseMedia: vi.fn(),
+    showToast: vi.fn(),
+    navigateBack: vi.fn(),
+    getMenuButtonBoundingClientRect: vi.fn().mockReturnValue({
+      top: 24,
+      height: 32,
+    }),
+    getWindowInfo: vi.fn().mockReturnValue({ statusBarHeight: 20 }),
     getStorageSync: vi.fn(),
     setStorageSync: vi.fn(),
     removeStorageSync: vi.fn(),
@@ -26,11 +38,19 @@ vi.mock('@tarojs/taro', () => ({
 vi.mock('@tarojs/components', () => ({
   Button: ({
     loading,
+    openType,
+    onOpenSetting,
     ...props
-  }: React.ButtonHTMLAttributes<HTMLButtonElement> & { loading?: boolean }) => {
+  }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    loading?: boolean;
+    openType?: string;
+    onOpenSetting?: (event: unknown) => void;
+  }) => {
     return React.createElement('button', {
       ...props,
       'data-loading': String(Boolean(loading)),
+      'data-open-type': openType,
+      'data-has-open-setting-handler': String(Boolean(onOpenSetting)),
     });
   },
   Text: (props: React.HTMLAttributes<HTMLSpanElement>) =>
@@ -61,6 +81,8 @@ vi.mock('@tarojs/components', () => ({
         onChange?.({ detail: { value: Number(event.currentTarget.value) } }),
     }),
   View: (props: React.HTMLAttributes<HTMLDivElement>) =>
+    React.createElement('div', props),
+  ScrollView: (props: React.HTMLAttributes<HTMLDivElement>) =>
     React.createElement('div', props),
   Picker: (props: Record<string, unknown>) =>
     React.createElement('div', {

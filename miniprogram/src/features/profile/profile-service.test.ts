@@ -39,6 +39,34 @@ describe('profile service', () => {
     });
   });
 
+  it('昵称和头像可以独立更新并携带期望版本', async () => {
+    const updated = {
+      ...profile,
+      nickname: '梓桐',
+      avatarFileId: 'cloud://avatar.jpg',
+      version: 2,
+    };
+    const call = vi
+      .fn()
+      .mockResolvedValue({ data: updated, requestId: 'req_details' });
+    const service = createProfileService(call);
+    await expect(
+      service.updateDetails(
+        { nickname: '梓桐', avatarFileId: 'cloud://avatar.jpg' },
+        1,
+      ),
+    ).resolves.toEqual(updated);
+    expect(call).toHaveBeenCalledWith({
+      method: 'PATCH',
+      path: '/v1/profile',
+      body: {
+        nickname: '梓桐',
+        avatarFileId: 'cloud://avatar.jpg',
+        expectedVersion: 1,
+      },
+    });
+  });
+
   it('透传服务端可读错误并拒绝异常响应', async () => {
     const failed = createProfileService(
       vi.fn().mockResolvedValue({

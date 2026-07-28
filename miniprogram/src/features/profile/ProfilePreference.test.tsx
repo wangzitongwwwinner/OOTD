@@ -13,6 +13,7 @@ const profile = {
 };
 
 it('展示当前偏好并以当前版本保存新偏好', async () => {
+  const onProfileChange = vi.fn();
   const service = {
     get: vi.fn().mockResolvedValue(profile),
     updateFeel: vi.fn().mockResolvedValue({
@@ -21,16 +22,21 @@ it('展示当前偏好并以当前版本保存新偏好', async () => {
       version: 2,
     }),
   };
-  render(<ProfilePreference service={service} />);
-  expect(await screen.findByText('舒适')).toHaveClass(
+  render(
+    <ProfilePreference service={service} onProfileChange={onProfileChange} />,
+  );
+  expect(await screen.findByRole('button', { name: '舒适' })).toHaveClass(
     'profile-preference__option--selected',
   );
-  fireEvent.click(screen.getByText('微凉'));
+  fireEvent.click(screen.getByRole('button', { name: '微凉' }));
   await waitFor(() =>
     expect(service.updateFeel).toHaveBeenCalledWith('cool', 1),
   );
-  expect(await screen.findByText('微凉')).toHaveClass(
+  expect(await screen.findByRole('button', { name: '微凉' })).toHaveClass(
     'profile-preference__option--selected',
+  );
+  expect(onProfileChange).toHaveBeenLastCalledWith(
+    expect.objectContaining({ recentFeelPreference: 'cool', version: 2 }),
   );
   expect(await screen.findByText('已保存')).toBeInTheDocument();
 });

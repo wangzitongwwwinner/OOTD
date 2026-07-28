@@ -8,19 +8,22 @@ import {
 } from './profile-service';
 import './ProfilePreference.scss';
 
-const OPTIONS: Array<{ value: FeelPreference; label: string }> = [
-  { value: 'cold', label: '偏冷' },
-  { value: 'comfortable', label: '舒适' },
-  { value: 'stuffy', label: '闷热' },
-  { value: 'cool', label: '微凉' },
-];
+const OPTIONS: Array<{ value: FeelPreference; label: string; emoji: string }> =
+  [
+    { value: 'cold', label: '偏冷', emoji: '🥶' },
+    { value: 'comfortable', label: '舒适', emoji: '😊' },
+    { value: 'stuffy', label: '闷热', emoji: '🥵' },
+    { value: 'cool', label: '微凉', emoji: '🍃' },
+  ];
 
 interface ProfilePreferenceProps {
   service?: Pick<typeof profileService, 'get' | 'updateFeel'>;
+  onProfileChange?(profile: Profile): void;
 }
 
 export function ProfilePreference({
   service = profileService,
+  onProfileChange,
 }: ProfilePreferenceProps) {
   const [profile, setProfile] = useState<Profile>();
   const [error, setError] = useState('');
@@ -30,19 +33,24 @@ export function ProfilePreference({
   const load = useCallback(async () => {
     setError('');
     try {
-      setProfile(await service.get());
+      const loaded = await service.get();
+      setProfile(loaded);
+      onProfileChange?.(loaded);
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : '资料加载失败，请稍后重试',
       );
     }
-  }, [service]);
+  }, [onProfileChange, service]);
 
   useEffect(() => {
     let active = true;
     void service.get().then(
       (loaded) => {
-        if (active) setProfile(loaded);
+        if (active) {
+          setProfile(loaded);
+          onProfileChange?.(loaded);
+        }
       },
       (cause: unknown) => {
         if (active) {
@@ -55,7 +63,7 @@ export function ProfilePreference({
     return () => {
       active = false;
     };
-  }, [service]);
+  }, [onProfileChange, service]);
 
   async function select(value: FeelPreference) {
     if (!profile || saving || value === profile.recentFeelPreference) return;
@@ -63,7 +71,9 @@ export function ProfilePreference({
     setSaved(false);
     setError('');
     try {
-      setProfile(await service.updateFeel(value, profile.version));
+      const updated = await service.updateFeel(value, profile.version);
+      setProfile(updated);
+      onProfileChange?.(updated);
       setSaved(true);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : '保存失败，请稍后重试');
@@ -74,7 +84,7 @@ export function ProfilePreference({
 
   return (
     <View className="profile-preference">
-      <Text className="profile-preference__label">最近整体体感</Text>
+      <Text className="profile-preference__label">我的抗寒体感倾向</Text>
       {profile ? (
         <View className="profile-preference__options">
           {OPTIONS.map((option) => (
@@ -86,16 +96,21 @@ export function ProfilePreference({
                   : ''
               }`}
               aria-pressed={profile.recentFeelPreference === option.value}
+              aria-label={option.label}
               disabled={saving}
               onClick={() => void select(option.value)}
             >
-              {option.label}
+              <Text>{option.emoji}</Text>
+              <Text>{option.label}</Text>
             </Button>
           ))}
         </View>
       ) : !error ? (
         <Text>正在加载体感偏好…</Text>
       ) : null}
+      <Text className="profile-preference__hint">
+        * 设置后，AI 全天穿衣建议会自动结合您的抗寒特征。
+      </Text>
       {saved ? (
         <Text className="profile-preference__success">已保存</Text>
       ) : null}

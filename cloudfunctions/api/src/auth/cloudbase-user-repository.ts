@@ -101,6 +101,40 @@ export class CloudBaseUserRepository implements UserRepository {
     if (result.updated !== 1) return { status: 'conflict' };
     return { status: 'updated', profile: toPublicUser(next) };
   }
+
+  async updateProfile(
+    input: Parameters<NonNullable<UserRepository['updateProfile']>>[0],
+  ): ReturnType<NonNullable<UserRepository['updateProfile']>> {
+    const users = this.database.collection('users');
+    const matching = await users.where({
+      wechatOpenId: input.openId,
+      wechatAppId: input.appId,
+    }).limit(1).get();
+    const stored = matching.data[0] as StoredUser | undefined;
+    if (!stored) return { status: 'not_found' };
+    if (stored.version !== input.expectedVersion) return { status: 'conflict' };
+
+    const patch = {
+      ...(input.nickname !== undefined ? { nickname: input.nickname } : {}),
+      ...(input.avatarFileId !== undefined
+        ? { avatarFileId: input.avatarFileId }
+        : {}),
+      ...(input.recentFeelPreference !== undefined
+        ? { recentFeelPreference: input.recentFeelPreference }
+        : {}),
+      updatedAt: input.now,
+      version: stored.version + 1,
+    };
+    const result = await users.where({
+      _id: stored._id,
+      version: input.expectedVersion,
+    }).update(patch);
+    if (result.updated !== 1) return { status: 'conflict' };
+    return {
+      status: 'updated',
+      profile: toPublicUser({ ...stored, ...patch }),
+    };
+  }
 }
 
 function toPublicUser(stored: StoredUser): AuthUserSummary {

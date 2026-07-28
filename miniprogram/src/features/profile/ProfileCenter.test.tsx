@@ -13,11 +13,19 @@ describe('ProfileCenter', () => {
     render(
       <ProfileCenter
         nickname="微信用户"
+        avatarFileId="cloud://avatar.jpg"
         recentFeelLabel="舒适"
         onLogout={onLogout}
+        preferenceSlot={<span>体感选择器</span>}
       />,
     );
-    const button = screen.getByRole('button', { name: '退出登录' });
+    expect(screen.getByText('最近体感: 舒适')).toBeInTheDocument();
+    expect(screen.getByText('体感选择器')).toBeInTheDocument();
+    expect(screen.getByTestId('profile-avatar')).toHaveAttribute(
+      'src',
+      'cloud://avatar.jpg',
+    );
+    const button = screen.getByRole('button', { name: '退出当前账户' });
     fireEvent.click(button);
     await waitFor(() => expect(Taro.showModal).toHaveBeenCalledTimes(1));
     expect(onLogout).not.toHaveBeenCalled();
@@ -50,5 +58,122 @@ describe('ProfileCenter', () => {
         showCancel: false,
       }),
     );
+  });
+
+  it('按原型分组展示帮助、定位、协议和账号数据入口', async () => {
+    render(
+      <ProfileCenter
+        nickname="微信用户"
+        recentFeelLabel="微凉"
+        onLogout={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('帮助与支持')).toBeInTheDocument();
+    const question = screen.getByRole('button', {
+      name: '为什么建议中不包含衣橱里的具体款式？',
+    });
+    expect(
+      screen.queryByText(/核心定位是“温差应对工具”/),
+    ).not.toBeInTheDocument();
+    fireEvent.click(question);
+    expect(screen.getByText(/核心定位是“温差应对工具”/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '地理定位授权' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '用户协议与隐私政策' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '账号与数据说明' }),
+    ).toBeInTheDocument();
+  });
+
+  it('头像和昵称都提供查看或更换入口', () => {
+    render(
+      <ProfileCenter
+        nickname="微信用户"
+        avatarFileId="cloud://avatar.jpg"
+        recentFeelLabel="舒适"
+        onLogout={vi.fn()}
+        onProfileChange={vi.fn()}
+        profileVersion={1}
+      />,
+    );
+
+    expect(
+      screen.getByRole('button', { name: '查看或更换头像' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '查看或修改昵称' }),
+    ).toBeInTheDocument();
+  });
+
+  it('定位开关使用真机定位链路申请权限并立即更新状态', async () => {
+    vi.mocked(Taro.getSetting).mockResolvedValueOnce({
+      authSetting: {},
+    } as never);
+    vi.mocked(Taro.getLocation).mockResolvedValueOnce({
+      latitude: 31.2,
+      longitude: 121.5,
+    } as never);
+    render(
+      <ProfileCenter
+        nickname="微信用户"
+        recentFeelLabel="舒适"
+        onLogout={vi.fn()}
+      />,
+    );
+
+    const permission = await screen.findByRole('button', {
+      name: '地理定位授权',
+    });
+    expect(permission).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(permission);
+    await waitFor(() =>
+      expect(Taro.getLocation).toHaveBeenCalledWith({ type: 'gcj02' }),
+    );
+    expect(permission).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('定位权限曾被拒绝时使用微信原生设置按钮', async () => {
+    vi.mocked(Taro.getSetting).mockResolvedValueOnce({
+      authSetting: { 'scope.userLocation': false },
+    } as never);
+    render(
+      <ProfileCenter
+        nickname="微信用户"
+        recentFeelLabel="舒适"
+        onLogout={vi.fn()}
+      />,
+    );
+
+    const permission = await screen.findByRole('button', {
+      name: '地理定位授权',
+    });
+    await waitFor(() =>
+      expect(permission).toHaveAttribute('data-open-type', 'openSetting'),
+    );
+    fireEvent.click(permission);
+    expect(Taro.openSetting).not.toHaveBeenCalled();
+  });
+
+  it('设置入口使用原型对应的定位、协议和数据图标', () => {
+    const { container } = render(
+      <ProfileCenter
+        nickname="微信用户"
+        recentFeelLabel="舒适"
+        onLogout={vi.fn()}
+      />,
+    );
+    expect(
+      container.querySelector('img[src="/assets/icons/profile-location.svg"]'),
+    ).toBeInTheDocument();
+    expect(
+      container.querySelector('img[src="/assets/icons/profile-policy.svg"]'),
+    ).toBeInTheDocument();
+    expect(
+      container.querySelector('img[src="/assets/icons/profile-data.svg"]'),
+    ).toBeInTheDocument();
   });
 });

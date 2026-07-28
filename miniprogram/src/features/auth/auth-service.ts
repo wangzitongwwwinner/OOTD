@@ -34,6 +34,7 @@ export function createAuthService({ call, cache }: AuthServiceDependencies) {
       return result.data;
     },
     restoreAuthSession: () => cache.restore(),
+    saveAuthSession: (session: AuthSession) => cache.save(session),
     clearAuthSession: () => cache.clear(),
   };
 }

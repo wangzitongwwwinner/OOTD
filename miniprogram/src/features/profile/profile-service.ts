@@ -8,7 +8,12 @@ export type Profile = AuthUserSummary;
 interface ProfileRequest {
   method: 'GET' | 'PATCH';
   path: '/v1/profile';
-  body?: { recentFeelPreference: FeelPreference; expectedVersion: number };
+  body?: {
+    recentFeelPreference?: FeelPreference;
+    nickname?: string;
+    avatarFileId?: string;
+    expectedVersion: number;
+  };
 }
 
 type Call = (request: ProfileRequest) => Promise<unknown>;
@@ -39,6 +44,15 @@ export function createProfileService(call: Call) {
         path: '/v1/profile',
         body: { recentFeelPreference, expectedVersion },
       }),
+    updateDetails: (
+      details: { nickname?: string; avatarFileId?: string },
+      expectedVersion: number,
+    ) =>
+      request({
+        method: 'PATCH',
+        path: '/v1/profile',
+        body: { ...details, expectedVersion },
+      }),
   };
 }
 
@@ -55,6 +69,8 @@ function isProfile(value: unknown): value is Profile {
     typeof value.createdAt === 'string' &&
     typeof value.updatedAt === 'string' &&
     typeof value.version === 'number' &&
+    (value.avatarFileId === undefined ||
+      typeof value.avatarFileId === 'string') &&
     ['cold', 'comfortable', 'stuffy', 'cool'].includes(
       String(value.recentFeelPreference),
     )

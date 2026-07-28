@@ -27,6 +27,45 @@ const saved: SavedOutfit = {
 };
 
 describe('OutfitManager', () => {
+  it('试衣间模式使用主按钮打开原型保存弹层', async () => {
+    const create = vi.fn().mockResolvedValue(saved);
+    render(
+      <OutfitManager
+        mode="save"
+        nodes={[node]}
+        onLoad={vi.fn()}
+        service={{ create, list: vi.fn().mockResolvedValue([]) }}
+      />,
+    );
+
+    expect(
+      screen.queryByPlaceholderText('给搭配起个名字'),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '保存为我的推荐搭配' }));
+    expect(screen.getByText('保存搭配创意')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '秋天' })).toHaveClass(
+      'is-active',
+    );
+    expect(screen.getByRole('button', { name: '春天' })).not.toHaveClass(
+      'is-active',
+    );
+    fireEvent.input(
+      screen.getByPlaceholderText('如：秋日复古通勤、夏日空调房搭配'),
+      { target: { value: '秋日通勤' } },
+    );
+    fireEvent.click(screen.getByRole('button', { name: '确认保存搭配' }));
+
+    await waitFor(() =>
+      expect(create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: '秋日通勤',
+          seasonTags: ['秋天'],
+          colorTags: ['蓝色'],
+        }),
+      ),
+    );
+  });
+
   it('空画布阻止保存并给出提示', async () => {
     const create = vi.fn();
     render(
@@ -131,10 +170,10 @@ describe('OutfitManager', () => {
     );
 
     expect(await screen.findByText('周一通勤')).toBeInTheDocument();
-    expect(screen.getByText('1 件衣物')).toBeInTheDocument();
+    expect(screen.getByText('创建于 2026.07.26')).toBeInTheDocument();
 
     fireEvent.click(
-      await screen.findByRole('button', { name: '载入 周一通勤' }),
+      await screen.findByRole('button', { name: '载入编辑 周一通勤' }),
     );
 
     await waitFor(() =>
@@ -175,7 +214,11 @@ describe('OutfitManager', () => {
       />,
     );
 
-    expect(await screen.findByText('还没有保存的搭配')).toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        '暂无保存的搭配。可以前往“试衣间”拼凑衣服并保存哦。',
+      ),
+    ).toBeInTheDocument();
     expect(list).toHaveBeenCalledTimes(2);
   });
 

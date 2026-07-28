@@ -10,6 +10,10 @@ import { locationService } from '../../features/weather/location-service';
 import { WeatherCard } from '../../features/weather/WeatherCard';
 import { TodayItinerary } from '../../features/itinerary/TodayItinerary';
 import { RecommendationCard } from '../../features/recommendation/RecommendationCard';
+import {
+  shouldRequestWechatProfile,
+  WechatProfileSetup,
+} from '../../features/profile/WechatProfileSetup';
 import { setTabBarAuthenticated } from '../../custom-tab-bar/visibility';
 import { useSyncTabBar } from '../../custom-tab-bar/active-tab';
 
@@ -21,6 +25,8 @@ export default function IndexPage() {
   useSyncTabBar('home');
   const auth = useAuthSession();
   const [city, setCity] = useState(() => locationService.restore());
+  const [profileSetupHandledUserId, setProfileSetupHandledUserId] =
+    useState('');
 
   useEffect(() => {
     setTabBarAuthenticated(auth.status === 'authenticated');
@@ -63,6 +69,20 @@ export default function IndexPage() {
 
   return (
     <View className="home-page">
+      {auth.session &&
+      profileSetupHandledUserId !== auth.session.user.id &&
+      shouldRequestWechatProfile(auth.session.user) ? (
+        <WechatProfileSetup
+          profile={auth.session.user}
+          onComplete={(profile) => {
+            setProfileSetupHandledUserId(profile.id);
+            auth.updateUser(profile);
+          }}
+          onSkip={() =>
+            setProfileSetupHandledUserId(auth.session?.user.id ?? '')
+          }
+        />
+      ) : null}
       <HomeHeader
         nickname={auth.session?.user.nickname ?? '我'}
         avatarFileId={auth.session?.user.avatarFileId}

@@ -31,4 +31,17 @@ export interface UserRepository {
     | { status: 'conflict' }
     | { status: 'not_found' }
   >;
+  updateProfile?(input: {
+    openId: string;
+    appId: string;
+    nickname?: string;
+    avatarFileId?: string;
+    recentFeelPreference?: FeelPreference;
+    expectedVersion: number;
+    now: string;
+  }): Promise<
+    | { status: 'updated'; profile: Profile }
+    | { status: 'conflict' }
+    | { status: 'not_found' }
+  >;
 }

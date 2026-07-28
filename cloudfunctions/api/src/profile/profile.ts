@@ -37,17 +37,38 @@ export async function updateProfile(
 ): Promise<ApiEnvelope<Profile>> {
   const parsed = updateProfileRequestSchema.safeParse(body);
   if (!parsed.success) {
-    return failure('VALIDATION_ERROR', '请选择有效的体感偏好', false, requestId);
+    return failure('VALIDATION_ERROR', '请填写有效的资料内容', false, requestId);
   }
 
   try {
-    const result = await repository.updateFeelPreference({
-      ...identity,
-      ...parsed.data,
-      now: clock().toISOString(),
-    });
+    const now = clock().toISOString();
+    const result = repository.updateProfile
+      ? await repository.updateProfile({
+          ...identity,
+          ...(parsed.data.nickname === undefined
+            ? {}
+            : { nickname: parsed.data.nickname }),
+          ...(parsed.data.avatarFileId === undefined
+            ? {}
+            : { avatarFileId: parsed.data.avatarFileId }),
+          ...(parsed.data.recentFeelPreference === undefined
+            ? {}
+            : {
+                recentFeelPreference: parsed.data.recentFeelPreference,
+              }),
+          expectedVersion: parsed.data.expectedVersion,
+          now,
+        })
+      : parsed.data.recentFeelPreference
+        ? await repository.updateFeelPreference({
+            ...identity,
+            recentFeelPreference: parsed.data.recentFeelPreference,
+            expectedVersion: parsed.data.expectedVersion,
+            now,
+          })
+        : { status: 'not-found' as const };
     if (result.status === 'updated') {
-      if (metrics) {
+      if (metrics && parsed.data.recentFeelPreference) {
         await recordMetricSafely(() =>
           metrics.markFirstSuccess(
             identity,

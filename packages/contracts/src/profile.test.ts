@@ -20,13 +20,22 @@ test('公开资料不允许包含微信内部身份字段', () => {
   );
 });
 
-test('资料更新只接受稳定体感枚举和当前正整数版本', () => {
+test('资料更新接受昵称、头像或稳定体感枚举和当前正整数版本', () => {
   assert.deepEqual(
     updateProfileRequestSchema.parse({
-      recentFeelPreference: 'cool',
+      nickname: '梓桐',
+      avatarFileId: 'cloud://avatar.png',
       expectedVersion: 2,
     }),
-    { recentFeelPreference: 'cool', expectedVersion: 2 },
+    {
+      nickname: '梓桐',
+      avatarFileId: 'cloud://avatar.png',
+      expectedVersion: 2,
+    },
+  );
+  assert.equal(
+    updateProfileRequestSchema.safeParse({ expectedVersion: 1 }).success,
+    false,
   );
   assert.equal(
     updateProfileRequestSchema.safeParse({

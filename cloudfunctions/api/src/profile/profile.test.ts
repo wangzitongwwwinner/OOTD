@@ -25,6 +25,42 @@ test('读取当前可信微信身份对应的公开资料', async () => {
   assert.deepEqual(response, { data: profile, requestId: 'req_get' });
 });
 
+test('昵称和头像更新使用可信身份及乐观锁版本', async () => {
+  let received: unknown;
+  const response = await updateProfile(
+    {
+      nickname: '梓桐',
+      avatarFileId: 'cloud://avatar.png',
+      expectedVersion: 1,
+    },
+    identity,
+    repository({
+      updateProfile: async (input) => {
+        received = input;
+        return {
+          status: 'updated',
+          profile: {
+            ...profile,
+            nickname: '梓桐',
+            avatarFileId: 'cloud://avatar.png',
+            version: 2,
+          },
+        };
+      },
+    }),
+    'req_details',
+    () => new Date('2026-07-28T12:00:00.000Z'),
+  );
+  assert.deepEqual(received, {
+    ...identity,
+    nickname: '梓桐',
+    avatarFileId: 'cloud://avatar.png',
+    expectedVersion: 1,
+    now: '2026-07-28T12:00:00.000Z',
+  });
+  assert.equal('data' in response && response.data.nickname, '梓桐');
+});
+
 test('合法更新使用可信身份和期望版本', async () => {
   let received: unknown;
   const response = await updateProfile(

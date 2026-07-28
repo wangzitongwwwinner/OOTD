@@ -1,10 +1,12 @@
 import Taro from '@tarojs/taro';
-import { Text, View } from '@tarojs/components';
+import { Button, Image, ScrollView, Text, View } from '@tarojs/components';
 import { useEffect, useRef, useState } from 'react';
 
 import { AuthenticatedPage } from '../../features/auth/AuthenticatedPage';
 import { WardrobeUploader } from '../../features/wardrobe/WardrobeUploader';
+import type { ClothingBasics } from '../../features/wardrobe/WardrobeUploader';
 import { WardrobeBrowser } from '../../features/wardrobe/WardrobeBrowser';
+import { WardrobeHeader } from '../../features/wardrobe/WardrobeHeader';
 import { useSyncTabBar } from '../../custom-tab-bar/active-tab';
 import {
   confirmCutoutJob,
@@ -16,6 +18,7 @@ import {
   retryCutoutJob,
   startCutoutJob,
   uploadClothingSource,
+  updateClothing,
   type ClothingDraft,
   type CutoutJob,
   type PollCancellation,
@@ -44,6 +47,7 @@ export default function WardrobePage() {
   const [job, setJob] = useState<CutoutJob>();
   const [items, setItems] = useState<PublicClothing[]>([]);
   const [listError, setListError] = useState<string>();
+  const [showUploader, setShowUploader] = useState(false);
   const polling = useRef<PollCancellation>();
 
   useEffect(
@@ -88,7 +92,10 @@ export default function WardrobePage() {
     }
   }
 
-  async function chooseAndUpload(source: 'camera' | 'album') {
+  async function chooseAndUpload(
+    source: 'camera' | 'album',
+    basics: ClothingBasics,
+  ) {
     try {
       await ensureMediaSourceAccess(source);
       const selection = await Taro.chooseMedia({
@@ -105,7 +112,7 @@ export default function WardrobePage() {
       setProcessedFileId(undefined);
       const uploaded = await uploadClothingSource(
         { tempFilePath: file.tempFilePath, size: file.size },
-        { name: '新衣物', category: 'top', color: '待补充' },
+        basics,
       );
       setClothing(uploaded.clothing);
       setStatus('uploaded');
@@ -142,16 +149,29 @@ export default function WardrobePage() {
     }
   }
 
-  async function confirmProcessing() {
+  async function confirmProcessing(basics: ClothingBasics) {
     if (!job || job.status !== 'succeeded') return;
     try {
       setStatus('confirming');
       const confirmed = await confirmCutoutJob(job.id, job.version);
+      const saved =
+        confirmed.name === basics.name &&
+        confirmed.category === basics.category &&
+        confirmed.color === basics.color
+          ? confirmed
+          : await updateClothing(
+              confirmed.id,
+              basics.name,
+              basics.category,
+              basics.color,
+              confirmed.version,
+            );
       setItems((current) => [
-        confirmed,
-        ...current.filter((item) => item.id !== confirmed.id),
+        saved,
+        ...current.filter((item) => item.id !== saved.id),
       ]);
       resetUploader();
+      setShowUploader(false);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : '确认入库失败，请重试');
       setStatus('succeeded');
@@ -204,18 +224,57 @@ export default function WardrobePage() {
   return (
     <AuthenticatedPage>
       <View className="wardrobe-page">
-        <Text className="wardrobe-page__eyebrow">WARDROBE</Text>
-        <Text className="wardrobe-page__title">我的衣橱</Text>
-        <WardrobeUploader
-          status={status}
-          error={error}
-          sourcePreview={sourcePreview}
-          processedFileId={processedFileId}
-          onChoose={(source) => void chooseAndUpload(source)}
-          onRetry={() => void retryProcessing()}
-          onConfirm={() => void confirmProcessing()}
-          onRetake={resetUploader}
+        <WardrobeHeader
+          count={items.length}
+          onAdd={() => setShowUploader(true)}
         />
+        {showUploader ? (
+          <View
+            className="wardrobe-page__upload-backdrop"
+            onClick={() => {
+              if (status === 'uploading' || status === 'processing') return;
+              resetUploader();
+              setShowUploader(false);
+            }}
+          >
+            <View
+              className="wardrobe-page__upload-dialog"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <View className="wardrobe-page__upload-heading">
+                <Text>智能衣物录入</Text>
+                <Button
+                  aria-label="关闭"
+                  onClick={() => {
+                    resetUploader();
+                    setShowUploader(false);
+                  }}
+                >
+                  <Image src="/assets/icons/close.svg" mode="aspectFit" />
+                </Button>
+              </View>
+              <ScrollView
+                className="wardrobe-page__upload-scroll"
+                scrollY
+                enhanced
+                showScrollbar={false}
+              >
+                <WardrobeUploader
+                  status={status}
+                  error={error}
+                  sourcePreview={sourcePreview}
+                  processedFileId={processedFileId}
+                  onChoose={(source, basics) =>
+                    void chooseAndUpload(source, basics)
+                  }
+                  onRetry={() => void retryProcessing()}
+                  onConfirm={(basics) => void confirmProcessing(basics)}
+                  onRetake={resetUploader}
+                />
+              </ScrollView>
+            </View>
+          </View>
+        ) : null}
         {listError ? (
           <Text className="wardrobe-page__error">{listError}</Text>
         ) : null}

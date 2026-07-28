@@ -1,30 +1,82 @@
 .wardrobe-page {
   min-height: 100vh;
-  padding: 36px 20px 120px;
-  background: #f7f4ee;
   box-sizing: border-box;
+  padding-bottom: 120px;
+  background: #faf9f7;
 }
-.wardrobe-page__eyebrow,
+
 .wardrobe-upload__eyebrow {
   display: block;
   font-size: 11px;
   letter-spacing: 2px;
   color: #8b8378;
 }
-.wardrobe-page__title {
-  display: block;
-  margin: 8px 0 24px;
-  font-family: serif;
-  font-size: 30px;
+.wardrobe-page__upload-backdrop {
+  position: fixed;
+  z-index: 120;
+  display: flex;
+  padding: 8px 12px calc(88px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  align-items: flex-start;
+  justify-content: center;
+  background: rgb(22 22 22 / 62%);
+  inset: 0;
+}
+
+.wardrobe-page__upload-dialog {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 104px - env(safe-area-inset-bottom));
+  max-height: calc(100vh - 104px - env(safe-area-inset-bottom));
+  padding: 22px;
+  box-sizing: border-box;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #fff;
+}
+
+.wardrobe-page__upload-scroll {
+  width: 100%;
+  height: 0;
+  min-height: 0;
+  flex: 1;
+}
+
+.wardrobe-page__upload-heading {
+  display: flex;
+  padding-bottom: 12px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #edf0f3;
+  color: #172236;
+  font-family: var(--font-serif);
+  font-size: 18px;
   font-weight: 700;
-  color: #24211d;
+}
+
+.wardrobe-page__upload-heading button {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+
+  &::after {
+    border: 0;
+  }
+
+  image {
+    width: 20px;
+    height: 20px;
+  }
 }
 .wardrobe-upload {
-  padding: 22px;
-  border: 1px solid #ded8cf;
-  border-radius: 20px;
-  background: #fffdf9;
-  box-shadow: 0 8px 28px rgba(53, 45, 35, 0.06);
+  padding: 18px 0 24px;
 }
 .wardrobe-upload__title {
   display: block;
@@ -38,13 +90,78 @@
   display: flex;
   flex-direction: column;
   gap: 7px;
-  margin: 18px 0;
-  padding: 16px;
-  border-radius: 14px;
-  background: #f1ece3;
+  margin: 0 0 16px;
+  padding: 13px;
+  border: 1px solid #edf0f3;
+  border-radius: 12px;
+  background: #f8f9fa;
   color: #655e55;
   font-size: 13px;
   line-height: 1.6;
+}
+
+.wardrobe-upload__field {
+  margin-top: 14px;
+}
+
+.wardrobe-upload__field > text,
+.wardrobe-upload__source-label {
+  display: block;
+  margin-bottom: 7px;
+  color: #758092;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.wardrobe-upload__field input,
+.wardrobe-upload__color-picker {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid #dfe3e8;
+  border-radius: 8px;
+  background: #f8f9fa;
+  color: #273244;
+  font-size: 14px;
+}
+
+.wardrobe-upload__categories {
+  display: flex;
+  gap: 8px;
+}
+
+.wardrobe-upload__categories button {
+  min-height: 36px;
+  flex: 1;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #dfe3e8;
+  border-radius: 8px;
+  background: #f8f9fa;
+  color: #657184;
+  font-size: 12px;
+  font-weight: 700;
+
+  &::after {
+    border: 0;
+  }
+
+  &.is-active {
+    border-color: #211d1a;
+    background: #211d1a;
+    color: #fff;
+  }
+}
+
+.wardrobe-upload__color-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wardrobe-upload__source-label {
+  margin-top: 16px;
 }
 .wardrobe-upload__guide-title {
   font-weight: 700;
@@ -52,17 +169,34 @@
 }
 .wardrobe-upload__actions {
   display: flex;
+  padding: 14px;
+  border: 2px dashed #dfe3e8;
+  border-radius: 16px;
+  background: #fdfcfb;
   gap: 10px;
 }
 .wardrobe-upload__actions button {
   flex: 1;
+  margin: 0;
   border-radius: 999px;
   font-size: 14px;
+
+  &::after {
+    border: 0;
+  }
 }
-.wardrobe-upload__actions button:first-child {
+
+.wardrobe-upload__actions .wardrobe-upload__action--camera {
   background: #25221e;
   color: #fff;
 }
+
+.wardrobe-upload__actions .wardrobe-upload__action--album {
+  border: 1px solid #25221e;
+  background: #fff;
+  color: #25221e;
+}
+
 .wardrobe-upload__error,
 .wardrobe-upload__success {
   display: block;
@@ -115,23 +249,22 @@
   font-size: 13px;
 }
 .wardrobe-browser {
-  margin-top: 24px;
+  padding: 0 24px;
+  margin-top: 16px;
 }
 .wardrobe-browser__title {
-  display: block;
-  margin-bottom: 12px;
-  font-family: serif;
-  font-size: 22px;
-  font-weight: 700;
-  color: #24211d;
+  display: none;
 }
-.wardrobe-browser input {
+.wardrobe-browser__search {
   box-sizing: border-box;
   width: 100%;
-  padding: 12px 16px;
+  height: 44px;
+  padding: 0 16px;
   border: 1px solid #ded8cf;
   border-radius: 14px;
   background: #fffdf9;
+  font-size: 14px;
+  line-height: 44px;
 }
 .wardrobe-browser__filters {
   display: flex;
@@ -179,10 +312,37 @@
   color: #655e55;
   font-size: 12px;
 }
-.wardrobe-browser__card text:first-of-type {
+.wardrobe-browser__card-name {
   color: #24211d;
   font-size: 14px;
   font-weight: 700;
+}
+
+.wardrobe-browser__tags {
+  display: flex;
+  margin-top: 8px;
+  gap: 6px;
+}
+
+.wardrobe-browser__tag {
+  display: block;
+  width: 44px;
+  height: 24px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: #f1f2f4;
+  color: #778192;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 24px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.wardrobe-browser__tag:last-child {
+  background: #f7eee5;
+  color: #79634e;
 }
 
 .wardrobe-browser__edit-btn {
@@ -193,24 +353,29 @@
   color: #655e55;
   font-size: 12px;
 }
-.wardrobe-browser__card--editing input {
+.wardrobe-browser__edit-input {
   margin-top: 6px;
   box-sizing: border-box;
   width: 100%;
-  padding: 8px 10px;
+  height: 36px;
+  padding: 0 10px;
   border: 1px solid #ded8cf;
   border-radius: 10px;
   background: #fffdf9;
   font-size: 12px;
+  line-height: 36px;
 }
 .wardrobe-browser__picker {
   margin-top: 6px;
-  padding: 8px 10px;
+  height: 36px;
+  padding: 0 10px;
+  box-sizing: border-box;
   border: 1px solid #ded8cf;
   border-radius: 10px;
   background: #fffdf9;
   color: #655e55;
   font-size: 12px;
+  line-height: 36px;
 }
 .wardrobe-browser__edit-actions {
   display: flex;
@@ -232,6 +397,22 @@
   gap: 6px;
   margin-top: 6px;
 }
+
+.wardrobe-browser__card-action {
+  width: 64px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-size: 12px;
+  line-height: 34px;
+
+  &::after {
+    border: 0;
+  }
+}
+
 .wardrobe-browser__del-btn {
   border: 1px solid #d4a0a0;
   border-radius: 999px;

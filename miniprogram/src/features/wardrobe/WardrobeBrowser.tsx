@@ -17,6 +17,10 @@ const categoryOptions = categories.slice(1) as Array<{
   label: string;
 }>;
 
+const categoryLabels = Object.fromEntries(
+  categoryOptions.map((option) => [option.value, option.label]),
+) as Record<ClothingCategory, string>;
+
 export function WardrobeBrowser({
   items,
   onUpdate,
@@ -40,6 +44,7 @@ export function WardrobeBrowser({
     <View className="wardrobe-browser">
       <Text className="wardrobe-browser__title">已入库衣物</Text>
       <Input
+        className="wardrobe-browser__search"
         aria-label="搜索衣物名称"
         placeholder="搜索衣物名称"
         value={query}
@@ -132,13 +137,20 @@ function WardrobeCard({
           src={item.processedFileId ?? item.sourceFileId}
           mode="aspectFit"
         />
-        <Text>{item.name}</Text>
-        <Text>{item.color}</Text>
+        <Text className="wardrobe-browser__card-name">{item.name}</Text>
+        <View className="wardrobe-browser__tags">
+          <Text className="wardrobe-browser__tag" data-testid="clothing-tag">
+            {categoryLabels[item.category]}
+          </Text>
+          <Text className="wardrobe-browser__tag" data-testid="clothing-tag">
+            {item.color}
+          </Text>
+        </View>
         {onUpdate || onDelete ? (
           <View className="wardrobe-browser__card-actions">
             {onUpdate ? (
               <Button
-                className="wardrobe-browser__edit-btn"
+                className="wardrobe-browser__card-action wardrobe-browser__edit-btn"
                 onClick={() => {
                   setName(item.name);
                   setCategory(item.category);
@@ -151,7 +163,7 @@ function WardrobeCard({
             ) : null}
             {onDelete ? (
               <Button
-                className="wardrobe-browser__del-btn"
+                className="wardrobe-browser__card-action wardrobe-browser__del-btn"
                 onClick={() => onDelete(item.id, item.version)}
               >
                 删除
@@ -167,6 +179,7 @@ function WardrobeCard({
     <View className="wardrobe-browser__card wardrobe-browser__card--editing">
       <Image src={item.processedFileId ?? item.sourceFileId} mode="aspectFit" />
       <Input
+        className="wardrobe-browser__edit-input"
         aria-label="衣物名称"
         placeholder="衣物名称"
         value={name}
@@ -191,6 +204,7 @@ function WardrobeCard({
         </View>
       </Picker>
       <Input
+        className="wardrobe-browser__edit-input"
         aria-label="衣物颜色"
         placeholder="衣物颜色"
         value={color}

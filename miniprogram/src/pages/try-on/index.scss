@@ -1,28 +1,53 @@
 .tryon-page {
   min-height: 100vh;
-  padding-bottom: 40px;
-  background: #f7f4ee;
+  padding-bottom: 120px;
+  background: #faf9f7;
 }
-.tryon-page__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px 20px 12px;
-}
-.tryon-page__title {
-  font-family: serif;
-  font-size: 24px;
-  font-weight: 700;
-  color: #24211d;
-}
-.tryon-page__add-btn {
+
+.tryon-tabs {
+  position: sticky;
+  z-index: 30;
+  top: 8px;
+  display: grid;
+  padding: 4px;
+  margin: 20px 24px 10px;
+  grid-template-columns: repeat(2, 1fr);
   border-radius: 999px;
-  background: #25221e;
-  color: #fff;
-  font-size: 13px;
+  background: #efeeec;
 }
+
+.tryon-tabs button {
+  display: flex;
+  min-height: 42px;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: transparent;
+  color: #6f6b66;
+  font-size: 12px;
+  font-weight: 600;
+
+  &::after {
+    border: 0;
+  }
+
+  &.is-active {
+    background: #181512;
+    color: #fff;
+    box-shadow: 0 2px 8px rgb(24 21 18 / 18%);
+  }
+}
+.tryon-page__workspace {
+  display: grid;
+  padding: 0 20px;
+  grid-template-columns: minmax(112px, 5fr) minmax(0, 7fr);
+  gap: 10px;
+}
+
 .tryon-page__canvas-wrapper {
-  margin: 0 12px;
+  min-width: 0;
   border: 1px solid #ded8cf;
   border-radius: 16px;
   overflow: hidden;
@@ -30,7 +55,32 @@
 }
 .tryon-page__canvas {
   width: 100%;
-  height: 500px;
+  height: 360px;
+  background-image: radial-gradient(#d7d0c8 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.tryon-page__canvas-empty {
+  position: absolute;
+  display: flex;
+  padding: 16px;
+  align-items: center;
+  justify-content: center;
+  color: #a39d96;
+  flex-direction: column;
+  inset: 0;
+  text-align: center;
+}
+
+.tryon-page__canvas-empty text:first-child {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tryon-page__canvas-empty text:last-child {
+  margin-top: 5px;
+  font-size: 9px;
+  line-height: 1.5;
 }
 .tryon-page__node {
   width: 120px;
@@ -40,83 +90,227 @@
   position: relative;
   width: 120px;
   height: 120px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: 12px;
 }
-.tryon-page__node-tools {
-  position: absolute;
-  bottom: -32px;
-  left: 0;
-  right: 0;
+
+.tryon-page__node-inner.is-selected {
+  border-color: #25221e;
+  background: rgb(255 255 255 / 72%);
+  box-shadow: 0 4px 14px rgb(37 34 30 / 14%);
+}
+
+.tryon-layers {
   display: flex;
-  justify-content: center;
-  gap: 6px;
+  min-width: 0;
+  height: 360px;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ebe7e1;
+  border-radius: 16px;
+  background: #fff;
+  flex-direction: column;
 }
-.tryon-page__node-tools button {
+
+.tryon-layers__title {
+  padding-bottom: 7px;
+  border-bottom: 1px solid #f0ede8;
+  color: #9a958e;
   font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(37, 34, 30, 0.75);
-  color: #fff;
-}
-.tryon-page__picker-mask {
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.35);
-}
-.tryon-page__picker {
-  width: 100%;
-  max-height: 60vh;
-  padding: 24px 20px 32px;
-  border-radius: 20px 20px 0 0;
-  background: #fffdf9;
-}
-.tryon-page__picker-title {
-  display: block;
-  margin-bottom: 16px;
-  font-family: serif;
-  font-size: 20px;
   font-weight: 700;
-  color: #24211d;
+  letter-spacing: 1px;
 }
-.tryon-page__picker-scroll {
-  max-height: 40vh;
+
+.tryon-layers__list {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
 }
-.tryon-page__picker-empty {
+
+.tryon-layers__empty {
   display: block;
-  padding: 24px 0;
+  padding: 32px 4px;
+  color: #aaa49c;
+  font-size: 9px;
+  line-height: 1.5;
   text-align: center;
-  color: #999;
+}
+
+.tryon-layers__item {
+  padding: 7px;
+  margin-top: 7px;
+  border: 1px solid #efebe5;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.tryon-layers__item.is-selected {
+  border-color: #25221e;
+  background: #faf9f7;
+}
+
+.tryon-layers__name {
+  display: block;
+  overflow: hidden;
+  color: #38332e;
+  font-size: 10px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tryon-layers__actions {
+  display: flex;
+  padding-top: 5px;
+  margin-top: 5px;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px dashed #eee9e3;
+}
+
+.tryon-layers__order-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.tryon-layers__actions button {
+  display: flex;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: transparent;
+  color: #9a958e;
+  font-size: 11px;
+  line-height: 20px;
+
+  &::after {
+    border: 0;
+  }
+}
+
+.tryon-layers__actions .tryon-layers__remove {
+  color: #ff4d5a;
   font-size: 14px;
 }
-.tryon-page__picker-item {
+
+.tryon-layers__reset {
   display: flex;
+  min-height: 32px;
+  padding: 0;
+  margin: 8px 0 0;
   align-items: center;
-  gap: 14px;
-  padding: 12px 8px;
-  border-bottom: 1px solid #efebe4;
+  justify-content: center;
+  border: 1px solid #e4dfd8;
+  border-radius: 8px;
+  background: #fff;
+  color: #898279;
+  font-size: 9px;
+
+  &::after {
+    border: 0;
+  }
 }
-.tryon-page__picker-item image {
-  width: 56px;
-  height: 56px;
-  border-radius: 10px;
-  background: #f1ece3;
+.tryon-catalog {
+  padding: 18px;
+  margin: 20px 20px 0;
+  border: 1px solid #ebe7e1;
+  border-radius: 24px;
+  background: #fff;
 }
-.tryon-page__picker-item.is-used {
-  opacity: 0.5;
-}
-.tryon-page__picker-used {
-  margin-left: auto;
-  color: #8b8378;
+
+.tryon-catalog__title {
+  display: block;
+  margin-bottom: 12px;
+  color: #292521;
   font-size: 12px;
+  font-weight: 700;
 }
-.tryon-page__picker-close {
-  margin-top: 16px;
+
+.tryon-catalog__filters,
+.tryon-catalog__items {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.tryon-catalog__filters-inner,
+.tryon-catalog__items-inner {
+  display: inline-flex;
+  gap: 7px;
+}
+
+.tryon-catalog__filters button {
+  display: flex;
+  min-width: 52px;
+  min-height: 30px;
+  padding: 0 12px;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #efebe6;
   border-radius: 999px;
-  background: #25221e;
-  color: #fff;
+  background: #faf9f7;
+  color: #7c756d;
+  font-size: 10px;
+  font-weight: 700;
+
+  &::after {
+    border: 0;
+  }
+
+  &.is-active {
+    border-color: #685c50;
+    background: #685c50;
+    color: #fff;
+  }
+}
+
+.tryon-catalog__items {
+  margin-top: 12px;
+}
+
+.tryon-catalog__item {
+  width: 80px;
+  padding: 6px;
+  box-sizing: border-box;
+  border: 1px solid #efebe6;
+  border-radius: 12px;
+  background: #faf9f7;
+}
+
+.tryon-catalog__item image {
+  display: block;
+  width: 66px;
+  height: 66px;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.tryon-catalog__item text {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  overflow: hidden;
+  color: #4f4942;
+  font-size: 9px;
+  font-weight: 500;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tryon-catalog__empty {
+  display: block;
+  padding: 24px 0 10px;
+  color: #aaa49c;
+  font-size: 11px;
+  text-align: center;
 }
 
 .outfit-manager {
@@ -125,6 +319,174 @@
   border: 1px solid #ded8cf;
   border-radius: 16px;
   background: #fffdf9;
+}
+
+.outfit-manager--save {
+  padding: 0 8px;
+  margin: 16px 12px 0;
+  border: 0;
+  background: transparent;
+}
+
+.outfit-manager--list {
+  padding: 0;
+  margin: 8px 20px 0;
+  border: 0;
+  background: transparent;
+}
+
+.outfit-manager__save-trigger {
+  display: flex;
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #181512;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+
+  &::after {
+    border: 0;
+  }
+}
+
+.outfit-save-modal__mask {
+  position: fixed;
+  z-index: 150;
+  display: flex;
+  padding: 16px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 58%);
+  inset: 0;
+}
+
+.outfit-save-modal {
+  width: 100%;
+  padding: 22px;
+  box-sizing: border-box;
+  border-radius: 24px;
+  background: #fff;
+}
+
+.outfit-save-modal__heading {
+  display: flex;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #efebe6;
+  color: #24211d;
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.outfit-save-modal__heading button {
+  width: 32px;
+  min-height: 32px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  color: #858079;
+  font-size: 22px;
+
+  &::after {
+    border: 0;
+  }
+}
+
+.outfit-save-modal__label {
+  display: block;
+  margin: 14px 0 7px;
+  color: #77716a;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.outfit-save-modal input,
+.outfit-save-modal__color {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid #e1ddd7;
+  border-radius: 9px;
+  background: #faf9f7;
+  color: #3e3934;
+  font-size: 13px;
+  line-height: 44px;
+}
+
+.outfit-save-modal__seasons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.outfit-save-modal__seasons button {
+  display: flex;
+  min-width: 0;
+  min-height: 36px;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e1ddd7;
+  border-radius: 8px;
+  background: #fff;
+  color: #181512;
+  font-size: 11px;
+
+  &::after {
+    border: 0;
+  }
+
+  &.is-active {
+    border-color: #181512;
+    background: #181512;
+    color: #fff;
+  }
+}
+
+.outfit-save-modal__color {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.outfit-save-modal__actions {
+  display: flex;
+  margin-top: 22px;
+  gap: 10px;
+}
+
+.outfit-save-modal__actions button {
+  display: flex;
+  min-height: 44px;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  border: 1px solid #e1ddd7;
+  border-radius: 999px;
+  background: #fff;
+  color: #6f6962;
+  font-size: 11px;
+
+  &::after {
+    border: 0;
+  }
+}
+
+.outfit-save-modal__actions button:last-child {
+  border-color: #181512;
+  background: #181512;
+  color: #fff;
 }
 
 .outfit-manager__title {
@@ -146,7 +508,8 @@
   background: #fff;
 }
 
-.outfit-manager button {
+.outfit-manager--all .outfit-manager__save > button,
+.outfit-manager__item > button {
   margin-bottom: 8px;
   border-radius: 999px;
   background: #25221e;
@@ -218,4 +581,192 @@
   padding: 8px 0;
   color: #766f66;
   font-size: 13px;
+}
+
+.outfit-lookbook__filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.outfit-lookbook__filter {
+  display: flex;
+  height: 38px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #e4e0da;
+  border-radius: 999px;
+  background: #fff;
+  color: #37322d;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.outfit-lookbook__list {
+  display: flex;
+  margin-top: 20px;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.outfit-lookbook__card {
+  display: flex;
+  min-height: 164px;
+  padding: 14px;
+  box-sizing: border-box;
+  gap: 14px;
+  border: 1px solid #eeeae4;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(45 39 32 / 6%);
+}
+
+.outfit-lookbook__preview {
+  position: relative;
+  width: 96px;
+  min-width: 96px;
+  height: 128px;
+  overflow: hidden;
+  border: 1px solid #f0ede8;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.outfit-lookbook__preview-node {
+  position: absolute;
+  transform-origin: center;
+}
+
+.outfit-lookbook__preview-node image,
+.outfit-lookbook__thumbnail image {
+  width: 100%;
+  height: 100%;
+}
+
+.outfit-lookbook__content {
+  display: flex;
+  min-width: 0;
+  padding: 3px 0;
+  justify-content: space-between;
+  flex: 1;
+  flex-direction: column;
+}
+
+.outfit-lookbook__name,
+.outfit-lookbook__date {
+  display: block;
+}
+
+.outfit-lookbook__name {
+  overflow: hidden;
+  color: #1b1815;
+  font-family: serif;
+  font-size: 15px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.outfit-lookbook__date {
+  margin-top: 2px;
+  color: #aaa49d;
+  font-size: 9px;
+}
+
+.outfit-lookbook__thumbnails {
+  display: flex;
+  margin-top: 8px;
+}
+
+.outfit-lookbook__thumbnail {
+  width: 24px;
+  height: 24px;
+  padding: 2px;
+  margin-left: -5px;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid #eeeae4;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 5px rgb(45 39 32 / 8%);
+}
+
+.outfit-lookbook__thumbnail:first-child {
+  margin-left: 0;
+}
+
+.outfit-lookbook__tags {
+  display: flex;
+  margin-top: 9px;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.outfit-lookbook__tag {
+  display: flex;
+  min-height: 18px;
+  padding: 0 8px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.outfit-lookbook__tag--season {
+  background: rgb(240 224 208 / 50%);
+  color: #6e6256;
+}
+
+.outfit-lookbook__tag--color {
+  background: #f2f2f2;
+  color: #68635d;
+}
+
+.outfit-lookbook__actions {
+  display: flex;
+  margin-top: 10px;
+  gap: 7px;
+}
+
+.outfit-lookbook__actions button {
+  display: flex;
+  min-width: 0;
+  min-height: 30px;
+  padding: 0 12px;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #181512;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 30px;
+
+  &::after {
+    border: 0;
+  }
+}
+
+.outfit-lookbook__actions button:last-child:not(:first-child) {
+  border: 1px solid #f1cece;
+  background: #fff3f3;
+  color: #c93636;
+}
+
+.outfit-lookbook__empty {
+  display: block;
+  padding: 44px 28px;
+  margin-top: 20px;
+  border: 1px solid #efebe5;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(45 39 32 / 5%);
+  color: #aaa49d;
+  font-size: 11px;
+  line-height: 1.7;
+  text-align: center;
 }

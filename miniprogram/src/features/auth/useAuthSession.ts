@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { authService } from './auth-service';
-import type { AuthSession, WechatLoginRequest } from './types';
+import type { AuthSession, AuthUserSummary, WechatLoginRequest } from './types';
 
-type AuthService = typeof authService;
+type AuthService = Omit<typeof authService, 'saveAuthSession'> & {
+  saveAuthSession?(session: AuthSession): void;
+};
 type AuthStatus =
   'restoring' | 'unauthenticated' | 'authenticating' | 'authenticated';
 
@@ -41,5 +43,14 @@ export function useAuthSession(service: AuthService = authService) {
     setStatus('unauthenticated');
   }, []);
 
-  return { status, session, error, login, logout };
+  const updateUser = useCallback((user: AuthUserSummary) => {
+    setSession((current) => {
+      if (!current) return current;
+      const updated = { ...current, user };
+      serviceRef.current.saveAuthSession?.(updated);
+      return updated;
+    });
+  }, []);
+
+  return { status, session, error, login, logout, updateUser };
 }

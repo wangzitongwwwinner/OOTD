@@ -30,6 +30,48 @@ describe('useAuthSession', () => {
     expect(result.current.session).toEqual(restored);
   });
 
+  it('资料确认完成后同步当前会话和本地缓存', async () => {
+    const restored = {
+      schemaVersion: 1 as const,
+      userIsolationKey: 'user_1',
+      authenticatedAt: '2026-07-18T02:00:00.000Z',
+      expiresAt: '2026-08-25T02:00:00.000Z',
+      user: {
+        id: 'user_1',
+        nickname: '微信用户',
+        recentFeelPreference: 'comfortable' as const,
+        createdAt: '2026-07-18T02:00:00.000Z',
+        updatedAt: '2026-07-18T02:00:00.000Z',
+        version: 1,
+      },
+    };
+    const saveAuthSession = vi.fn();
+    const { result } = renderHook(() =>
+      useAuthSession({
+        restoreAuthSession: vi.fn(() => restored),
+        loginWithWechatAgreement: vi.fn(),
+        clearAuthSession: vi.fn(),
+        saveAuthSession,
+      }),
+    );
+    await waitFor(() => expect(result.current.status).toBe('authenticated'));
+
+    act(() => {
+      result.current.updateUser({
+        ...restored.user,
+        nickname: '梓桐',
+        avatarFileId: 'cloud://avatar.jpg',
+        version: 2,
+      });
+    });
+    expect(result.current.session?.user.nickname).toBe('梓桐');
+    expect(saveAuthSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user: expect.objectContaining({ nickname: '梓桐', version: 2 }),
+      }),
+    );
+  });
+
   it('登录失败后恢复可重试的未登录状态', async () => {
     const { result } = renderHook(() =>
       useAuthSession({
