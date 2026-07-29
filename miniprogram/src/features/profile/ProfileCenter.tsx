@@ -263,10 +263,9 @@ export function ProfileCenter({
           <Button
             aria-label="用户协议与隐私政策"
             onClick={() =>
-              void showInfo(
-                '协议与隐私',
-                '我们仅在提供功能所需范围内处理账号、城市级位置和业务数据。',
-              )
+              void Taro.navigateTo({
+                url: '/pages/legal/index?document=agreement',
+              })
             }
           >
             <Image

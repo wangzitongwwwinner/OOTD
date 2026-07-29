@@ -5,6 +5,7 @@ export default defineAppConfig({
     'pages/wardrobe/index',
     'pages/try-on/index',
     'pages/profile/index',
+    'pages/legal/index',
   ],
   tabBar: {
     custom: true,

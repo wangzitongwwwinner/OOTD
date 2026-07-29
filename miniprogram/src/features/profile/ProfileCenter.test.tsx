@@ -176,4 +176,20 @@ describe('ProfileCenter', () => {
       container.querySelector('img[src="/assets/icons/profile-data.svg"]'),
     ).toBeInTheDocument();
   });
+
+  it('点击协议入口打开可滚动的完整协议页面', () => {
+    render(
+      <ProfileCenter
+        nickname="微信用户"
+        recentFeelLabel="舒适"
+        onLogout={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '用户协议与隐私政策' }));
+
+    expect(Taro.navigateTo).toHaveBeenCalledWith({
+      url: '/pages/legal/index?document=agreement',
+    });
+  });
 });

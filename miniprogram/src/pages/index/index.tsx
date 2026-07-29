@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { LoginPage } from '../../features/auth/LoginPage';
 import { useAuthSession } from '../../features/auth/useAuthSession';
+import { LEGAL_VERSION_ID } from '../../features/legal/legal-content';
 import { HomeHeader } from '../../features/home/HomeHeader';
 import { LocationStatus } from '../../features/weather/LocationStatus';
 import { locationService } from '../../features/weather/location-service';
@@ -18,8 +19,6 @@ import { setTabBarAuthenticated } from '../../custom-tab-bar/visibility';
 import { useSyncTabBar } from '../../custom-tab-bar/active-tab';
 
 import './index.scss';
-
-const AGREEMENT_VERSION = '2026-07-18';
 
 export default function IndexPage() {
   useSyncTabBar('home');
@@ -47,20 +46,14 @@ export default function IndexPage() {
         error={auth.error}
         onLogin={() =>
           auth.login({
-            userAgreementVersion: AGREEMENT_VERSION,
-            privacyPolicyVersion: AGREEMENT_VERSION,
+            userAgreementVersion: LEGAL_VERSION_ID,
+            privacyPolicyVersion: LEGAL_VERSION_ID,
             acceptedAt: new Date().toISOString(),
           })
         }
         onOpenLegal={(document) => {
-          void Taro.showModal({
-            title: document === 'agreement' ? '用户协议' : '隐私政策',
-            content:
-              document === 'agreement'
-                ? '使用穿衣有数即表示你同意遵守平台规则，并对提交内容负责。'
-                : '穿衣有数仅在提供功能所需范围内处理你的账号与使用数据。',
-            showCancel: false,
-            confirmText: '我知道了',
+          void Taro.navigateTo({
+            url: `/pages/legal/index?document=${document}`,
           });
         }}
       />

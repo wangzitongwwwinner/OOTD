@@ -82,8 +82,13 @@ vi.mock('@tarojs/components', () => ({
     }),
   View: (props: React.HTMLAttributes<HTMLDivElement>) =>
     React.createElement('div', props),
-  ScrollView: (props: React.HTMLAttributes<HTMLDivElement>) =>
-    React.createElement('div', props),
+  ScrollView: (
+    props: React.HTMLAttributes<HTMLDivElement> & { scrollY?: boolean },
+  ) => {
+    const { scrollY, ...elementProps } = props;
+    void scrollY;
+    return React.createElement('div', elementProps);
+  },
   Picker: (props: Record<string, unknown>) =>
     React.createElement('div', {
       ...props,
