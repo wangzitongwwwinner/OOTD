@@ -49,3 +49,93 @@ test("没有完整观察窗口时七日复用率分母为零", () => {
     denominator: 0,
   });
 });
+
+test("评价按用户和建议去重，并排除测试用户、未知建议与截止时间后的修改", () => {
+  const report = calculateMvpMetrics({
+    cutoffAt: "2026-07-29T00:00:00.000Z",
+    users: [
+      { id: "u1", createdAt: "2026-07-01T00:00:00.000Z" },
+      { id: "u2", createdAt: "2026-07-01T00:00:00.000Z" },
+      { id: "test", createdAt: "2026-07-01T00:00:00.000Z", isTestUser: true },
+    ],
+    recommendations: [
+      { recommendationId: "r1", userId: "u1", createdAt: "2026-07-20T00:00:00.000Z" },
+      { recommendationId: "r2", userId: "u1", createdAt: "2026-07-21T00:00:00.000Z" },
+      { recommendationId: "r3", userId: "u2", createdAt: "2026-07-22T00:00:00.000Z" },
+      { recommendationId: "rt", userId: "test", createdAt: "2026-07-22T00:00:00.000Z" },
+    ],
+    feedbacks: [
+      {
+        recommendationId: "r1",
+        userId: "u1",
+        rating: "unhelpful",
+        updatedAt: "2026-07-23T00:00:00.000Z",
+      },
+      {
+        recommendationId: "r1",
+        userId: "u1",
+        rating: "helpful",
+        updatedAt: "2026-07-24T00:00:00.000Z",
+      },
+      {
+        recommendationId: "r2",
+        userId: "u1",
+        rating: "neutral",
+        updatedAt: "2026-07-24T00:00:00.000Z",
+      },
+      {
+        recommendationId: "missing",
+        userId: "u1",
+        rating: "helpful",
+        updatedAt: "2026-07-24T00:00:00.000Z",
+      },
+      {
+        recommendationId: "rt",
+        userId: "test",
+        rating: "helpful",
+        updatedAt: "2026-07-24T00:00:00.000Z",
+      },
+      {
+        recommendationId: "r3",
+        userId: "u2",
+        rating: "helpful",
+        updatedAt: "2026-07-30T00:00:00.000Z",
+      },
+    ],
+  });
+
+  assert.deepEqual(report.metrics.recommendationHelpful, {
+    numerator: 1,
+    denominator: 2,
+  });
+  assert.deepEqual(report.metrics.recommendationPositive, {
+    numerator: 2,
+    denominator: 2,
+  });
+  assert.deepEqual(report.metrics.recommendationFeedbackCoverage, {
+    numerator: 2,
+    denominator: 3,
+  });
+});
+
+test("没有建议或有效评价时三项评价指标保持零分母语义", () => {
+  const report = calculateMvpMetrics({
+    cutoffAt: "2026-07-29T00:00:00.000Z",
+    users: [{ id: "u1", createdAt: "2026-07-01T00:00:00.000Z" }],
+    recommendations: [],
+    feedbacks: [],
+  });
+
+  assert.deepEqual(report.metrics.recommendationHelpful, {
+    numerator: 0,
+    denominator: 0,
+  });
+  assert.deepEqual(report.metrics.recommendationPositive, {
+    numerator: 0,
+    denominator: 0,
+  });
+  assert.deepEqual(report.metrics.recommendationFeedbackCoverage, {
+    numerator: 0,
+    denominator: 0,
+  });
+});

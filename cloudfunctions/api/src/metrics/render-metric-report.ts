@@ -5,8 +5,7 @@ import type {
 
 interface ReportRow {
   name: string;
-  fraction?: MetricFraction;
-  unavailable?: boolean;
+  fraction: MetricFraction;
 }
 
 function rows(report: MvpMetricReport): ReportRow[] {
@@ -16,9 +15,15 @@ function rows(report: MvpMetricReport): ReportRow[] {
     { name: "场景编辑完成率", fraction: report.metrics.sceneEdit },
     { name: "行程保存完成率", fraction: report.metrics.itinerarySave },
     { name: "体感偏好修改率", fraction: report.metrics.feelPreferenceModify },
-    { name: "AI 建议有用率", unavailable: true },
-    { name: "AI 建议正向反馈率", unavailable: true },
-    { name: "AI 建议评价覆盖率", unavailable: true },
+    { name: "AI 建议有用率", fraction: report.metrics.recommendationHelpful },
+    {
+      name: "AI 建议正向反馈率",
+      fraction: report.metrics.recommendationPositive,
+    },
+    {
+      name: "AI 建议评价覆盖率",
+      fraction: report.metrics.recommendationFeedbackCoverage,
+    },
   ];
 }
 
@@ -29,17 +34,7 @@ function display(row: ReportRow): {
   fraction: string;
   status: string;
 } {
-  if (row.unavailable) {
-    return {
-      value: "—",
-      numerator: "—",
-      denominator: "—",
-      fraction: "—",
-      status: "暂不可用（M10-01）",
-    };
-  }
-
-  const fraction = row.fraction!;
+  const fraction = row.fraction;
   if (fraction.denominator === 0) {
     return {
       value: "—",

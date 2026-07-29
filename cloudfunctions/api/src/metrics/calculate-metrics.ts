@@ -13,6 +13,13 @@ export interface RecommendationSnapshot {
   createdAt: string;
 }
 
+export interface RecommendationFeedback {
+  recommendationId: string;
+  userId: string;
+  rating: "helpful" | "neutral" | "unhelpful";
+  updatedAt: string;
+}
+
 export interface MetricFraction {
   numerator: number;
   denominator: number;
@@ -20,7 +27,7 @@ export interface MetricFraction {
 
 export interface MvpMetricReport {
   cutoffAt: string;
-  definitionVersion: "mvp-2026-07-26";
+  definitionVersion: "mvp-2026-07-29";
   totalUsers: number;
   metrics: {
     recommendationUsage: MetricFraction;
@@ -28,6 +35,9 @@ export interface MvpMetricReport {
     sceneEdit: MetricFraction;
     itinerarySave: MetricFraction;
     feelPreferenceModify: MetricFraction;
+    recommendationHelpful: MetricFraction;
+    recommendationPositive: MetricFraction;
+    recommendationFeedbackCoverage: MetricFraction;
   };
 }
 
@@ -37,6 +47,7 @@ export function calculateMvpMetrics(input: {
   cutoffAt: string;
   users: MetricUser[];
   recommendations: RecommendationSnapshot[];
+  feedbacks?: RecommendationFeedback[];
 }): MvpMetricReport {
   const cutoff = Date.parse(input.cutoffAt);
   if (!Number.isFinite(cutoff)) throw new Error("Invalid cutoffAt");
@@ -68,6 +79,30 @@ export function calculateMvpMetrics(input: {
   for (const items of recommendationsByUser.values()) {
     items.sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
   }
+  const recommendationOwners = new Map(
+    recommendations.map((item) => [item.recommendationId, item.userId]),
+  );
+  const feedbacks = Array.from(
+    (input.feedbacks ?? [])
+      .filter(
+        (item) =>
+          userIds.has(item.userId) &&
+          recommendationOwners.get(item.recommendationId) === item.userId &&
+          Date.parse(item.updatedAt) <= cutoff,
+      )
+      .reduce((latest, item) => {
+        const key = `${item.userId}\u0000${item.recommendationId}`;
+        const previous = latest.get(key);
+        if (
+          previous === undefined ||
+          Date.parse(item.updatedAt) > Date.parse(previous.updatedAt)
+        ) {
+          latest.set(key, item);
+        }
+        return latest;
+      }, new Map<string, RecommendationFeedback>())
+      .values(),
+  );
 
   const totalUsers = users.length;
   let reuseDenominator = 0;
@@ -92,7 +127,7 @@ export function calculateMvpMetrics(input: {
   });
   return {
     cutoffAt: input.cutoffAt,
-    definitionVersion: "mvp-2026-07-26",
+    definitionVersion: "mvp-2026-07-29",
     totalUsers,
     metrics: {
       recommendationUsage: fraction(recommendationsByUser.size),
@@ -111,6 +146,19 @@ export function calculateMvpMetrics(input: {
           (user) => user.firstFeelPreferenceModifiedAt !== undefined,
         ).length,
       ),
+      recommendationHelpful: {
+        numerator: feedbacks.filter((item) => item.rating === "helpful").length,
+        denominator: feedbacks.length,
+      },
+      recommendationPositive: {
+        numerator: feedbacks.filter((item) => item.rating !== "unhelpful")
+          .length,
+        denominator: feedbacks.length,
+      },
+      recommendationFeedbackCoverage: {
+        numerator: feedbacks.length,
+        denominator: recommendations.length,
+      },
     },
   };
 }

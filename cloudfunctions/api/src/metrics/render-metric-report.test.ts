@@ -9,7 +9,7 @@ import {
 
 const report: MvpMetricReport = {
   cutoffAt: "2026-07-26T00:00:00.000Z",
-  definitionVersion: "mvp-2026-07-26",
+  definitionVersion: "mvp-2026-07-29",
   totalUsers: 2,
   metrics: {
     recommendationUsage: { numerator: 1, denominator: 2 },
@@ -17,17 +17,22 @@ const report: MvpMetricReport = {
     sceneEdit: { numerator: 1, denominator: 2 },
     itinerarySave: { numerator: 2, denominator: 2 },
     feelPreferenceModify: { numerator: 0, denominator: 2 },
+    recommendationHelpful: { numerator: 1, denominator: 2 },
+    recommendationPositive: { numerator: 2, denominator: 2 },
+    recommendationFeedbackCoverage: { numerator: 2, denominator: 3 },
   },
 };
 
-test("Markdown report renders percentages, zero denominators, and unavailable metrics", () => {
+test("Markdown report renders percentages, zero denominators, and feedback metrics", () => {
   const output = renderMetricMarkdown(report);
 
   assert.match(output, /AI 推荐用户使用率 \| 1 \/ 2 \| 50\.0%/);
   assert.match(output, /AI 推荐 7 日复用率 \| — \| —/);
-  assert.match(output, /AI 建议有用率 \| — \| — \| 暂不可用（M10-01）/);
+  assert.match(output, /AI 建议有用率 \| 1 \/ 2 \| 50\.0% \| 可用/);
+  assert.match(output, /AI 建议正向反馈率 \| 2 \/ 2 \| 100\.0% \| 可用/);
+  assert.match(output, /AI 建议评价覆盖率 \| 2 \/ 3 \| 66\.7% \| 可用/);
   assert.match(output, /数据截至：2026-07-26T00:00:00\.000Z/);
-  assert.match(output, /口径版本：mvp-2026-07-26/);
+  assert.match(output, /口径版本：mvp-2026-07-29/);
 });
 
 test("CSV report includes the same values and report metadata", () => {
@@ -35,14 +40,14 @@ test("CSV report includes the same values and report metadata", () => {
 
   assert.match(
     output,
-    /AI 推荐用户使用率,50\.0%,1,2,可用,2026-07-26T00:00:00\.000Z,mvp-2026-07-26/,
+    /AI 推荐用户使用率,50\.0%,1,2,可用,2026-07-26T00:00:00\.000Z,mvp-2026-07-29/,
   );
   assert.match(
     output,
-    /AI 推荐 7 日复用率,—,—,—,无完整观察窗口,2026-07-26T00:00:00\.000Z,mvp-2026-07-26/,
+    /AI 推荐 7 日复用率,—,—,—,无完整观察窗口,2026-07-26T00:00:00\.000Z,mvp-2026-07-29/,
   );
   assert.match(
     output,
-    /AI 建议有用率,—,—,—,暂不可用（M10-01）,2026-07-26T00:00:00\.000Z,mvp-2026-07-26/,
+    /AI 建议有用率,50\.0%,1,2,可用,2026-07-26T00:00:00\.000Z,mvp-2026-07-29/,
   );
 });

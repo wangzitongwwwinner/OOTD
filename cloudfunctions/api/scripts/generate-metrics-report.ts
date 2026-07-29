@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import {
   calculateMvpMetrics,
   type MetricUser,
+  type RecommendationFeedback,
   type RecommendationSnapshot,
 } from "../src/metrics/calculate-metrics.ts";
 import {
@@ -13,6 +14,7 @@ import {
 interface MetricExport {
   users: MetricUser[];
   recommendations: RecommendationSnapshot[];
+  feedbacks?: RecommendationFeedback[];
 }
 
 async function main() {
@@ -29,6 +31,7 @@ async function main() {
     cutoffAt,
     users: input.users,
     recommendations: input.recommendations,
+    feedbacks: input.feedbacks ?? [],
   });
   process.stdout.write(
     format === "csv"
