@@ -10,7 +10,18 @@ import {
 import { ItineraryForm } from './ItineraryForm';
 import './TodayItinerary.scss';
 
-export function TodayItinerary() {
+type SceneDataService = Pick<typeof sceneService, 'list'>;
+type ItineraryDataService = typeof itineraryService;
+
+interface TodayItineraryProps {
+  sceneDataService?: SceneDataService;
+  itineraryDataService?: ItineraryDataService;
+}
+
+export function TodayItinerary({
+  sceneDataService = sceneService,
+  itineraryDataService = itineraryService,
+}: TodayItineraryProps = {}) {
   const [items, setItems] = useState<Itinerary[]>();
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [error, setError] = useState('');
@@ -25,7 +36,7 @@ export function TodayItinerary() {
     setLoading(true);
     setError('');
     try {
-      setItems(await itineraryService.listToday());
+      setItems(await itineraryDataService.listToday());
     } catch (e) {
       setError(e instanceof Error ? e.message : '行程加载失败');
     } finally {
@@ -35,7 +46,7 @@ export function TodayItinerary() {
 
   async function loadScenes() {
     try {
-      setScenes(await sceneService.list());
+      setScenes(await sceneDataService.list());
     } catch {
       /* ignore */
     }
@@ -43,7 +54,7 @@ export function TodayItinerary() {
 
   useEffect(() => {
     let a = true;
-    itineraryService
+    itineraryDataService
       .listToday()
       .then((i) => {
         if (a) {
@@ -60,10 +71,10 @@ export function TodayItinerary() {
     return () => {
       a = false;
     };
-  }, []);
+  }, [itineraryDataService]);
   useEffect(() => {
     let active = true;
-    sceneService
+    sceneDataService
       .list()
       .then((result) => {
         if (active) setScenes(result);
@@ -74,13 +85,13 @@ export function TodayItinerary() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [sceneDataService]);
 
   async function handleCreate(input: ItineraryCreateInput) {
     setSaving(true);
     setFormError('');
     try {
-      await itineraryService.create(input);
+      await itineraryDataService.create(input);
       setShowForm(false);
       setEditing(undefined);
       await load();
@@ -96,7 +107,7 @@ export function TodayItinerary() {
     setSaving(true);
     setFormError('');
     try {
-      await itineraryService.update(editing.id, {
+      await itineraryDataService.update(editing.id, {
         ...input,
         expectedVersion: editing.version,
       });
@@ -110,9 +121,10 @@ export function TodayItinerary() {
     }
   }
 
-  function openCreate() {
+  async function openCreate() {
     setEditing(undefined);
     setFormError('');
+    await loadScenes();
     setShowForm(true);
   }
   function openEdit(item: Itinerary) {
@@ -129,7 +141,7 @@ export function TodayItinerary() {
   async function handleDelete(item: Itinerary) {
     setDeleting(item.id);
     try {
-      await itineraryService.delete(item.id);
+      await itineraryDataService.delete(item.id);
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : '删除失败');
@@ -164,7 +176,12 @@ export function TodayItinerary() {
             <View className="itinerary__calendar" aria-hidden="true" />
             <Text className="itinerary__title">今日通勤行程</Text>
           </View>
-          <Button className="itinerary__add" onClick={openCreate}>
+          <Button
+            className="itinerary__add"
+            onClick={() => {
+              void openCreate();
+            }}
+          >
             ＋ 添加行程
           </Button>
         </View>
@@ -257,8 +274,7 @@ export function TodayItinerary() {
         <Button
           className="itinerary__add"
           onClick={() => {
-            void loadScenes();
-            openCreate();
+            void openCreate();
           }}
         >
           ＋ 添加行程

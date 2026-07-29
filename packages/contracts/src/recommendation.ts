@@ -9,7 +9,15 @@ export const recommendationRequestSchema = z
 
 export const recommendationLayerSchema = z
   .object({
-    type: z.enum(["base", "mid", "outer", "accessory"]),
+    type: z.enum([
+      "upper",
+      "lower",
+      "footwear",
+      "base",
+      "mid",
+      "outer",
+      "accessory",
+    ]),
     description: z.string().min(1).max(80),
   })
   .strict();

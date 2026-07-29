@@ -11,14 +11,15 @@ test("严寒天气推荐多层保暖", () => {
     feelPreference: "comfortable",
   });
   assert.ok(r.summary.length > 0);
-  assert.ok(r.layers.some((l) => l.type === "base"));
+  assert.ok(r.layers.some((l) => l.type === "upper"));
+  assert.ok(r.layers.some((l) => l.type === "lower"));
   assert.ok(r.layers.some((l) => l.type === "mid"));
   assert.ok(r.layers.some((l) => l.type === "outer"));
   assert.ok(r.layers.some((l) => l.description.includes("羽绒")));
   assert.equal(r.source, "rules");
 });
 
-test("凉爽天气温差大时推荐洋葱穿法", () => {
+test("凉爽天气温差大时建议方便穿脱", () => {
   const r = generateRulesRecommendation({
     outdoorHighCelsius: 20,
     outdoorLowCelsius: 5,
@@ -33,29 +34,39 @@ test("凉爽天气温差大时推荐洋葱穿法", () => {
   assert.ok(r.layers.some((l) => l.type === "outer"));
 });
 
-test("炎热天气仅需轻薄穿着", () => {
+test("夏季建议包含上身和下身且偏冷体感最多增加薄外套", () => {
   const r = generateRulesRecommendation({
-    outdoorHighCelsius: 36,
-    outdoorLowCelsius: 28,
+    outdoorHighCelsius: 34,
+    outdoorLowCelsius: 26,
     outdoorCondition: "晴",
-    itineraries: [],
-    feelPreference: "stuffy",
+    itineraries: [{ sceneName: "办公室", temperatureCelsius: 22 }],
+    feelPreference: "cold",
   });
-  assert.ok(r.layers.every((l) => l.type !== "outer"));
-  assert.ok(r.tips.some((t) => t.includes("透气") || t.includes("防晒")));
+  assert.ok(r.layers.some((l) => l.type === "upper"));
+  assert.ok(r.layers.some((l) => l.type === "lower"));
+  assert.ok(
+    r.layers
+      .filter((l) => l.type === "outer")
+      .every((l) => l.description.includes("薄")),
+  );
+  assert.ok(
+    r.layers.every((l) => !/风衣|夹克|围巾|毛衣|抓绒|羽绒/.test(l.description)),
+  );
+  assert.ok(r.tips.every((tip) => !tip.includes("洋葱式")));
 });
 
-test("雨天自动添加防水外套", () => {
+test("夏季雨天补充鞋履建议而不强制增加防水外套", () => {
   const r = generateRulesRecommendation({
-    outdoorHighCelsius: 26,
-    outdoorLowCelsius: 22,
+    outdoorHighCelsius: 32,
+    outdoorLowCelsius: 25,
     outdoorCondition: "中到大雨",
     itineraries: [],
     feelPreference: "comfortable",
   });
-  assert.ok(r.layers.some((l) => l.description.includes("防水")));
+  assert.ok(r.layers.some((l) => l.type === "footwear"));
+  assert.ok(r.layers.some((l) => l.description.includes("防滑")));
+  assert.ok(r.layers.every((l) => l.type !== "outer"));
   assert.ok(r.tips.some((t) => t.includes("雨具")));
-  assert.ok(r.layers.length >= 1);
 });
 
 test("偏冷体感偏好额外提示", () => {
@@ -67,4 +78,6 @@ test("偏冷体感偏好额外提示", () => {
     feelPreference: "cold",
   });
   assert.ok(r.tips.some((t) => t.includes("容易觉得冷")));
+  assert.ok(r.tips.every((tip) => !tip.includes("你")));
+  assert.ok(r.tips.some((tip) => tip.includes("您")));
 });

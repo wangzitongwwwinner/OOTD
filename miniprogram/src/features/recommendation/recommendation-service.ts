@@ -1,7 +1,8 @@
 import Taro from '@tarojs/taro';
 import type { CityLocation } from '../weather/location-service';
 
-export type RecommendationLayerType = 'base' | 'mid' | 'outer' | 'accessory';
+export type RecommendationLayerType =
+  'upper' | 'lower' | 'footwear' | 'base' | 'mid' | 'outer' | 'accessory';
 export interface RecommendationLayer {
   type: RecommendationLayerType;
   description: string;
@@ -65,7 +66,15 @@ function isRecommendation(value: unknown): value is Recommendation {
     value.layers.every(
       (layer) =>
         isRecord(layer) &&
-        ['base', 'mid', 'outer', 'accessory'].includes(String(layer.type)) &&
+        [
+          'upper',
+          'lower',
+          'footwear',
+          'base',
+          'mid',
+          'outer',
+          'accessory',
+        ].includes(String(layer.type)) &&
         typeof layer.description === 'string' &&
         Boolean(layer.description),
     ) &&

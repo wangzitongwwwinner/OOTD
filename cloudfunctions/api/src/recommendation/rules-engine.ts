@@ -20,47 +20,53 @@ export function generateRulesRecommendation(input: RuleInput): Recommendation {
   const minTemp = Math.min(...temps);
   const maxTemp = Math.max(...temps);
   const range = maxTemp - minTemp;
+  const isSummer =
+    input.outdoorHighCelsius >= 28 || input.outdoorLowCelsius >= 24;
 
   const layers: RecommendationLayer[] = [];
   const tips: string[] = [];
 
-  // Base layer based on minimum temperature
-  if (minTemp < 10) {
-    layers.push({ type: "base", description: "保暖内衣或高领打底衫" });
-  } else if (minTemp < 18) {
-    layers.push({ type: "base", description: "薄款长袖 T 恤或打底衫" });
+  if (isSummer) {
+    layers.push({ type: "upper", description: "透气短袖 T 恤或短袖衬衫" });
+    layers.push({ type: "lower", description: "轻薄长裤或宽松短裤" });
+    if (input.feelPreference === "cold" || minTemp < 24) {
+      layers.push({ type: "outer", description: "一件轻薄开衫或薄外套" });
+    }
   } else {
-    layers.push({ type: "base", description: "短袖 T 恤" });
+    if (minTemp < 10) {
+      layers.push({ type: "upper", description: "保暖内衣和长袖上衣" });
+      layers.push({ type: "lower", description: "保暖长裤" });
+    } else if (minTemp < 18) {
+      layers.push({ type: "upper", description: "薄款长袖上衣" });
+      layers.push({ type: "lower", description: "长裤" });
+    } else {
+      layers.push({ type: "upper", description: "短袖 T 恤或薄长袖" });
+      layers.push({ type: "lower", description: "轻薄长裤" });
+    }
+
+    if (minTemp < 5) {
+      layers.push({ type: "mid", description: "厚款毛衣或抓绒卫衣" });
+    } else if (minTemp < 15) {
+      layers.push({ type: "mid", description: "薄款毛衣或棉质卫衣" });
+    }
+
+    if (minTemp < 0) {
+      layers.push({ type: "outer", description: "厚羽绒服或棉大衣" });
+    } else if (minTemp < 8) {
+      layers.push({ type: "outer", description: "薄羽绒服或夹棉外套" });
+    } else if (minTemp < 15 || range > 10) {
+      layers.push({ type: "outer", description: "普通外套" });
+    }
   }
 
-  // Mid layer
-  if (minTemp < 5) {
-    layers.push({ type: "mid", description: "厚款毛衣或抓绒卫衣" });
-  } else if (minTemp < 15) {
-    layers.push({ type: "mid", description: "薄款毛衣或棉质卫衣" });
-  } else if (minTemp < 22) {
-    layers.push({ type: "mid", description: "衬衫或轻薄长袖" });
-  }
-
-  // Outer layer based on maximum temperature and range
-  if (minTemp < 0) {
-    layers.push({ type: "outer", description: "厚羽绒服或棉大衣" });
-  } else if (minTemp < 8) {
-    layers.push({ type: "outer", description: "薄羽绒服或夹棉外套" });
-  } else if (minTemp < 15 || range > 10) {
-    layers.push({ type: "outer", description: "风衣、夹克或薄外套" });
-  }
-
-  // Feel preference adjustment
-  if (input.feelPreference === "cold") {
-    tips.push("你容易觉得冷，可在上述基础上多加一件薄外套");
+  if (input.feelPreference === "cold" && !isSummer) {
+    tips.push("您容易觉得冷，如果仍感到凉，可以多加一件薄外套");
   } else if (input.feelPreference === "stuffy") {
-    tips.push("你容易觉得闷热，优先选择透气材质");
+    tips.push("您容易觉得闷热，建议优先选择透气材质");
   }
 
-  // Temperature range tips
   if (range > 15) {
-    tips.push("全天温差较大，建议采用洋葱式穿法，方便随时穿脱");
+    tips.push("全天温差较大，外套选方便穿脱的即可");
   }
   if (range > 10 && layers.some((l) => l.type === "outer")) {
     tips.push("进入室内场景后可脱下外层，避免温差不适");
@@ -69,9 +75,10 @@ export function generateRulesRecommendation(input: RuleInput): Recommendation {
   // Weather condition tips
   if (input.outdoorCondition.includes("雨")) {
     tips.push("今日有雨，记得携带雨具");
-    if (!layers.some((l) => l.type === "outer")) {
-      layers.push({ type: "outer", description: "防水外套或轻便雨衣" });
-    }
+    layers.push({
+      type: "footwear",
+      description: "防滑、耐水且容易清理的鞋",
+    });
   }
   if (input.outdoorCondition.includes("风") && maxTemp < 20) {
     tips.push("风力较大，建议选择防风面料");

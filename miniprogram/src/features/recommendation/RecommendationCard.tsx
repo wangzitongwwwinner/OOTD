@@ -10,6 +10,9 @@ import {
 import './RecommendationCard.scss';
 
 const LAYER_LABELS: Record<RecommendationLayerType, string> = {
+  upper: '上身',
+  lower: '下身',
+  footwear: '鞋履',
   base: '基础层',
   mid: '中间层',
   outer: '外层',

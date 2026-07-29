@@ -73,3 +73,34 @@ test("LLM 成功返回结构化建议", async () => {
     "建议穿着",
   );
 });
+
+test("LLM 回复中的第二人称统一转换为敬称", async () => {
+  const llm: LlmProvider = {
+    generateRecommendation: async () => ({
+      summary: "你可以带一件薄外套",
+      layers: [
+        { type: "upper", description: "你可以穿短袖 T 恤" },
+        { type: "lower", description: "轻薄长裤" },
+      ],
+      tips: ["如果你觉得冷，可以穿上薄外套"],
+      source: "llm",
+    }),
+  };
+
+  const result = await generateRecommendation(
+    {
+      outdoorHighCelsius: 34,
+      outdoorLowCelsius: 26,
+      outdoorCondition: "晴",
+      itineraries: [],
+      feelPreference: "cold",
+    },
+    llm,
+    "r4",
+  );
+
+  assert.ok("data" in result);
+  const text = JSON.stringify(result.data);
+  assert.doesNotMatch(text, /你/);
+  assert.match(text, /您/);
+});

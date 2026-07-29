@@ -3,6 +3,18 @@ import { expect, it, vi } from 'vitest';
 
 import { RecommendationFeedback } from './RecommendationFeedback';
 
+it('界面第二人称统一使用敬称', () => {
+  const { container } = render(
+    <RecommendationFeedback
+      recommendationId="rec-honorific"
+      service={{ save: vi.fn() }}
+    />,
+  );
+
+  expect(container.textContent).toContain('您');
+  expect(container.textContent).not.toContain('你');
+});
+
 it('提交评价并允许修改', async () => {
   const save = vi.fn().mockResolvedValue(undefined);
   render(

@@ -36,7 +36,7 @@ export class HunyuanProvider implements LlmProvider {
         body: JSON.stringify({
           model: "deepseek-v4-flash",
           instructions:
-            "你是专业的穿衣搭配顾问，根据用户信息输出穿搭建议 JSON。",
+            "请作为实用的日常穿衣顾问，使用朴实、直接的语言，不使用时尚术语、夸张表达或“洋葱式穿法”等说法。根据用户信息输出穿搭建议 JSON。",
           input: prompt,
           reasoning: { effort: "none" },
           stream: false,
@@ -81,7 +81,7 @@ function buildPrompt(input: LlmInput): string {
     )
     .join("；");
   return (
-    '根据以下信息，输出一套可通过穿脱应对全天温差的穿衣建议。只输出 JSON：{"summary":"一句话总结","layers":[{"type":"base|mid|outer|accessory","description":"具体材质描述"}],"tips":["实用提示"]}。禁止品牌、款式、版型、风格词，聚焦材质和类型。\n室外：' +
+    '根据以下信息给出符合日常生活的穿衣建议。必须分别包含上身（type="upper"）和下身（type="lower"）建议；雨天还必须包含鞋履（type="footwear"）建议。可按实际需要增加薄外套（type="outer"）或其他层次，但不要为了凑层次增加衣物。同一件衣物不得在上身和外套等不同字段中重复描述。鞋履和配件应使用普通、宽泛的类型描述，不限定为靴子、羊毛袜等具体选择。夏季即使用户体感偏冷，也最多建议随身带一件轻薄开衫或薄外套，不得推荐风衣、夹克、围巾、毛衣、抓绒或羽绒服。体感偏冷表示同等温度下适当多穿一点，不代表按冬季穿着。tips 必须结合行程的实际停留时长，不得把短暂停留描述为长时间。可选建议使用条件语气，例如“如果您确实觉得冷，可以……”，不得写成所有用户都必须执行。所有第二人称必须使用“您”，禁止使用“你”。语言朴实简短，不使用“洋葱式穿法”等术语。只输出 JSON：{"summary":"一句话总结","layers":[{"type":"upper|lower|footwear|mid|outer|accessory","description":"具体衣物类型和薄厚"}],"tips":["实用提示"]}。禁止品牌和具体商品，不从用户衣橱挑选衣物。\n室外：' +
     input.outdoorLowCelsius +
     "°C~" +
     input.outdoorHighCelsius +

@@ -10,6 +10,27 @@ const recommendation = {
 };
 
 describe('recommendation service', () => {
+  it('接受上身、下身和鞋履的结构化建议', async () => {
+    const structured = {
+      summary: '短袖配轻薄长裤，雨天穿防滑鞋',
+      layers: [
+        { type: 'upper', description: '短袖 T 恤' },
+        { type: 'lower', description: '轻薄长裤' },
+        { type: 'footwear', description: '防滑耐水的鞋' },
+      ],
+      tips: ['带伞'],
+      source: 'llm',
+    };
+    const service = createRecommendationService(
+      vi.fn().mockResolvedValue({ data: structured, requestId: 'req_new' }),
+    );
+
+    await expect(service.generate(city)).resolves.toMatchObject({
+      ...structured,
+      recommendationId: 'req_new',
+    });
+  });
+
   it('只提交城市级触发信息', async () => {
     const call = vi
       .fn()

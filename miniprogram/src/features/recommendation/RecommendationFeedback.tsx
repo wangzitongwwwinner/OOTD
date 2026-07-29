@@ -47,10 +47,10 @@ export function RecommendationFeedback({
   return (
     <View className="recommendation-feedback">
       <Text className="recommendation-feedback__title">
-        这条穿衣建议对你有帮助吗？
+        这条穿衣建议对您有帮助吗？
       </Text>
       <Text className="recommendation-feedback__subtitle">
-        你的评价会帮助我们持续优化建议
+        您的评价会帮助我们持续优化建议
       </Text>
       <View className="recommendation-feedback__options">
         {OPTIONS.map((option) => (

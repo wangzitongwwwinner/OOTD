@@ -50,7 +50,10 @@ export async function generateRecommendation(
     try {
       const result = await llmProvider.generateRecommendation(input, timeoutMs);
       return success(
-        { ...recommendationSchema.parse(result), source: "llm" },
+        normalizeHonorifics({
+          ...recommendationSchema.parse(result),
+          source: "llm",
+        }),
         requestId,
       );
     } catch (e) {
@@ -71,4 +74,17 @@ export async function generateRecommendation(
       requestId,
     );
   }
+}
+
+function normalizeHonorifics(recommendation: Recommendation): Recommendation {
+  const honorific = (text: string) => text.split("你").join("您");
+  return {
+    ...recommendation,
+    summary: honorific(recommendation.summary),
+    layers: recommendation.layers.map((layer) => ({
+      ...layer,
+      description: honorific(layer.description),
+    })),
+    tips: recommendation.tips.map(honorific),
+  };
 }
