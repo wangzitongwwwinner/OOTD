@@ -60,6 +60,7 @@ flowchart TB
 ### 4.1 小程序
 
 - `auth`：微信登录、协议确认和会话恢复。
+- `guest`：系统示例数据、游客运行时草稿、统一登录门控和登录后操作续接。
 - `weather`：定位授权、城市级定位、天气展示和刷新。
 - `itinerary`：当天行程查询、创建、编辑和删除。
 - `scenes`：预设/自定义场景与引用规则。
@@ -81,6 +82,10 @@ flowchart TB
 ## 5. 核心数据模型
 
 所有业务集合必须包含 `id`、`userId`（公共预设除外）、`createdAt`、`updatedAt` 和必要的 `version`。
+
+系统示例数据不作为匿名用户业务记录写入数据库。首次登录仅初始化场景和当日行程的个人副本，衣物与搭配不初始化。初始化重试只补齐缺失副本、不覆盖已有修改，完成后不在用户删除后自动回填。
+
+场景示例以 `sceneExamplesInitializedVersion` 作为用户级幂等标记，个人副本保留稳定 `sourcePresetId`；游客续接操作可使用公共示例 ID 定位当前用户副本，任何修改或删除均必须同时匹配 `userId`。
 
 ```text
 users
@@ -109,8 +114,10 @@ imageProcessingJobs
   sourceFileId, resultFileId?, errorCategory?, createdAt, updatedAt
 
 recommendationSnapshots
-  id, userId, localDate, inputHash, weatherSnapshot,
-  itinerarySnapshot, result, source, createdAt, expiresAt
+  id, userId?, guestOpenId?, guestAppId?, localDate, inputHash,
+  weatherSnapshot, itinerarySnapshot, result, source, createdAt, expiresAt
+
+游客通用建议生成时仅以云函数可信微信身份保存待续接快照，不设置 `userId`；用户登录后提交评价时，只能将同一 `openId + appId` 的快照安全归属到当前用户。
 
 weatherCache
   id, cityCode, weather, observedAt, expiresAt,
@@ -129,6 +136,8 @@ M0-03 已将上述集合、关键索引和权限目标状态声明在 `cloudbase
 
 ### 6.1 登录与会话
 
+登录由受保护操作按需触发。客户端登录门控保存最小待执行意图和页面草稿引用；认证成功后回到原页面并只续接一次，不插入强制资料确认。新账号由服务端生成“微信用户 + 5 位随机数字”默认昵称，旧占位昵称在登录时升级一次；系统默认头像由客户端本地资源展示。取消、失败或会话恢复不得误执行旧意图。
+
 ```mermaid
 sequenceDiagram
     participant M as 小程序
@@ -145,10 +154,10 @@ sequenceDiagram
 
 ### 6.2 天气与全天建议
 
-1. 小程序申请定位，只上传城市识别所需信息。
+1. 未定位时小程序展示通用天气占位；用户主动点击后申请定位，只上传城市识别所需信息，流程不依赖账号登录。
 2. 天气云函数查询供应商并写入短时缓存。
 3. 用户主动生成建议时，小程序只提交必要触发参数。
-4. 服务端读取当天完整行程、场景和体感偏好，生成稳定输入快照。
+4. 已登录时服务端读取当天完整行程、场景和体感偏好；游客态由客户端提交版本化示例行程、中性默认体感和必要天气上下文，服务端按公开建议契约生成稳定输入快照。
 5. LLM 在超时内返回结构化结果；失败时调用本地温度规则并标记 `source=rules`。
 6. 结果缓存到当天输入哈希，避免重复生成。
 
