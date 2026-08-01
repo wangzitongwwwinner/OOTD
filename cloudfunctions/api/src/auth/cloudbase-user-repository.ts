@@ -7,6 +7,7 @@ import {
   type AuthUserSummary,
   type Profile,
 } from '../../../../packages/contracts/src/index.ts';
+import { createDefaultNickname, needsDefaultNicknameUpgrade } from './default-profile.ts';
 import type {
   FindOrCreateWechatUserInput,
   UserRepository,
@@ -26,19 +27,24 @@ export class CloudBaseUserRepository implements UserRepository {
   ): Promise<AuthUserSummary> {
     const users = this.database.collection('users');
     const existing = await users
-      .where({ wechatOpenId: input.openId })
+      .where({ wechatOpenId: input.openId, wechatAppId: input.appId })
       .limit(1)
       .get();
     const stored = existing.data[0] as StoredUser | undefined;
 
     if (stored) {
+      const nickname = needsDefaultNicknameUpgrade(stored.nickname)
+        ? createDefaultNickname()
+        : stored.nickname;
       await users.doc(stored._id ?? stored.id).update({
         latestAgreement: input.agreement,
+        nickname,
         updatedAt: input.now,
         version: stored.version + 1,
       });
       return toPublicUser({
         ...stored,
+        nickname,
         updatedAt: input.now,
         version: stored.version + 1,
       });
@@ -49,7 +55,7 @@ export class CloudBaseUserRepository implements UserRepository {
       id,
       wechatOpenId: input.openId,
       wechatAppId: input.appId,
-      nickname: '微信用户',
+      nickname: createDefaultNickname(),
       recentFeelPreference: 'comfortable',
       latestAgreement: input.agreement,
       createdAt: input.now,

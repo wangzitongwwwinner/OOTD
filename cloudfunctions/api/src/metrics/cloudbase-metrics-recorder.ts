@@ -50,14 +50,19 @@ export class CloudBaseMetricsRecorder implements MetricsRecorder {
       .limit(1)
       .get();
     const user = userResult.data[0] as StoredUser | undefined;
-    if (!user) return;
+    const owner = user
+      ? { userId: user.id }
+      : {
+          guestOpenId: identity.openId,
+          guestAppId: identity.appId,
+        };
 
     await this.database
       .collection("recommendationSnapshots")
       .doc(input.recommendationId)
       .set({
         recommendationId: input.recommendationId,
-        userId: user.id,
+        ...owner,
         source: input.source,
         createdAt: input.createdAt,
       });

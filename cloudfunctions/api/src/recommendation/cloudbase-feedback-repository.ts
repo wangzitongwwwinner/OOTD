@@ -19,15 +19,31 @@ export class CloudBaseFeedbackRepository implements FeedbackRepository {
     const user = users.data[0] as { id?: string } | undefined;
     if (!user?.id) return { status: "recommendation_not_found" };
 
-    const snapshots = await this.database
-      .collection("recommendationSnapshots")
+    const recommendationSnapshots = this.database.collection(
+      "recommendationSnapshots",
+    );
+    const snapshots = await recommendationSnapshots
       .where({
         recommendationId: input.recommendationId,
         userId: user.id,
       })
       .limit(1)
       .get();
-    if (!snapshots.data.length) return { status: "recommendation_not_found" };
+    if (!snapshots.data.length) {
+      const guestSnapshots = await recommendationSnapshots
+        .where({
+          recommendationId: input.recommendationId,
+          guestOpenId: input.identity.openId,
+          guestAppId: input.identity.appId,
+        })
+        .limit(1)
+        .get();
+      if (!guestSnapshots.data.length)
+        return { status: "recommendation_not_found" };
+      await recommendationSnapshots
+        .doc(input.recommendationId)
+        .update({ userId: user.id });
+    }
 
     const feedback = {
       recommendationId: input.recommendationId,

@@ -23,6 +23,7 @@ import type { ItineraryRepository } from "./itineraries/repository.ts";
 import type { SceneRepository } from "./scenes/scene-repository.ts";
 import { getCurrentWeather } from "./weather/current-weather.ts";
 import { orchestrateRecommendation } from "./recommendation/orchestrate-recommendation.ts";
+import { generateGenericRecommendation } from "./recommendation/generic-recommendation.ts";
 import { saveRecommendationFeedback } from "./recommendation/manage-feedback.ts";
 import type { FeedbackRepository } from "./recommendation/feedback-repository.ts";
 import type { LlmProvider } from "./recommendation/llm-provider.ts";
@@ -518,6 +519,18 @@ export async function routeRequest(
     if (!itineraryRepository)
       return failure("INTERNAL_ERROR", "行程服务暂时不可用", true, requestId);
     return deleteItinerary(id, identity, itineraryRepository, requestId);
+  }
+
+  if (
+    event.method === "POST" &&
+    event.path === "/v1/recommendations/generic"
+  ) {
+    return generateGenericRecommendation(
+      llmProvider,
+      requestId,
+      identity,
+      metrics,
+    );
   }
 
   if (event.method === "POST" && event.path === "/v1/recommendations") {

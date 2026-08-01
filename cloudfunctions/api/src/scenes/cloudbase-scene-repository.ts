@@ -20,33 +20,16 @@ export class CloudBaseSceneRepository implements SceneRepository {
   constructor(private readonly database: Db) {}
 
   async findCustomByIdentity(identity: TrustedIdentity): Promise<Scene[]> {
-    await this.ensurePresetsSeeded();
+    const userId = await this.ensureUserExamplesInitialized(identity);
+    if (!userId) return [];
 
-    const users = await this.database
-      .collection('users')
-      .where({ wechatOpenId: identity.openId, wechatAppId: identity.appId })
-      .limit(1)
+    const result = await this.database
+      .collection('scenes')
+      .where({ userId })
+      .orderBy('updatedAt', 'desc')
+      .limit(200)
       .get();
-    const user = users.data[0] as { id?: unknown } | undefined;
-    if (!user || typeof user.id !== 'string') return [];
-
-    const [customResult, presetResult] = await Promise.all([
-      this.database
-        .collection('scenes')
-        .where({ userId: user.id, isPreset: false })
-        .orderBy('updatedAt', 'desc')
-        .limit(200)
-        .get(),
-      this.database
-        .collection('scenes')
-        .where({ isPreset: true })
-        .limit(20)
-        .get(),
-    ]);
-    return [
-      ...presetResult.data.map((stored: unknown) => toPublicScene(stored)),
-      ...customResult.data.map((stored: unknown) => toPublicScene(stored)),
-    ];
+    return result.data.map((stored: unknown) => toPublicScene(stored));
   }
 
   async create(input: SceneCreateInput, identity: TrustedIdentity): Promise<Scene> {
@@ -55,7 +38,7 @@ export class CloudBaseSceneRepository implements SceneRepository {
       throw new Error('场景输入校验失败，请检查后重试');
     }
 
-    const userId = await this.resolveUserId(identity);
+    const userId = await this.ensureUserExamplesInitialized(identity);
     if (!userId) throw new Error('用户不存在，请先登录');
 
     const id = this.generateId();
@@ -75,26 +58,10 @@ export class CloudBaseSceneRepository implements SceneRepository {
   }
 
   async findById(id: string, identity: TrustedIdentity): Promise<Scene | undefined> {
-    await this.ensurePresetsSeeded();
-
-    const userId = await this.resolveUserId(identity);
+    const userId = await this.ensureUserExamplesInitialized(identity);
     if (!userId) return undefined;
-
-    // Query by id first, then filter by userId OR isPreset
-    const result = await this.database
-      .collection('scenes')
-      .where({ id })
-      .limit(1)
-      .get();
-
-    const stored = result.data[0];
-    if (!stored) return undefined;
-    const s = stored as Record<string, unknown>;
-    // Allow access if it's a preset OR belongs to this user
-    if (s.isPreset === true || s.userId === userId) {
-      return toPublicScene(stored);
-    }
-    return undefined;
+    const stored = await this.findOwnedStoredScene(id, userId);
+    return stored ? toPublicScene(stored) : undefined;
   }
 
   async update(
@@ -102,29 +69,15 @@ export class CloudBaseSceneRepository implements SceneRepository {
     input: SceneUpdateInput,
     identity: TrustedIdentity,
   ): Promise<UpdateSceneResult> {
-    await this.ensurePresetsSeeded();
-
     const validation = updateSceneRequestSchema.safeParse(input);
     if (!validation.success) {
       throw new Error('场景输入校验失败，请检查后重试');
     }
 
-    const userId = await this.resolveUserId(identity);
-
-    // Query by id first, then verify ownership
-    const result = await this.database
-      .collection('scenes')
-      .where({ id })
-      .limit(1)
-      .get();
-
-    const stored = result.data[0] as Record<string, unknown> | undefined;
+    const userId = await this.ensureUserExamplesInitialized(identity);
+    if (!userId) return { status: 'not_found' };
+    const stored = await this.findOwnedStoredScene(id, userId);
     if (!stored) return { status: 'not_found' };
-
-    // Only the owner (or a preset that anyone can edit) can update
-    if (stored.isPreset !== true && stored.userId !== userId) {
-      return { status: 'not_found' };
-    }
 
     const currentVersion = stored.version as number;
     if (currentVersion !== input.expectedVersion) {
@@ -141,68 +94,83 @@ export class CloudBaseSceneRepository implements SceneRepository {
     delete updated.expectedVersion;
     delete updated.userId;
 
-    const query = stored.isPreset === true
-      ? this.database.collection('scenes').where({ id })
-      : this.database.collection('scenes').where({ id, userId });
+    const storedId = String(stored.id);
+    await this.database
+      .collection('scenes')
+      .where({ id: storedId, userId })
+      .update(updated);
 
-    await query.update(updated);
-
-    const fresh = await this.findById(id, identity);
+    const fresh = await this.findById(storedId, identity);
     if (!fresh) return { status: 'not_found' };
     return { status: 'updated', scene: fresh };
   }
 
   async delete(id: string, identity: TrustedIdentity): Promise<DeleteSceneResult> {
-    await this.ensurePresetsSeeded();
-    const userId = await this.resolveUserId(identity);
-
-    const result = await this.database
-      .collection('scenes')
-      .where({ id })
-      .limit(1)
-      .get();
-
-    const stored = result.data[0] as Record<string, unknown> | undefined;
+    const userId = await this.ensureUserExamplesInitialized(identity);
+    if (!userId) return { status: 'not_found' };
+    const stored = await this.findOwnedStoredScene(id, userId);
     if (!stored) return { status: 'not_found' };
-
-    if (stored.isPreset !== true && stored.userId !== userId) {
-      return { status: 'not_found' };
-    }
 
     await this.database
       .collection('scenes')
-      .where({ id })
+      .where({ id: String(stored.id), userId })
       .remove();
 
     return { status: 'deleted' };
   }
 
-  private async ensurePresetsSeeded(): Promise<void> {
-    try {
-      const existing = await this.database
-        .collection('scenes')
-        .where({ isPreset: true })
-        .limit(1)
-        .get();
-      if (existing.data.length > 0) return;
-
-      for (const preset of PRESET_SCENES) {
-        const doc: Record<string, unknown> = { ...preset };
-        await this.database.collection('scenes').add(doc);
-      }
-    } catch {
-      // Seed failure is non-fatal; presets will be seeded on next attempt
-    }
-  }
-
-  private async resolveUserId(identity: TrustedIdentity): Promise<string | undefined> {
-    const users = await this.database
-      .collection('users')
+  private async ensureUserExamplesInitialized(
+    identity: TrustedIdentity,
+  ): Promise<string | undefined> {
+    const users = this.database.collection('users');
+    const result = await users
       .where({ wechatOpenId: identity.openId, wechatAppId: identity.appId })
       .limit(1)
       .get();
-    const user = users.data[0] as { id?: unknown } | undefined;
-    return user && typeof user.id === 'string' ? user.id : undefined;
+    const user = result.data[0] as
+      | { _id?: string; id?: unknown; sceneExamplesInitializedVersion?: unknown }
+      | undefined;
+    if (!user || typeof user.id !== 'string') return undefined;
+    if (user.sceneExamplesInitializedVersion === 1) return user.id;
+
+    const scenes = this.database.collection('scenes');
+    for (const preset of PRESET_SCENES) {
+      const existing = await scenes
+        .where({ userId: user.id, sourcePresetId: preset.id })
+        .limit(1)
+        .get();
+      if (existing.data.length) continue;
+      const id = `${preset.id}__${user.id}`;
+      await scenes.doc(id).set({
+        ...preset,
+        id,
+        userId: user.id,
+        sourcePresetId: preset.id,
+      });
+    }
+
+    const marker = { sceneExamplesInitializedVersion: 1 };
+    if (user._id) await users.doc(user._id).update(marker);
+    else
+      await users
+        .where({ wechatOpenId: identity.openId, wechatAppId: identity.appId })
+        .update(marker);
+    return user.id;
+  }
+
+  private async findOwnedStoredScene(
+    id: string,
+    userId: string,
+  ): Promise<Record<string, unknown> | undefined> {
+    const scenes = this.database.collection('scenes');
+    const direct = await scenes.where({ id, userId }).limit(1).get();
+    const stored = direct.data[0] as Record<string, unknown> | undefined;
+    if (stored) return stored;
+    const presetCopy = await scenes
+      .where({ sourcePresetId: id, userId })
+      .limit(1)
+      .get();
+    return presetCopy.data[0] as Record<string, unknown> | undefined;
   }
 
   private generateId(): string {
