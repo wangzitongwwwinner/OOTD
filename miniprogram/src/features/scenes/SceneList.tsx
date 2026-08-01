@@ -2,6 +2,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Image } from '@tarojs/components';
 
+import { useOptionalAuth } from '../auth/AuthGate';
+import { GUEST_SCENES } from './guest-scenes';
 import {
   sceneService,
   type Scene,
@@ -32,6 +34,8 @@ interface Props {
 }
 
 export function SceneList({ service = sceneService }: Props) {
+  const auth = useOptionalAuth();
+  const isGuest = Boolean(auth && auth.status !== 'authenticated');
   const [scenes, setScenes] = useState<Scene[]>();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -57,6 +61,8 @@ export function SceneList({ service = sceneService }: Props) {
   }, [service]);
 
   useEffect(() => {
+    if (isGuest) return;
+
     let active = true;
     service.list().then(
       (items) => {
@@ -75,9 +81,21 @@ export function SceneList({ service = sceneService }: Props) {
     return () => {
       active = false;
     };
-  }, [service]);
+  }, [isGuest, service]);
 
-  async function handleCreate(input: SceneCreateInput) {
+  function handleCreate(input: SceneCreateInput) {
+    if (isGuest && auth) {
+      auth.requestLogin({
+        title: '登录后保存新场景',
+        description: '登录成功后将自动保存您已填写的场景信息。',
+        action: () => persistCreate(input),
+      });
+      return;
+    }
+    void persistCreate(input);
+  }
+
+  async function persistCreate(input: SceneCreateInput) {
     setSaving(true);
     setFormError('');
     try {
@@ -95,16 +113,29 @@ export function SceneList({ service = sceneService }: Props) {
     }
   }
 
-  async function handleUpdate(input: SceneCreateInput) {
+  function handleUpdate(input: SceneCreateInput) {
     if (!editingScene) return;
+    const scene = editingScene;
+    if (isGuest && auth) {
+      auth.requestLogin({
+        title: '登录后保存场景修改',
+        description: '登录成功后将自动保存您对当前场景的修改。',
+        action: () => persistUpdate(scene, input),
+      });
+      return;
+    }
+    void persistUpdate(scene, input);
+  }
+
+  async function persistUpdate(scene: Scene, input: SceneCreateInput) {
     setSaving(true);
     setFormError('');
     try {
       const updateInput: SceneUpdateInput = {
         ...input,
-        expectedVersion: editingScene.version,
+        expectedVersion: scene.version,
       };
-      await service.update(editingScene.id, updateInput);
+      await service.update(scene.id, updateInput);
       setFormSuccess('已保存');
       setShowForm(false);
       setEditingScene(undefined);
@@ -132,7 +163,19 @@ export function SceneList({ service = sceneService }: Props) {
     setShowForm(true);
   }
 
-  async function handleDelete(scene: Scene) {
+  function handleDelete(scene: Scene) {
+    if (isGuest && auth) {
+      auth.requestLogin({
+        title: '登录后删除场景',
+        description: `登录成功后将自动删除“${scene.name}”，取消登录不会产生修改。`,
+        action: () => persistDelete(scene),
+      });
+      return;
+    }
+    void persistDelete(scene);
+  }
+
+  async function persistDelete(scene: Scene) {
     setDeleting(scene.id);
     try {
       await service.delete(scene.id);
@@ -150,8 +193,10 @@ export function SceneList({ service = sceneService }: Props) {
     setEditingScene(undefined);
   }
 
-  if (loading && !scenes) return <Text>正在加载场景…</Text>;
-  if (!scenes) {
+  const displayedScenes = isGuest ? GUEST_SCENES : scenes;
+
+  if (loading && !displayedScenes) return <Text>正在加载场景…</Text>;
+  if (!displayedScenes) {
     return (
       <View className="scene-list__error">
         <Text>{error}</Text>
@@ -179,9 +224,9 @@ export function SceneList({ service = sceneService }: Props) {
   return (
     <View className="scene-list">
       {error ? <Text className="scene-list__global-error">{error}</Text> : null}
-      {scenes.length ? (
+      {displayedScenes.length ? (
         <View className="scene-list__cards">
-          {scenes.map((scene) => (
+          {displayedScenes.map((scene) => (
             <View className="scene-list__card" key={scene.id}>
               <View className="scene-list__icon-wrap">
                 <Image

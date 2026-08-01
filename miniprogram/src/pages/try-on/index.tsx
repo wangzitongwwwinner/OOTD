@@ -6,9 +6,11 @@ import {
   View,
 } from '@tarojs/components';
 import { useEffect, useRef, useState } from 'react';
-import Taro, { useDidShow } from '@tarojs/taro';
+import Taro from '@tarojs/taro';
 
 import { AuthenticatedPage } from '../../features/auth/AuthenticatedPage';
+import { useOptionalAuth } from '../../features/auth/AuthGate';
+import { GUEST_CLOTHING } from '../../features/wardrobe/guest-clothing';
 import {
   listClothing,
   type PublicClothing,
@@ -32,6 +34,8 @@ import { useSyncTabBar } from '../../custom-tab-bar/active-tab';
 import './index.scss';
 
 export default function TryOnPage() {
+  const auth = useOptionalAuth();
+  const isGuest = Boolean(auth && auth.status !== 'authenticated');
   useSyncTabBar('tryon');
   const [wardrobe, setWardrobe] = useState<PublicClothing[]>([]);
   const [nodes, setNodes] = useState<OutfitNode[]>([]);
@@ -41,18 +45,24 @@ export default function TryOnPage() {
   const pinchRef = useRef<{ dist: number; scale: number }>();
   const [canvasSize, setCanvasSize] = useState({ w: 375, h: 500 });
 
-  useDidShow(() => {
+  async function refreshPersonalWardrobe() {
+    const items = await listClothing();
+    setWardrobe(items);
+    setNodes([]);
+    setSelectedNodeId(undefined);
+    return items.length > 0;
+  }
+
+  useEffect(() => {
+    if (isGuest) return;
     void listClothing()
       .then((items) => {
-        const availableIds = new Set(items.map((item) => item.id));
         setWardrobe(items);
-        setNodes((current) =>
-          current.filter((node) => availableIds.has(node.clothingId)),
-        );
+        setNodes([]);
+        setSelectedNodeId(undefined);
       })
       .catch(() => {});
-    setOutfitRefreshKey((current) => current + 1);
-  });
+  }, [isGuest]);
 
   useEffect(() => {
     const query = Taro.createSelectorQuery();
@@ -80,8 +90,10 @@ export default function TryOnPage() {
     setSelectedNodeId((current) => (current === nodeId ? undefined : current));
   }
 
+  const displayedWardrobe = isGuest ? [...GUEST_CLOTHING] : wardrobe;
+
   function getClothing(id: string) {
-    return wardrobe.find((c) => c.id === id);
+    return displayedWardrobe.find((c) => c.id === id);
   }
 
   return (
@@ -242,25 +254,27 @@ export default function TryOnPage() {
               nodes={nodes}
               onLoad={setNodes}
               refreshKey={outfitRefreshKey}
+              onGuestAuthenticated={refreshPersonalWardrobe}
               onSaved={() => {
                 setOutfitRefreshKey((current) => current + 1);
                 setActiveTab('outfits');
               }}
             />
 
-            <TryOnGarmentCatalog items={wardrobe} onAdd={handleAdd} />
+            <TryOnGarmentCatalog items={displayedWardrobe} onAdd={handleAdd} />
           </>
         ) : (
           <OutfitManager
             mode="list"
             nodes={nodes}
-            clothing={wardrobe}
+            clothing={displayedWardrobe}
             canvasSize={canvasSize}
             onLoad={(loadedNodes) => {
               setNodes(loadedNodes);
               setActiveTab('canvas');
             }}
             refreshKey={outfitRefreshKey}
+            onGuestAuthenticated={refreshPersonalWardrobe}
           />
         )}
       </View>

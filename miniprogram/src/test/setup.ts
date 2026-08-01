@@ -40,17 +40,26 @@ vi.mock('@tarojs/components', () => ({
     loading,
     openType,
     onOpenSetting,
+    onChooseAvatar,
     ...props
   }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
     loading?: boolean;
     openType?: string;
     onOpenSetting?: (event: unknown) => void;
+    onChooseAvatar?: (event: unknown) => void;
   }) => {
     return React.createElement('button', {
       ...props,
+      onDoubleClick: onOpenSetting
+        ? () =>
+            onOpenSetting({
+              detail: { authSetting: { 'scope.userLocation': true } },
+            })
+        : props.onDoubleClick,
       'data-loading': String(Boolean(loading)),
       'data-open-type': openType,
       'data-has-open-setting-handler': String(Boolean(onOpenSetting)),
+      'data-has-choose-avatar-handler': String(Boolean(onChooseAvatar)),
     });
   },
   Text: (props: React.HTMLAttributes<HTMLSpanElement>) =>

@@ -1,11 +1,12 @@
 type VisibilityListener = (authenticated: boolean) => void;
 
-let authenticated = false;
+let authenticated = true;
 const listeners = new Set<VisibilityListener>();
 
 export function setTabBarAuthenticated(next: boolean) {
-  authenticated = next;
-  listeners.forEach((listener) => listener(next));
+  void next;
+  authenticated = true;
+  listeners.forEach((listener) => listener(true));
 }
 
 export function getTabBarAuthenticated() {

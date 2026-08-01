@@ -5,10 +5,15 @@ import './HomeHeader.scss';
 interface Props {
   nickname: string;
   avatarFileId?: string;
+  isGuest?: boolean;
   onOpenProfile(): void;
 }
 
-export function HomeHeader({ avatarFileId, onOpenProfile }: Props) {
+export function HomeHeader({
+  avatarFileId,
+  isGuest = false,
+  onOpenProfile,
+}: Props) {
   return (
     <View className="home-header">
       <View className="home-header__brand">
@@ -21,7 +26,7 @@ export function HomeHeader({ avatarFileId, onOpenProfile }: Props) {
       </View>
       <Button
         className="home-header__profile"
-        aria-label="打开用户中心"
+        aria-label={isGuest ? '登录后进入用户中心' : '打开用户中心'}
         onClick={onOpenProfile}
       >
         {avatarFileId ? (
@@ -31,7 +36,11 @@ export function HomeHeader({ avatarFileId, onOpenProfile }: Props) {
             mode="aspectFill"
           />
         ) : (
-          <Text className="home-header__avatar-fallback">⌑</Text>
+          <Image
+            className="home-header__avatar"
+            src="/assets/icons/profile-default.svg"
+            mode="aspectFill"
+          />
         )}
       </Button>
     </View>

@@ -422,6 +422,13 @@
   line-height: 44px;
 }
 
+.outfit-save-modal__message {
+  display: block;
+  margin-top: 7px;
+  color: #b42318;
+  font-size: 12px;
+}
+
 .outfit-save-modal__seasons {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

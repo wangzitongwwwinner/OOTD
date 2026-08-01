@@ -1,6 +1,8 @@
 ﻿import { Button, Text, View } from '@tarojs/components';
 import { useEffect, useState } from 'react';
 import { Image } from '@tarojs/components';
+import { useOptionalAuth } from '../auth/AuthGate';
+import { GUEST_SCENES } from '../scenes/guest-scenes';
 import { sceneService, type Scene } from '../scenes/scene-service';
 import {
   itineraryService,
@@ -8,6 +10,7 @@ import {
   type ItineraryCreateInput,
 } from './itinerary-service';
 import { ItineraryForm } from './ItineraryForm';
+import { GUEST_ITINERARIES } from './guest-itineraries';
 import './TodayItinerary.scss';
 
 type SceneDataService = Pick<typeof sceneService, 'list'>;
@@ -22,6 +25,8 @@ export function TodayItinerary({
   sceneDataService = sceneService,
   itineraryDataService = itineraryService,
 }: TodayItineraryProps = {}) {
+  const auth = useOptionalAuth();
+  const isGuest = Boolean(auth && auth.status !== 'authenticated');
   const [items, setItems] = useState<Itinerary[]>();
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [error, setError] = useState('');
@@ -53,6 +58,7 @@ export function TodayItinerary({
   }
 
   useEffect(() => {
+    if (isGuest) return;
     let a = true;
     itineraryDataService
       .listToday()
@@ -71,8 +77,9 @@ export function TodayItinerary({
     return () => {
       a = false;
     };
-  }, [itineraryDataService]);
+  }, [isGuest, itineraryDataService]);
   useEffect(() => {
+    if (isGuest) return;
     let active = true;
     sceneDataService
       .list()
@@ -85,9 +92,22 @@ export function TodayItinerary({
     return () => {
       active = false;
     };
-  }, [sceneDataService]);
+  }, [isGuest, sceneDataService]);
 
-  async function handleCreate(input: ItineraryCreateInput) {
+  function handleCreate(input: ItineraryCreateInput) {
+    if (isGuest && auth) {
+      auth.requestLogin({
+        title: '\u767b\u5f55\u540e\u6dfb\u52a0\u4eca\u65e5\u884c\u7a0b',
+        description:
+          '\u767b\u5f55\u6210\u529f\u540e\u5c06\u81ea\u52a8\u6dfb\u52a0\u60a8\u5df2\u586b\u5199\u7684\u884c\u7a0b\u3002',
+        action: () => persistCreate(input),
+      });
+      return;
+    }
+    void persistCreate(input);
+  }
+
+  async function persistCreate(input: ItineraryCreateInput) {
     setSaving(true);
     setFormError('');
     try {
@@ -102,20 +122,34 @@ export function TodayItinerary({
     }
   }
 
-  async function handleUpdate(input: ItineraryCreateInput) {
+  function handleUpdate(input: ItineraryCreateInput) {
     if (!editing) return;
+    const item = editing;
+    if (isGuest && auth) {
+      auth.requestLogin({
+        title: '\u767b\u5f55\u540e\u4fdd\u5b58\u884c\u7a0b\u4fee\u6539',
+        description:
+          '\u767b\u5f55\u6210\u529f\u540e\u5c06\u81ea\u52a8\u4fdd\u5b58\u60a8\u5bf9\u5f53\u524d\u884c\u7a0b\u7684\u4fee\u6539\u3002',
+        action: () => persistUpdate(item, input),
+      });
+      return;
+    }
+    void persistUpdate(item, input);
+  }
+
+  async function persistUpdate(item: Itinerary, input: ItineraryCreateInput) {
     setSaving(true);
     setFormError('');
     try {
-      await itineraryDataService.update(editing.id, {
+      await itineraryDataService.update(item.id, {
         ...input,
-        expectedVersion: editing.version,
+        expectedVersion: item.version,
       });
       setShowForm(false);
       setEditing(undefined);
       await load();
     } catch (e) {
-      setFormError(e instanceof Error ? e.message : '保存失败');
+      setFormError(e instanceof Error ? e.message : '\u4fdd\u5b58\u5931\u8d25');
     } finally {
       setSaving(false);
     }
@@ -124,7 +158,7 @@ export function TodayItinerary({
   async function openCreate() {
     setEditing(undefined);
     setFormError('');
-    await loadScenes();
+    if (!isGuest) await loadScenes();
     setShowForm(true);
   }
   function openEdit(item: Itinerary) {
@@ -138,19 +172,38 @@ export function TodayItinerary({
     setEditing(undefined);
   }
 
-  async function handleDelete(item: Itinerary) {
+  function handleDelete(item: Itinerary) {
+    if (isGuest && auth) {
+      auth.requestLogin({
+        title: '\u767b\u5f55\u540e\u5220\u9664\u884c\u7a0b',
+        description:
+          '\u767b\u5f55\u6210\u529f\u540e\u5c06\u81ea\u52a8\u5220\u9664\u201c' +
+          item.sceneName +
+          '\u201d\uff0c\u53d6\u6d88\u767b\u5f55\u4e0d\u4f1a\u4ea7\u751f\u4fee\u6539\u3002',
+        action: () => persistDelete(item),
+      });
+      return;
+    }
+    void persistDelete(item);
+  }
+
+  async function persistDelete(item: Itinerary) {
     setDeleting(item.id);
     try {
       await itineraryDataService.delete(item.id);
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : '删除失败');
+      setError(e instanceof Error ? e.message : '\u5220\u9664\u5931\u8d25');
     } finally {
       setDeleting(undefined);
     }
   }
 
-  if (loading) return <Text className="itinerary__loading">正在加载行程…</Text>;
+  const displayedItems = isGuest ? GUEST_ITINERARIES : items;
+  const displayedScenes = isGuest ? GUEST_SCENES : scenes;
+
+  if (loading && !displayedItems)
+    return <Text className="itinerary__loading">正在加载行程…</Text>;
 
   if (showForm) {
     return (
@@ -158,7 +211,7 @@ export function TodayItinerary({
         <ItineraryForm
           mode={editing ? 'edit' : 'create'}
           item={editing}
-          scenes={scenes}
+          scenes={[...displayedScenes]}
           onSave={editing ? handleUpdate : handleCreate}
           onClose={closeForm}
           saving={saving}
@@ -168,7 +221,7 @@ export function TodayItinerary({
     );
   }
 
-  if (items?.length) {
+  if (displayedItems?.length) {
     return (
       <View className="itinerary">
         <View className="itinerary__header">
@@ -185,7 +238,7 @@ export function TodayItinerary({
             ＋ 添加行程
           </Button>
         </View>
-        {items.map((item) => (
+        {displayedItems.map((item) => (
           <View className="itinerary__item" key={item.id}>
             <View className="itinerary__time-group">
               <Text className="itinerary__time">{item.startTime}</Text>
@@ -199,9 +252,13 @@ export function TodayItinerary({
             <View className="itinerary__content">
               <View className="itinerary__scene-line">
                 <Text className="itinerary__scene">{item.sceneName}</Text>
-                {scenes.find((scene) => scene.id === item.sceneId)?.note ? (
+                {displayedScenes.find((scene) => scene.id === item.sceneId)
+                  ?.note ? (
                   <Text className="itinerary__note">
-                    {scenes.find((scene) => scene.id === item.sceneId)?.note}
+                    {
+                      displayedScenes.find((scene) => scene.id === item.sceneId)
+                        ?.note
+                    }
                   </Text>
                 ) : null}
               </View>
@@ -209,10 +266,13 @@ export function TodayItinerary({
                 <Text className="itinerary__meta">
                   预估环境：{item.estimatedTemperatureCelsius}°C
                 </Text>
-                {scenes.find((scene) => scene.id === item.sceneId)?.feel ? (
+                {displayedScenes.find((scene) => scene.id === item.sceneId)
+                  ?.feel ? (
                   <Text
                     className={`itinerary__feel itinerary__feel--${
-                      scenes.find((scene) => scene.id === item.sceneId)!.feel
+                      displayedScenes.find(
+                        (scene) => scene.id === item.sceneId,
+                      )!.feel
                     }`}
                   >
                     体感：
@@ -222,7 +282,11 @@ export function TodayItinerary({
                         comfortable: '舒适',
                         stuffy: '闷热',
                         cool: '微凉',
-                      }[scenes.find((scene) => scene.id === item.sceneId)!.feel]
+                      }[
+                        displayedScenes.find(
+                          (scene) => scene.id === item.sceneId,
+                        )!.feel
+                      ]
                     }
                   </Text>
                 ) : null}

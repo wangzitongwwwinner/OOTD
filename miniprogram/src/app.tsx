@@ -2,6 +2,8 @@ import type { PropsWithChildren } from 'react';
 import { useEffect } from 'react';
 import Taro from '@tarojs/taro';
 
+import { AuthProvider } from './features/auth/AuthGate';
+
 import './app.scss';
 
 function App({ children }: PropsWithChildren) {
@@ -12,7 +14,7 @@ function App({ children }: PropsWithChildren) {
     });
   }, []);
 
-  return children;
+  return <AuthProvider>{children}</AuthProvider>;
 }
 
 export default App;

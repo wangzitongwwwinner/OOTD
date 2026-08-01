@@ -1,6 +1,7 @@
 import { Button, Text, View } from '@tarojs/components';
 import { useState } from 'react';
 
+import { useOptionalAuth } from '../auth/AuthGate';
 import { feedbackService, type RecommendationRating } from './feedback-service';
 import './RecommendationFeedback.scss';
 
@@ -23,13 +24,13 @@ export function RecommendationFeedback({
   recommendationId,
   service = feedbackService,
 }: Props) {
+  const auth = useOptionalAuth();
   const [selected, setSelected] = useState<RecommendationRating>();
   const [pending, setPending] = useState<RecommendationRating>();
   const [failed, setFailed] = useState<RecommendationRating>();
   const [error, setError] = useState('');
 
-  async function choose(rating: RecommendationRating) {
-    if (pending) return;
+  async function save(rating: RecommendationRating) {
     setPending(rating);
     setFailed(undefined);
     setError('');
@@ -42,6 +43,20 @@ export function RecommendationFeedback({
     } finally {
       setPending(undefined);
     }
+  }
+
+  function choose(rating: RecommendationRating) {
+    if (pending) return;
+    if (auth && auth.status !== 'authenticated') {
+      auth.requestLogin({
+        title: '登录后提交建议评价',
+        description:
+          '登录成功后将自动提交您刚才选择的评价，当前建议会为您保留。',
+        action: () => save(rating),
+      });
+      return;
+    }
+    void save(rating);
   }
 
   return (
@@ -62,7 +77,7 @@ export function RecommendationFeedback({
                 : ''
             }`}
             disabled={Boolean(pending)}
-            onClick={() => void choose(option.rating)}
+            onClick={() => choose(option.rating)}
           >
             <Text className="recommendation-feedback__icon">{option.icon}</Text>
             {pending === option.rating ? '保存中…' : option.label}
@@ -72,7 +87,7 @@ export function RecommendationFeedback({
       {error ? (
         <Button
           className="recommendation-feedback__retry"
-          onClick={() => failed && void choose(failed)}
+          onClick={() => failed && choose(failed)}
         >
           {error}，点击重试
         </Button>

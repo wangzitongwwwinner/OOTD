@@ -2,6 +2,7 @@ import { Button, Input, Picker, Text, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useEffect, useState } from 'react';
 
+import { useOptionalAuth } from '../auth/AuthGate';
 import type { PublicClothing } from '../wardrobe/clothing-service';
 import type { OutfitNode } from './outfit-model';
 import {
@@ -10,6 +11,7 @@ import {
   type SavedOutfit,
 } from './outfit-service';
 import { SavedOutfitLookbook } from './SavedOutfitLookbook';
+import { GUEST_OUTFITS } from './guest-outfit';
 
 interface OutfitManagerService {
   create(input: CreateOutfitInput): Promise<SavedOutfit>;
@@ -26,6 +28,7 @@ interface OutfitManagerProps {
   onSaved?(): void;
   clothing?: PublicClothing[];
   canvasSize?: { w: number; h: number };
+  onGuestAuthenticated?(): Promise<boolean>;
 }
 
 export function OutfitManager({
@@ -37,7 +40,10 @@ export function OutfitManager({
   onSaved,
   clothing = [],
   canvasSize,
+  onGuestAuthenticated,
 }: OutfitManagerProps) {
+  const auth = useOptionalAuth();
+  const isGuest = Boolean(auth && auth.status !== 'authenticated');
   const [name, setName] = useState('');
   const [seasonTagsText, setSeasonTagsText] = useState('');
   const [colorTagsText, setColorTagsText] = useState('');
@@ -45,6 +51,7 @@ export function OutfitManager({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [isNameFocused, setIsNameFocused] = useState(false);
   const colors = [
     '白色',
     '黑色',
@@ -57,7 +64,7 @@ export function OutfitManager({
   ];
 
   useEffect(() => {
-    if (mode === 'save') return;
+    if (mode === 'save' || isGuest) return;
     let active = true;
     void service
       .list()
@@ -73,7 +80,7 @@ export function OutfitManager({
     return () => {
       active = false;
     };
-  }, [mode, refreshKey, service]);
+  }, [isGuest, mode, refreshKey, service]);
 
   async function handleSave() {
     if (saving) return;
@@ -83,6 +90,24 @@ export function OutfitManager({
     }
     if (!name.trim()) {
       setMessage('请填写搭配名称');
+      return;
+    }
+
+    if (isGuest && auth) {
+      auth.requestLogin({
+        title: '\u767b\u5f55\u540e\u4fdd\u5b58\u4e2a\u4eba\u642d\u914d',
+        description:
+          '\u6e38\u5ba2\u793a\u4f8b\u8863\u7269\u4e0d\u4f1a\u5199\u5165\u8d26\u53f7\uff0c\u767b\u5f55\u540e\u5c06\u5207\u6362\u4e3a\u4e2a\u4eba\u8863\u6a71\u3002',
+        action: async () => {
+          const hasClothing = (await onGuestAuthenticated?.()) ?? false;
+          setShowSaveModal(false);
+          setMessage(
+            hasClothing
+              ? '\u5df2\u5207\u6362\u4e3a\u4e2a\u4eba\u8863\u6a71\uff0c\u8bf7\u4f7f\u7528\u4e2a\u4eba\u8863\u7269\u91cd\u65b0\u642d\u914d'
+              : '\u8bf7\u5148\u5f55\u5165\u8863\u7269',
+          );
+        },
+      });
       return;
     }
 
@@ -148,6 +173,22 @@ export function OutfitManager({
   }
 
   async function handleDelete(outfit: SavedOutfit) {
+    if (isGuest && auth) {
+      auth.requestLogin({
+        title: '\u767b\u5f55\u540e\u7ba1\u7406\u6211\u7684\u642d\u914d',
+        description:
+          '\u6e38\u5ba2\u9ed8\u8ba4\u642d\u914d\u4ec5\u7528\u4e8e\u4f53\u9a8c\uff0c\u767b\u5f55\u540e\u5c06\u663e\u793a\u60a8\u7684\u4e2a\u4eba\u642d\u914d\u3002',
+        action: async () => {
+          await onGuestAuthenticated?.();
+          try {
+            setItems(await service.list());
+          } catch {
+            setItems([]);
+          }
+        },
+      });
+      return;
+    }
     if (!service.delete) return;
     const { confirm } = await Taro.showModal({
       title: '删除搭配',
@@ -203,7 +244,7 @@ export function OutfitManager({
               </Button>
             </>
           )}
-          {message ? (
+          {message && !showSaveModal ? (
             <Text className="outfit-manager__message">{message}</Text>
           ) : null}
           {showSaveModal ? (
@@ -221,10 +262,20 @@ export function OutfitManager({
                 <Text className="outfit-save-modal__label">搭配名称</Text>
                 <Input
                   value={name}
-                  placeholder="如：秋日复古通勤、夏日空调房搭配"
+                  placeholder={
+                    isNameFocused ? '' : '如：秋日复古通勤、夏日空调房搭配'
+                  }
                   maxlength={80}
-                  onInput={(event) => setName(event.detail.value)}
+                  onFocus={() => setIsNameFocused(true)}
+                  onBlur={() => setIsNameFocused(false)}
+                  onInput={(event) => {
+                    setName(event.detail.value);
+                    if (message === '请填写搭配名称') setMessage('');
+                  }}
                 />
+                {message ? (
+                  <Text className="outfit-save-modal__message">{message}</Text>
+                ) : null}
                 <Text className="outfit-save-modal__label">适用季节</Text>
                 <View className="outfit-save-modal__seasons">
                   {['春天', '夏天', '秋天', '冬天'].map((season) => (
@@ -272,7 +323,7 @@ export function OutfitManager({
       {mode !== 'save' ? (
         <View className="outfit-manager__list">
           <SavedOutfitLookbook
-            outfits={items}
+            outfits={isGuest ? [...GUEST_OUTFITS] : items}
             clothing={clothing}
             canvasSize={canvasSize}
             onLoad={handleLoad}

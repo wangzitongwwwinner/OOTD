@@ -47,6 +47,8 @@ export function ProfileCenter({
   const [editingName, setEditingName] = useState(false);
   const [draftName, setDraftName] = useState(nickname);
   const [savingProfile, setSavingProfile] = useState(false);
+  const [avatarSourceOpen, setAvatarSourceOpen] = useState(false);
+  const [pendingAvatarPath, setPendingAvatarPath] = useState('');
   const [locationPermission, setLocationPermission] = useState<
     'unknown' | 'allowed' | 'denied'
   >('unknown');
@@ -110,29 +112,61 @@ export function ProfileCenter({
     }
   }
 
-  async function chooseAvatar() {
-    const choice = await Taro.showActionSheet({
-      itemList: avatarFileId ? ['查看头像', '更换头像'] : ['选择头像'],
-    });
-    if (avatarFileId && choice.tapIndex === 0) {
-      await Taro.previewImage({ current: avatarFileId, urls: [avatarFileId] });
-      return;
+  async function openAvatarMenu() {
+    try {
+      const choice = await Taro.showActionSheet({
+        itemList: ['查看头像', '修改头像'],
+      });
+      if (choice.tapIndex === 0) {
+        const currentAvatar =
+          avatarFileId || '/assets/icons/profile-default.svg';
+        await Taro.previewImage({
+          current: currentAvatar,
+          urls: [currentAvatar],
+        });
+        return;
+      }
+      if (choice.tapIndex === 1) setAvatarSourceOpen(true);
+    } catch {
+      // 用户取消底部操作，不改变当前头像。
     }
-    const selected = await Taro.chooseMedia({
-      count: 1,
-      mediaType: ['image'],
-      sourceType: ['album', 'camera'],
-    });
-    const tempFilePath = selected.tempFiles[0]?.tempFilePath;
-    if (!tempFilePath) return;
-    const suffix = tempFilePath.match(/\.[a-zA-Z0-9]+$/)?.[0] ?? '.jpg';
-    const uploaded = await Taro.cloud.uploadFile({
-      cloudPath: `profile-avatars/${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}${suffix}`,
-      filePath: tempFilePath,
-    });
-    await saveDetails({ avatarFileId: uploaded.fileID });
+  }
+
+  async function selectAvatarFrom(sourceType: 'album' | 'camera') {
+    try {
+      const selected = await Taro.chooseMedia({
+        count: 1,
+        mediaType: ['image'],
+        sourceType: [sourceType],
+      });
+      const tempFilePath = selected.tempFiles[0]?.tempFilePath;
+      if (!tempFilePath) return;
+      setAvatarSourceOpen(false);
+      setPendingAvatarPath(tempFilePath);
+    } catch {
+      // 用户取消系统图片选择，不改变当前头像。
+    }
+  }
+
+  async function confirmAvatar() {
+    if (!pendingAvatarPath || savingProfile) return;
+    const suffix = pendingAvatarPath.match(/\.[a-zA-Z0-9]+$/)?.[0] ?? '.jpg';
+    try {
+      const uploaded = await Taro.cloud.uploadFile({
+        cloudPath: `profile-avatars/${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2)}${suffix}`,
+        filePath: pendingAvatarPath,
+      });
+      await saveDetails({ avatarFileId: uploaded.fileID });
+      setPendingAvatarPath('');
+    } catch (cause) {
+      await Taro.showToast({
+        title:
+          cause instanceof Error ? cause.message : '头像上传失败，请稍后重试',
+        icon: 'none',
+      });
+    }
   }
 
   async function requestLocationPermission() {
@@ -158,8 +192,8 @@ export function ProfileCenter({
       <View className="profile-center__hero">
         <Button
           className="profile-center__avatar"
-          aria-label="查看或更换头像"
-          onClick={() => void chooseAvatar()}
+          aria-label="查看或修改头像"
+          onClick={() => void openAvatarMenu()}
         >
           {avatarFileId ? (
             <Image
@@ -169,7 +203,12 @@ export function ProfileCenter({
               mode="aspectFill"
             />
           ) : (
-            <Text className="profile-center__avatar-fallback">⌑</Text>
+            <Image
+              className="profile-center__avatar-image"
+              data-testid="profile-avatar"
+              src="/assets/icons/profile-default.svg"
+              mode="aspectFill"
+            />
           )}
         </Button>
         <Button
@@ -314,13 +353,81 @@ export function ProfileCenter({
           <Text>退出当前账户</Text>
         </Button>
       </View>
+      {avatarSourceOpen ? (
+        <View
+          className="profile-center__sheet-mask"
+          onClick={() => setAvatarSourceOpen(false)}
+        >
+          <View
+            className="profile-center__sheet"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <Text className="profile-center__sheet-title">修改头像</Text>
+            <Button
+              aria-label="使用微信头像"
+              openType="chooseAvatar"
+              onChooseAvatar={(event) => {
+                const avatarUrl = event.detail.avatarUrl;
+                if (!avatarUrl) return;
+                setAvatarSourceOpen(false);
+                setPendingAvatarPath(avatarUrl);
+              }}
+            >
+              使用微信头像
+            </Button>
+            <Button
+              aria-label="从相册选择"
+              onClick={() => void selectAvatarFrom('album')}
+            >
+              从相册选择
+            </Button>
+            <Button
+              aria-label="拍照上传"
+              onClick={() => void selectAvatarFrom('camera')}
+            >
+              拍照上传
+            </Button>
+            <Button
+              className="is-cancel"
+              onClick={() => setAvatarSourceOpen(false)}
+            >
+              取消
+            </Button>
+          </View>
+        </View>
+      ) : null}
+      {pendingAvatarPath ? (
+        <View className="profile-center__modal-mask">
+          <View className="profile-center__modal">
+            <Text className="profile-center__modal-title">确认使用此头像</Text>
+            <Image
+              className="profile-center__avatar-preview"
+              src={pendingAvatarPath}
+              mode="aspectFill"
+            />
+            <View className="profile-center__modal-actions">
+              <Button onClick={() => setPendingAvatarPath('')}>取消</Button>
+              <Button
+                className="is-primary"
+                loading={savingProfile}
+                disabled={savingProfile}
+                onClick={() => void confirmAvatar()}
+              >
+                确认使用
+              </Button>
+            </View>
+          </View>
+        </View>
+      ) : null}
       {editingName ? (
         <View className="profile-center__modal-mask">
           <View className="profile-center__modal">
             <Text className="profile-center__modal-title">修改昵称</Text>
             <Input
-              aria-label="昵称"
+              aria-label="昵称（可使用微信昵称）"
+              type="nickname"
               maxlength={40}
+              placeholder="输入昵称或选择微信昵称"
               value={draftName}
               onInput={(event) => setDraftName(event.detail.value)}
             />

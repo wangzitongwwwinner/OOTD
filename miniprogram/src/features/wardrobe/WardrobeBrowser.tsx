@@ -24,10 +24,15 @@ const categoryLabels = Object.fromEntries(
 export function WardrobeBrowser({
   items,
   onUpdate,
+  onSave,
   onDelete,
 }: {
   items: PublicClothing[];
   onUpdate?: (updated: PublicClothing) => void;
+  onSave?: (
+    item: PublicClothing,
+    input: { name: string; category: ClothingCategory; color: string },
+  ) => Promise<PublicClothing | undefined>;
   onDelete?: (id: string, version: number) => void;
 }) {
   const [query, setQuery] = useState('');
@@ -87,6 +92,7 @@ export function WardrobeBrowser({
               key={item.id}
               item={item}
               onUpdate={onUpdate}
+              onSave={onSave}
               onDelete={onDelete}
             />
           ))}
@@ -99,10 +105,15 @@ export function WardrobeBrowser({
 function WardrobeCard({
   item,
   onUpdate,
+  onSave,
   onDelete,
 }: {
   item: PublicClothing;
   onUpdate?: (updated: PublicClothing) => void;
+  onSave?: (
+    item: PublicClothing,
+    input: { name: string; category: ClothingCategory; color: string },
+  ) => Promise<PublicClothing | undefined>;
   onDelete?: (id: string, version: number) => void;
 }) {
   const [editing, setEditing] = useState(false);
@@ -115,16 +126,26 @@ function WardrobeCard({
     if (!onUpdate || saving) return;
     setSaving(true);
     try {
-      const { updateClothing } = await import('./clothing-service');
-      const updated = await updateClothing(
-        item.id,
-        name.trim() || item.name,
+      const input = {
+        name: name.trim() || item.name,
         category,
-        color.trim() || item.color,
-        item.version,
-      );
-      onUpdate(updated);
-      setEditing(false);
+        color: color.trim() || item.color,
+      };
+      const updated = onSave
+        ? await onSave(item, input)
+        : await import('./clothing-service').then(({ updateClothing }) =>
+            updateClothing(
+              item.id,
+              input.name,
+              input.category,
+              input.color,
+              item.version,
+            ),
+          );
+      if (updated) {
+        onUpdate(updated);
+        setEditing(false);
+      }
     } finally {
       setSaving(false);
     }

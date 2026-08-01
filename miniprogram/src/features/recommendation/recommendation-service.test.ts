@@ -61,4 +61,19 @@ describe('recommendation service', () => {
     );
     await expect(offline.generate(city)).rejects.toThrow('网络连接失败');
   });
+
+  it('未定位时请求不依赖账号和天气的通用建议', async () => {
+    const call = vi
+      .fn()
+      .mockResolvedValue({ data: recommendation, requestId: 'req_guest' });
+    const result = await createRecommendationService(call).generate();
+    expect(result).toEqual({
+      ...recommendation,
+      recommendationId: 'req_guest',
+    });
+    expect(call).toHaveBeenCalledWith({
+      method: 'POST',
+      path: '/v1/recommendations/generic',
+    });
+  });
 });

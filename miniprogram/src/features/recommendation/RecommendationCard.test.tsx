@@ -24,6 +24,17 @@ it('初始状态由用户主动生成建议', () => {
   ).toBeInTheDocument();
 });
 
+it('未定位时仍展示建议卡并生成通用建议', async () => {
+  const generate = vi.fn().mockResolvedValue(result);
+  render(<RecommendationCard service={{ generate }} />);
+
+  expect(screen.getByText('点击生成 AI 通用穿衣建议')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: '生成穿衣决策' }));
+
+  expect(await screen.findByText('洋葱式穿搭')).toBeInTheDocument();
+  expect(screen.getByText('通用穿衣策略')).toBeInTheDocument();
+  expect(generate).toHaveBeenCalledWith(undefined);
+});
 it('生成时显示规定文案并阻止重复点击', async () => {
   let finish!: (value: typeof result) => void;
   const generate = vi.fn(

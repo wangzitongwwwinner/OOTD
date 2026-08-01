@@ -6,8 +6,8 @@ import {
   subscribeTabBarAuthenticated,
 } from './visibility';
 
-describe('自定义导航登录态', () => {
-  it('向自定义导航同步登录与退出状态', () => {
+describe('自定义导航游客态', () => {
+  it('未登录时仍保持四项一级导航可见', () => {
     const listener = vi.fn();
     const unsubscribe = subscribeTabBarAuthenticated(listener);
 

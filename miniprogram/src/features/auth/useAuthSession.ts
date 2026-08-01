@@ -3,10 +3,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { authService } from './auth-service';
 import type { AuthSession, AuthUserSummary, WechatLoginRequest } from './types';
 
-type AuthService = Omit<typeof authService, 'saveAuthSession'> & {
+export type AuthService = Omit<typeof authService, 'saveAuthSession'> & {
   saveAuthSession?(session: AuthSession): void;
 };
-type AuthStatus =
+export type AuthStatus =
   'restoring' | 'unauthenticated' | 'authenticating' | 'authenticated';
 
 export function useAuthSession(service: AuthService = authService) {

@@ -1,4 +1,3 @@
-import Taro from '@tarojs/taro';
 import { Button, Text, View } from '@tarojs/components';
 import { useState } from 'react';
 
@@ -11,16 +10,11 @@ import './LocationStatus.scss';
 
 interface Props {
   service?: Pick<typeof locationService, 'restore' | 'locate'>;
-  onOpenSettings?: () => boolean | void | Promise<boolean | void>;
   onLocated?: (city: CityLocation) => void;
 }
 
 export function LocationStatus({
   service = locationService,
-  onOpenSettings = async () => {
-    const settings = await Taro.openSetting();
-    return settings.authSetting['scope.userLocation'] === true;
-  },
   onLocated,
 }: Props) {
   const [city, setCity] = useState<CityLocation | undefined>(() =>
@@ -50,17 +44,6 @@ export function LocationStatus({
     }
   }
 
-  async function openSettings() {
-    try {
-      if (await onOpenSettings()) {
-        setStatus('idle');
-        setMessage('');
-      }
-    } catch {
-      // 保留当前提示，允许用户再次打开设置。
-    }
-  }
-
   if (city) {
     return (
       <View className="location-status location-status--located">
@@ -72,37 +55,56 @@ export function LocationStatus({
     );
   }
 
+  const locating = status === 'locating';
+
   return (
-    <View className="location-status">
-      <Text className="location-status__purpose">
-        用于识别所在城市并提供当地天气
-      </Text>
+    <View className="location-status location-status--placeholder">
+      <View className="location-status__header">
+        <View className="location-status__city-pill">
+          <Text className="location-status__pin">⌖</Text>
+          <Text>开启定位后查看当地天气</Text>
+        </View>
+        <Text className="location-status__generic-badge">通用天气</Text>
+      </View>
+      <View className="location-status__content">
+        <View>
+          <Text className="location-status__temperature">--°</Text>
+          <Text className="location-status__condition">尚未获取当地天气</Text>
+        </View>
+        <Text className="location-status__purpose">
+          开启定位后，我们只识别所在城市，用于加载当地天气。
+        </Text>
+      </View>
       {message ? (
         <Text className="location-status__error">{message}</Text>
       ) : null}
       {status === 'denied' ? (
         <Button
           className="location-status__action"
-          onClick={() => void openSettings()}
+          openType="openSetting"
+          onOpenSetting={(event) => {
+            if (event.detail.authSetting['scope.userLocation'] === true) {
+              setStatus('idle');
+              setMessage('');
+              void locate();
+            }
+          }}
         >
-          打开设置
+          前往设置
         </Button>
       ) : (
         <Button
           className={`location-status__action${
-            status === 'locating' ? ' location-status__action--locating' : ''
+            locating ? ' location-status__action--locating' : ''
           }`}
-          aria-disabled={status === 'locating'}
+          aria-disabled={locating}
           onClick={() => void locate()}
         >
-          {status === 'locating' ? (
+          {locating ? (
             <View className="location-status__spinner" aria-hidden="true" />
           ) : null}
-          <Text
-            className="location-status__action-text"
-            style={status === 'locating' ? { color: '#1a1c1b' } : undefined}
-          >
-            {status === 'locating' ? '定位中…' : '启用微信定位'}
+          <Text className="location-status__action-text">
+            {locating ? '定位中…' : '开启定位'}
           </Text>
         </Button>
       )}

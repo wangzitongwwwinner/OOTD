@@ -20,7 +20,7 @@ const LAYER_LABELS: Record<RecommendationLayerType, string> = {
 };
 
 interface Props {
-  city: CityLocation;
+  city?: CityLocation;
   service?: Pick<typeof recommendationService, 'generate'>;
 }
 
@@ -69,14 +69,22 @@ export function RecommendationCard({
             <Text className="recommendation-card__brain">♧</Text>
           )}
           <Text className="recommendation-card__title">
-            {recommendation ? 'AI 智能穿衣建议' : '点击生成 AI 全天通勤建议'}
+            {recommendation
+              ? 'AI 智能穿衣建议'
+              : city
+                ? '点击生成 AI 全天通勤建议'
+                : '点击生成 AI 通用穿衣建议'}
           </Text>
         </View>
         {recommendation ? (
           <Text
             className={`recommendation-card__source recommendation-card__source--${recommendation.source}`}
           >
-            {recommendation.source === 'rules' ? '通用策略' : 'AI 建议'}
+            {!city
+              ? '通用穿衣策略'
+              : recommendation.source === 'rules'
+                ? '通用策略'
+                : 'AI 建议'}
           </Text>
         ) : null}
       </View>
@@ -122,7 +130,9 @@ export function RecommendationCard({
         </View>
       ) : (
         <Text className="recommendation-card__empty">
-          融合当前城市的室外气温、空气湿度、紫外线及您今日的整套多场景行程，推荐最合理的穿脱搭配组合。
+          {city
+            ? '融合当前城市的室外气温、空气湿度、紫外线及您今日的整套多场景行程，推荐最合理的穿脱搭配组合。'
+            : '未开启定位时，将使用温差适中的通用天气与通勤、办公室示例行程，为您生成可灵活穿脱的体验建议。'}
         </Text>
       )}
       {error ? (

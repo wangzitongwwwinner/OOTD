@@ -6,37 +6,35 @@ import { LocationStatus } from './LocationStatus';
 
 const city = { cityCode: '101020100', cityName: '上海' };
 
-it('城市缓存存在时展示只读城市与微信定位', () => {
-  render(
-    <LocationStatus
-      service={{ restore: () => city, locate: vi.fn() }}
-      onOpenSettings={vi.fn()}
-    />,
-  );
-  expect(screen.getByText('上海')).toBeInTheDocument();
-  expect(screen.getByText('微信定位')).toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: /切换城市/ }),
-  ).not.toBeInTheDocument();
+it('未定位时显示通用天气卡且首次渲染不自动请求定位', () => {
+  const locate = vi.fn();
+  render(<LocationStatus service={{ restore: () => undefined, locate }} />);
+
+  expect(screen.getByText('开启定位后查看当地天气')).toBeInTheDocument();
+  expect(screen.getByText('通用天气')).toBeInTheDocument();
+  expect(screen.getByText('尚未获取当地天气')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '开启定位' })).toBeInTheDocument();
+  expect(locate).not.toHaveBeenCalled();
 });
 
-it('说明用途后由用户主动触发首次定位', async () => {
+it('游客主动开启定位后加载城市且不需要登录', async () => {
   const locate = vi.fn().mockResolvedValue(city);
+  const onLocated = vi.fn();
   render(
     <LocationStatus
       service={{ restore: () => undefined, locate }}
-      onOpenSettings={vi.fn()}
+      onLocated={onLocated}
     />,
   );
-  expect(
-    screen.getByText('用于识别所在城市并提供当地天气'),
-  ).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: '启用微信定位' }));
+
+  fireEvent.click(screen.getByRole('button', { name: '开启定位' }));
   await waitFor(() => expect(locate).toHaveBeenCalledTimes(1));
   expect(await screen.findByText('上海')).toBeInTheDocument();
+  expect(onLocated).toHaveBeenCalledWith(city);
+  expect(screen.queryByText(/登录/)).toBeNull();
 });
 
-it('定位请求期间展示自定义加载效果、黑色文字并禁止重复点击', async () => {
+it('定位期间显示加载状态并阻止重复请求', async () => {
   let finishLocate!: (value: typeof city) => void;
   const locate = vi.fn(
     () =>
@@ -45,22 +43,15 @@ it('定位请求期间展示自定义加载效果、黑色文字并禁止重复�
       }),
   );
   const { container } = render(
-    <LocationStatus
-      service={{ restore: () => undefined, locate }}
-      onOpenSettings={vi.fn()}
-    />,
+    <LocationStatus service={{ restore: () => undefined, locate }} />,
   );
 
-  fireEvent.click(screen.getByRole('button', { name: '启用微信定位' }));
-
+  fireEvent.click(screen.getByRole('button', { name: '开启定位' }));
   const locatingButton = screen.getByRole('button', { name: '定位中…' });
   expect(locatingButton).toHaveAttribute('aria-disabled', 'true');
-  expect(locatingButton).toHaveClass('location-status__action--locating');
   expect(
     container.querySelector('.location-status__spinner'),
   ).toBeInTheDocument();
-  expect(screen.getByText('定位中…')).toHaveStyle({ color: '#1a1c1b' });
-
   fireEvent.click(locatingButton);
   expect(locate).toHaveBeenCalledTimes(1);
 
@@ -68,28 +59,49 @@ it('定位请求期间展示自定义加载效果、黑色文字并禁止重复�
   expect(await screen.findByText('上海')).toBeInTheDocument();
 });
 
-it('拒绝授权后在设置中开启权限会恢复定位按钮', async () => {
-  const onOpenSettings = vi.fn().mockResolvedValue(true);
-  render(
-    <LocationStatus
-      service={{
-        restore: () => undefined,
-        locate: vi
-          .fn()
-          .mockRejectedValue(
-            new LocationError('denied', '未获得定位权限，请在设置中允许后重试'),
-          ),
-      }}
-      onOpenSettings={onOpenSettings}
-    />,
-  );
-  fireEvent.click(screen.getByRole('button', { name: '启用微信定位' }));
+it('拒绝定位后进入设置授权，返回后自动加载当地天气', async () => {
+  const locate = vi
+    .fn()
+    .mockRejectedValueOnce(
+      new LocationError('denied', '未获得定位权限，请在设置中允许后重试'),
+    )
+    .mockResolvedValueOnce(city);
+  render(<LocationStatus service={{ restore: () => undefined, locate }} />);
+
+  fireEvent.click(screen.getByRole('button', { name: '开启定位' }));
   expect(
     await screen.findByText('未获得定位权限，请在设置中允许后重试'),
   ).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: '打开设置' }));
-  expect(onOpenSettings).toHaveBeenCalledTimes(1);
+  const settings = screen.getByRole('button', { name: '前往设置' });
+  expect(settings).toHaveAttribute('data-open-type', 'openSetting');
+  expect(screen.getByText('尚未获取当地天气')).toBeInTheDocument();
+
+  fireEvent.doubleClick(settings);
+  expect(await screen.findByText('上海')).toBeInTheDocument();
+  expect(locate).toHaveBeenCalledTimes(2);
+});
+
+it('系统关闭或临时失败后保留开启定位按钮并可重试', async () => {
+  const locate = vi
+    .fn()
+    .mockRejectedValueOnce(
+      new LocationError('system_disabled', '系统定位服务未开启，请开启后重试'),
+    )
+    .mockResolvedValueOnce(city);
+  render(<LocationStatus service={{ restore: () => undefined, locate }} />);
+
+  fireEvent.click(screen.getByRole('button', { name: '开启定位' }));
   expect(
-    await screen.findByRole('button', { name: '启用微信定位' }),
+    await screen.findByText('系统定位服务未开启，请开启后重试'),
   ).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: '开启定位' }));
+  expect(await screen.findByText('上海')).toBeInTheDocument();
+  expect(locate).toHaveBeenCalledTimes(2);
+});
+
+it('已有城市缓存时直接显示只读城市且不提供手动切换', () => {
+  render(<LocationStatus service={{ restore: () => city, locate: vi.fn() }} />);
+  expect(screen.getByText('上海')).toBeInTheDocument();
+  expect(screen.getByText('微信定位')).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /切换城市/ })).toBeNull();
 });

@@ -15,23 +15,35 @@ export interface Recommendation {
   source: 'llm' | 'rules';
 }
 
-interface RecommendationRequest {
-  method: 'POST';
-  path: '/v1/recommendations';
-  body: CityLocation;
-}
+type RecommendationRequest =
+  | {
+      method: 'POST';
+      path: '/v1/recommendations';
+      body: CityLocation;
+    }
+  | {
+      method: 'POST';
+      path: '/v1/recommendations/generic';
+    };
 type Call = (request: RecommendationRequest) => Promise<unknown>;
 
 export function createRecommendationService(call: Call) {
   return {
-    async generate(city: CityLocation): Promise<Recommendation> {
+    async generate(city?: CityLocation): Promise<Recommendation> {
       let result: unknown;
       try {
-        result = await call({
-          method: 'POST',
-          path: '/v1/recommendations',
-          body: city,
-        });
+        result = await call(
+          city
+            ? {
+                method: 'POST',
+                path: '/v1/recommendations',
+                body: city,
+              }
+            : {
+                method: 'POST',
+                path: '/v1/recommendations/generic',
+              },
+        );
       } catch {
         throw new Error('网络连接失败，请稍后重试');
       }

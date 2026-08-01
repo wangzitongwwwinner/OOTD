@@ -2,7 +2,7 @@ import { Button, Text, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useMemo, useState } from 'react';
 
-import { useAuthSession } from '../../features/auth/useAuthSession';
+import { useAuth } from '../../features/auth/AuthGate';
 import { ProfileCenter } from '../../features/profile/ProfileCenter';
 import { ProfilePreference } from '../../features/profile/ProfilePreference';
 import type { Profile } from '../../features/profile/profile-service';
@@ -17,7 +17,7 @@ const FEEL_LABELS = {
 } as const;
 
 export default function ProfilePage() {
-  const auth = useAuthSession();
+  const auth = useAuth();
   const [liveProfile, setLiveProfile] = useState<Profile>();
   const navigation = useMemo(() => {
     try {
@@ -60,7 +60,10 @@ export default function ProfilePage() {
         avatarFileId={profile.avatarFileId}
         recentFeelLabel={FEEL_LABELS[profile.recentFeelPreference]}
         profileVersion={profile.version}
-        onProfileChange={setLiveProfile}
+        onProfileChange={(nextProfile) => {
+          setLiveProfile(nextProfile);
+          auth.updateUser(nextProfile);
+        }}
         preferenceSlot={<ProfilePreference onProfileChange={setLiveProfile} />}
         onLogout={auth.logout}
       />

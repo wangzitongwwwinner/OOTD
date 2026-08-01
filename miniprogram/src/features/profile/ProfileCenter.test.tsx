@@ -102,7 +102,7 @@ describe('ProfileCenter', () => {
     );
 
     expect(
-      screen.getByRole('button', { name: '查看或更换头像' }),
+      screen.getByRole('button', { name: '查看或修改头像' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: '查看或修改昵称' }),
@@ -191,5 +191,90 @@ describe('ProfileCenter', () => {
     expect(Taro.navigateTo).toHaveBeenCalledWith({
       url: '/pages/legal/index?document=agreement',
     });
+  });
+
+  it('点击头像先显示查看和修改，修改后显示三种来源', async () => {
+    vi.mocked(Taro.showActionSheet).mockResolvedValueOnce({
+      tapIndex: 1,
+    } as never);
+    render(
+      <ProfileCenter
+        nickname="微信用户12138"
+        avatarFileId="cloud://avatar.jpg"
+        recentFeelLabel="舒适"
+        onLogout={vi.fn()}
+        onProfileChange={vi.fn()}
+        profileVersion={1}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '查看或修改头像' }));
+    await waitFor(() =>
+      expect(Taro.showActionSheet).toHaveBeenCalledWith({
+        itemList: ['查看头像', '修改头像'],
+      }),
+    );
+    expect(
+      screen.getByRole('button', { name: '使用微信头像' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '从相册选择' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '拍照上传' }),
+    ).toBeInTheDocument();
+  });
+
+  it.each([
+    ['从相册选择', ['album']],
+    ['拍照上传', ['camera']],
+  ] as const)(
+    '修改头像选择%s时只打开对应图片来源',
+    async (label, sourceType) => {
+      vi.mocked(Taro.showActionSheet).mockResolvedValueOnce({
+        tapIndex: 1,
+      } as never);
+      vi.mocked(Taro.chooseMedia).mockResolvedValueOnce({
+        tempFiles: [{ tempFilePath: '/tmp/avatar.jpg' }],
+      } as never);
+      render(
+        <ProfileCenter
+          nickname="微信用户12138"
+          avatarFileId="cloud://avatar.jpg"
+          recentFeelLabel="舒适"
+          onLogout={vi.fn()}
+          onProfileChange={vi.fn()}
+          profileVersion={1}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: '查看或修改头像' }));
+      await screen.findByRole('button', { name: label });
+      fireEvent.click(screen.getByRole('button', { name: label }));
+      await waitFor(() =>
+        expect(Taro.chooseMedia).toHaveBeenCalledWith({
+          count: 1,
+          mediaType: ['image'],
+          sourceType,
+        }),
+      );
+    },
+  );
+
+  it('点击昵称后使用微信原生昵称输入并允许手动编辑', () => {
+    render(
+      <ProfileCenter
+        nickname="微信用户12138"
+        recentFeelLabel="舒适"
+        onLogout={vi.fn()}
+        onProfileChange={vi.fn()}
+        profileVersion={1}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '查看或修改昵称' }));
+    expect(
+      screen.getByRole('textbox', { name: '昵称（可使用微信昵称）' }),
+    ).toHaveAttribute('type', 'nickname');
   });
 });

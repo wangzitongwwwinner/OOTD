@@ -2,7 +2,9 @@ import Taro from '@tarojs/taro';
 import { Button, Image, ScrollView, Text, View } from '@tarojs/components';
 import { useEffect, useRef, useState } from 'react';
 
+import { useOptionalAuth } from '../../features/auth/AuthGate';
 import { AuthenticatedPage } from '../../features/auth/AuthenticatedPage';
+import { GUEST_CLOTHING } from '../../features/wardrobe/guest-clothing';
 import { WardrobeUploader } from '../../features/wardrobe/WardrobeUploader';
 import type { ClothingBasics } from '../../features/wardrobe/WardrobeUploader';
 import { WardrobeBrowser } from '../../features/wardrobe/WardrobeBrowser';
@@ -29,6 +31,8 @@ import {
 import './index.scss';
 
 export default function WardrobePage() {
+  const auth = useOptionalAuth();
+  const isGuest = Boolean(auth && auth.status !== 'authenticated');
   useSyncTabBar('wardrobe');
   const [status, setStatus] = useState<
     | 'idle'
@@ -57,6 +61,7 @@ export default function WardrobePage() {
     [],
   );
   useEffect(() => {
+    if (isGuest) return;
     let active = true;
     void listClothing()
       .then((result) => {
@@ -71,7 +76,7 @@ export default function WardrobePage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [isGuest]);
 
   async function waitForJob(nextJob: CutoutJob) {
     if (polling.current) polling.current.cancelled = true;
@@ -92,7 +97,23 @@ export default function WardrobePage() {
     }
   }
 
-  async function chooseAndUpload(
+  function chooseAndUpload(source: 'camera' | 'album', basics: ClothingBasics) {
+    if (isGuest && auth) {
+      auth.requestLogin({
+        title:
+          source === 'camera'
+            ? '\u767b\u5f55\u540e\u62cd\u7167\u4e0a\u4f20'
+            : '\u767b\u5f55\u540e\u4ece\u76f8\u518c\u9009\u62e9',
+        description:
+          '\u767b\u5f55\u6210\u529f\u540e\u5c06\u81ea\u52a8\u7ee7\u7eed\u539f\u56fe\u7247\u5165\u53e3\u3002',
+        action: () => persistChooseAndUpload(source, basics),
+      });
+      return;
+    }
+    void persistChooseAndUpload(source, basics);
+  }
+
+  async function persistChooseAndUpload(
     source: 'camera' | 'album',
     basics: ClothingBasics,
   ) {
@@ -178,7 +199,38 @@ export default function WardrobePage() {
     }
   }
 
-  async function handleDelete(clothingId: string, expectedVersion: number) {
+  async function refreshPersonalClothing() {
+    setListError(undefined);
+    try {
+      setItems(await listClothing());
+    } catch (cause) {
+      setListError(
+        cause instanceof Error
+          ? cause.message
+          : '\u8863\u6a71\u52a0\u8f7d\u5931\u8d25\uff0c\u8bf7\u91cd\u8bd5',
+      );
+    }
+  }
+
+  function handleDelete(clothingId: string, expectedVersion: number) {
+    const item = (isGuest ? GUEST_CLOTHING : items).find(
+      (entry) => entry.id === clothingId,
+    );
+    if (isGuest && auth) {
+      auth.requestLogin({
+        title: '\u767b\u5f55\u540e\u5220\u9664\u8863\u7269',
+        description:
+          '\u767b\u5f55\u6210\u529f\u540e\u5c06\u81ea\u52a8\u5220\u9664\u201c' +
+          (item?.name ?? '') +
+          '\u201d\u3002',
+        action: refreshPersonalClothing,
+      });
+      return;
+    }
+    void persistDelete(clothingId, expectedVersion);
+  }
+
+  async function persistDelete(clothingId: string, expectedVersion: number) {
     try {
       await deleteClothing(clothingId, expectedVersion);
       setItems((current) => current.filter((item) => item.id !== clothingId));
@@ -211,6 +263,32 @@ export default function WardrobePage() {
     }
   }
 
+  async function handleSaveEdit(
+    item: PublicClothing,
+    input: {
+      name: string;
+      category: PublicClothing['category'];
+      color: string;
+    },
+  ) {
+    if (isGuest && auth) {
+      auth.requestLogin({
+        title: '\u767b\u5f55\u540e\u4fdd\u5b58\u8863\u7269\u4fee\u6539',
+        description:
+          '\u767b\u5f55\u6210\u529f\u540e\u5c06\u81ea\u52a8\u4fdd\u5b58\u5f53\u524d\u4fee\u6539\u3002',
+        action: refreshPersonalClothing,
+      });
+      return undefined;
+    }
+    return updateClothing(
+      item.id,
+      input.name,
+      input.category,
+      input.color,
+      item.version,
+    );
+  }
+
   function resetUploader() {
     if (polling.current) polling.current.cancelled = true;
     setStatus('idle');
@@ -221,11 +299,13 @@ export default function WardrobePage() {
     setJob(undefined);
   }
 
+  const displayedItems = isGuest ? [...GUEST_CLOTHING] : items;
+
   return (
     <AuthenticatedPage>
       <View className="wardrobe-page">
         <WardrobeHeader
-          count={items.length}
+          count={displayedItems.length}
           onAdd={() => setShowUploader(true)}
         />
         {showUploader ? (
@@ -279,13 +359,14 @@ export default function WardrobePage() {
           <Text className="wardrobe-page__error">{listError}</Text>
         ) : null}
         <WardrobeBrowser
-          items={items}
+          items={displayedItems}
+          onSave={handleSaveEdit}
           onUpdate={(updated) =>
             setItems((current) =>
               current.map((i) => (i.id === updated.id ? updated : i)),
             )
           }
-          onDelete={(id, version) => void handleDelete(id, version)}
+          onDelete={handleDelete}
         />
       </View>
     </AuthenticatedPage>
