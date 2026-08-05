@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      html, body, iframe { width: 1080px; height: 1440px; margin: 0; border: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <iframe id="poster" title="穿衣有数宣传图"></iframe>
+    <script>
+      const page = new URLSearchParams(location.search).get('page') || '1';
+      const frame = document.querySelector('#poster');
+      frame.src = `./poster-v2.html?page=${page}`;
+      frame.addEventListener('load', () => {
+        const style = frame.contentDocument.createElement('style');
+        style.textContent = '.phone { right: 24px !important; }';
+        frame.contentDocument.head.appendChild(style);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>穿衣有数｜宣传图 V1</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { width: 1080px; height: 1440px; margin: 0; overflow: hidden; }
+      body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; color: #171614; }
+      .poster {
+        position: relative; width: 1080px; height: 1440px; overflow: hidden;
+        background: #faf9f6 url('./source/campaign-background.png') center/cover no-repeat;
+      }
+      .wash { position:absolute; inset:0; background:linear-gradient(90deg,rgba(250,249,246,.5),rgba(255,255,255,.04)); }
+      .copy { position:absolute; left:58px; top:94px; width:470px; z-index:2; }
+      .number { color:#526957; font-size:30px; font-weight:800; letter-spacing:1px; margin-bottom:34px; }
+      h1 { margin:0; font-size:58px; line-height:1.2; letter-spacing:-2px; font-weight:900; white-space:pre-line; }
+      .desc { margin-top:30px; color:#77756f; font-size:27px; line-height:1.65; white-space:pre-line; }
+      .pills { margin-top:34px; display:flex; flex-direction:column; gap:14px; align-items:flex-start; }
+      .pill { padding:10px 19px; border-radius:24px; font-size:23px; color:#48604f; background:rgba(232,239,232,.9); box-shadow:0 4px 14px rgba(56,63,55,.04); }
+      .phone { position:absolute; right:43px; top:122px; width:468px; padding:11px; border-radius:60px; background:#171715; z-index:2; box-shadow:0 26px 55px rgba(35,31,27,.22),0 4px 10px rgba(35,31,27,.18); }
+      .phone::before { content:""; position:absolute; left:50%; top:21px; width:126px; height:30px; transform:translateX(-50%); border-radius:18px; background:#090909; z-index:3; box-shadow:0 2px 5px rgba(0,0,0,.2); }
+      .screen { display:block; width:446px; height:auto; border-radius:50px; background:#fff; }
+      .brand { position:absolute; left:58px; bottom:76px; z-index:2; }
+      .brand-row { display:flex; align-items:center; gap:13px; font-size:34px; color:#355940; font-weight:800; }
+      .brand-icon { width:48px; height:48px; border-radius:14px; background:#355940; color:#fff; display:grid; place-items:center; font-size:28px; }
+      .tagline { margin-top:12px; color:#77756f; font-size:20px; }
+      .cta-page { display:flex; flex-direction:column; align-items:center; text-align:center; }
+      .cta-page .number { position:absolute; top:62px; left:70px; }
+      .cta-title { margin-top:118px; font-size:63px; line-height:1.18; font-weight:900; white-space:pre-line; letter-spacing:-2px; z-index:2; }
+      .cta-desc { margin-top:22px; color:#73716c; font-size:27px; line-height:1.55; white-space:pre-line; z-index:2; }
+      .code-card { margin-top:46px; width:570px; padding:32px 34px 28px; border-radius:42px; background:rgba(255,255,255,.93); box-shadow:0 20px 55px rgba(45,42,37,.13); z-index:2; }
+      .code { display:block; width:500px; height:500px; object-fit:contain; background:#fff; }
+      .cta { margin-top:20px; display:inline-block; padding:17px 36px; border-radius:32px; background:#191816; color:#fff; font-size:27px; font-weight:700; }
+      .cta-page .brand { left:50%; transform:translateX(-50%); text-align:center; }
+      .cta-page .brand-row { justify-content:center; }
+    </style>
+  </head>
+  <body>
+    <main id="app"></main>
+    <script>
+      const pages = [
+        { n:'01', title:'今天怎么穿\n一眼有数', desc:'天气、行程与体感\n一起生成全天穿衣建议', pills:['实时天气','全天建议','今日行程'], image:'screen-home.jpg' },
+        { n:'02', title:'不同场景\n都被认真记住', desc:'记录温度与体感\n让建议更贴近真实生活', pills:['场景温度','体感记录','随时调整'], image:'screen-scenes.jpg' },
+        { n:'03', title:'衣服收进手机\n衣橱随身查看', desc:'录入、分类与筛选\n整理衣橱更轻松', pills:['衣物录入','分类筛选','随身衣橱'], image:'screen-wardrobe.jpg' },
+        { n:'04', title:'自由搭配\n穿之前先试试看', desc:'移动、缩放与调整层级\n在自由画板上组合穿搭', pills:['自由画板','随心组合','保存穿搭'], image:'screen-tryon.jpg' },
+        { n:'05', title:'搭配保存下来\n随时继续编辑', desc:'喜欢的组合不丢失\n需要时一键载入', pills:['保存搭配','快速查看','载入编辑'], image:'screen-outfits.jpg' },
+      ];
+      const brand = `<div class="brand"><div class="brand-row"><span class="brand-icon">⌂</span><span>穿衣有数</span></div><div class="tagline">看天气，也看您今天要去哪里</div></div>`;
+      const index = Math.max(1, Math.min(6, Number(new URLSearchParams(location.search).get('page') || 1)));
+      if (index <= 5) {
+        const p = pages[index - 1];
+        document.querySelector('#app').innerHTML = `<section class="poster"><div class="wash"></div><div class="copy"><div class="number">${p.n}</div><h1>${p.title}</h1><div class="desc">${p.desc}</div><div class="pills">${p.pills.map(x=>`<span class="pill">${x}</span>`).join('')}</div></div><div class="phone"><img class="screen" src="./source/${p.image}" /></div>${brand}</section>`;
+      } else {
+        document.querySelector('#app').innerHTML = `<section class="poster cta-page"><div class="wash"></div><div class="number">06</div><div class="cta-title">今天穿什么\n从此心里有数</div><div class="cta-desc">天气、全天行程与场景体感\n一起帮您理清今天怎么穿</div><div class="code-card"><img class="code" src="./source/miniprogram-code.png" /><div class="cta">长按识别，立即体验</div></div>${brand}</section>`;
+      }
+    </script>
+  </body>
+</html>
