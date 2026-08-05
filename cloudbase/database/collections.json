@@ -1,0 +1,50 @@
+{
+  "environment": "ootd-ai-dev-d6g5hzex6925fcea7",
+  "collections": [
+    {
+      "name": "users",
+      "ownership": "server",
+      "requiredFields": ["id", "wechatOpenId", "nickname", "recentFeelPreference", "createdAt", "updatedAt", "version"]
+    },
+    {
+      "name": "scenes",
+      "ownership": "preset-or-user",
+      "requiredFields": ["id", "name", "type", "estimatedTemperatureCelsius", "feel", "isPreset", "createdAt", "updatedAt", "version"]
+    },
+    {
+      "name": "itineraries",
+      "ownership": "user",
+      "requiredFields": ["id", "userId", "localDate", "startTime", "sceneId", "estimatedTemperatureCelsius", "durationMinutes", "createdAt", "updatedAt", "version"]
+    },
+    {
+      "name": "clothing",
+      "ownership": "user",
+      "requiredFields": ["id", "userId", "name", "category", "colors", "sourceFileId", "processingStatus", "createdAt", "updatedAt", "version"]
+    },
+    {
+      "name": "outfits",
+      "ownership": "user",
+      "requiredFields": ["id", "userId", "name", "seasonTags", "colorTags", "canvasVersion", "nodes", "createdAt", "updatedAt", "version"]
+    },
+    {
+      "name": "imageProcessingJobs",
+      "ownership": "user",
+      "requiredFields": ["id", "userId", "clothingId", "status", "attempt", "sourceFileId", "createdAt", "updatedAt", "version"]
+    },
+    {
+      "name": "recommendationSnapshots",
+      "ownership": "user",
+      "requiredFields": ["id", "userId", "localDate", "inputHash", "weatherSnapshot", "itinerarySnapshot", "result", "source", "createdAt", "updatedAt", "expiresAt", "version"]
+    },
+    {
+      "name": "weatherCache",
+      "ownership": "server",
+      "requiredFields": ["id", "cityCode", "weather", "observedAt", "expiresAt", "createdAt", "updatedAt", "version"]
+    },
+    {
+      "name": "idempotencyKeys",
+      "ownership": "user",
+      "requiredFields": ["id", "userId", "scope", "key", "response", "expiresAt", "createdAt", "updatedAt", "version"]
+    }
+  ]
+}

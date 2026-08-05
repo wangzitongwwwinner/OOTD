@@ -1,0 +1,53 @@
+.wardrobe-header {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  display: flex;
+  padding: 40px 24px 16px;
+  align-items: flex-end;
+  justify-content: space-between;
+  background: #faf9f7;
+
+  &__title,
+  &__meta {
+    display: block;
+  }
+
+  &__title {
+    color: #172236;
+    font-family: var(--font-serif);
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  &__meta {
+    margin-top: 4px;
+    color: #9aa3b1;
+    font-size: 12px;
+  }
+
+  &__add {
+    display: flex;
+    min-height: 34px;
+    padding: 0 14px;
+    margin: 0;
+    align-items: center;
+    border-radius: 999px;
+    background: #211d1a;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    gap: 4px;
+
+    &::after {
+      border: 0;
+    }
+  }
+
+  &__plus {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1;
+  }
+}

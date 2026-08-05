@@ -1,0 +1,17 @@
+.session-loading {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.home-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+
+  &__content {
+    padding: 24px var(--space-page) 40px;
+  }
+}

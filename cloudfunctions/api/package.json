@@ -1,0 +1,25 @@
+{
+  "name": "@chuanyiyoushu/cloudfunction-api",
+  "private": true,
+  "version": "0.0.0",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "report:metrics": "tsx scripts/generate-metrics-report.ts",
+    "test": "node --import tsx --test src/auth/login.test.ts src/auth/default-profile.test.ts src/auth/cloudbase-user-repository.test.ts src/location/qweather-city-resolver.test.ts src/location/resolve-city.test.ts src/profile/profile.test.ts src/scenes/list-scenes.test.ts src/scenes/manage-scenes.test.ts src/scenes/cloudbase-scene-repository.test.ts src/weather/current-weather.test.ts src/weather/qweather-provider.test.ts src/router.test.ts src/itineraries/today.test.ts src/itineraries/cloudbase-itinerary-repository.test.ts src/itineraries/manage-itineraries.test.ts src/itineraries/delete-itinerary.test.ts src/recommendation/rules-engine.test.ts src/recommendation/generate-recommendation.test.ts src/recommendation/generic-recommendation.test.ts src/recommendation/cloudbase-feedback-repository.test.ts src/recommendation/hunyuan-provider.test.ts src/recommendation/orchestrate-recommendation.test.ts src/recommendation/manage-feedback.test.ts src/clothing/list-clothing.test.ts src/clothing/create-upload.test.ts src/clothing/complete-upload.test.ts src/clothing/update-clothing.test.ts src/clothing/delete-clothing.test.ts src/outfits/manage-outfits.test.ts src/outfits/cloudbase-outfit-repository.test.ts src/image-processing/jobs.test.ts src/image-processing/cloudbase-job-repository.test.ts src/image-processing/mps-config.test.ts src/image-processing/tencent-mps-provider.test.ts src/metrics/calculate-metrics.test.ts src/metrics/render-metric-report.test.ts",
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node20.19 --format=cjs --minify --external:@cloudbase/node-sdk --external:tencentcloud-sdk-nodejs-mps --outfile=index.js && node scripts/normalize-build.mjs index.js"
+  },
+  "dependencies": {
+    "@cloudbase/node-sdk": "3.18.3",
+    "tencentcloud-sdk-nodejs-hunyuan": "^4.1.188",
+    "tencentcloud-sdk-nodejs-mps": "^4.1.273",
+    "ws": "^8.21.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.3",
+    "esbuild": "0.25.11",
+    "tsx": "4.21.0",
+    "typescript": "~5.8.2"
+  }
+}

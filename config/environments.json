@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "cloudbase": {
+    "environmentId": "ootd-ai-dev-d6g5hzex6925fcea7",
+    "region": "ap-shanghai"
+  },
+  "stages": {
+    "development": {
+      "cloudbaseEnvironmentId": "ootd-ai-dev-d6g5hzex6925fcea7",
+      "dataMode": "test-marked",
+      "debugEnabled": true
+    },
+    "test": {
+      "cloudbaseEnvironmentId": "ootd-ai-dev-d6g5hzex6925fcea7",
+      "dataMode": "test-marked",
+      "debugEnabled": true
+    },
+    "production": {
+      "cloudbaseEnvironmentId": "ootd-ai-dev-d6g5hzex6925fcea7",
+      "dataMode": "production",
+      "debugEnabled": false
+    }
+  },
+  "testData": {
+    "marker": "__test__",
+    "cleanupRequiresMarker": true
+  }
+}

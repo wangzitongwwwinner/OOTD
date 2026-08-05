@@ -1,0 +1,18 @@
+{
+  "name": "@chuanyiyoushu/contracts",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test src/auth.test.ts src/envelope.test.ts src/location.test.ts src/profile.test.ts src/scene.test.ts src/weather.test.ts src/clothing.test.ts src/outfit.test.ts src/recommendation-feedback.test.ts"
+  },
+  "dependencies": {
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "tsx": "4.21.0",
+    "typescript": "~5.8.2"
+  }
+}

@@ -1,0 +1,250 @@
+import { randomUUID } from "node:crypto";
+import type { Db } from "@cloudbase/database";
+import {
+  clothingSchema,
+  createClothingUploadRequestSchema,
+  createClothingUploadResultSchema,
+  type CreateClothingUploadRequest,
+  type CreateClothingUploadResult,
+  type CompleteClothingUploadRequest,
+  type PublicClothing,
+  type UpdateClothingRequest,
+  type DeleteClothingRequest,
+} from "../../../../packages/contracts/src/index.ts";
+import type { TrustedIdentity } from "../context.ts";
+import type { ClothingRepository } from "./repository.ts";
+
+export class CloudBaseClothingRepository implements ClothingRepository {
+  constructor(private readonly database: Db) {}
+
+  async findByIdentity(identity: TrustedIdentity): Promise<PublicClothing[]> {
+    const users = await this.database
+      .collection("users")
+      .where({ wechatOpenId: identity.openId, wechatAppId: identity.appId })
+      .limit(1)
+      .get();
+    const user = users.data[0] as { id?: unknown } | undefined;
+    if (!user || typeof user.id !== "string") return [];
+    const result = await this.database
+      .collection("clothing")
+      .where({ userId: user.id, processingStatus: "ready" })
+      .orderBy("updatedAt", "desc")
+      .limit(500)
+      .get();
+    return result.data.map(toPublicClothing);
+  }
+
+  async createUploadDraft(
+    input: CreateClothingUploadRequest,
+    identity: TrustedIdentity,
+  ): Promise<CreateClothingUploadResult> {
+    const validated = createClothingUploadRequestSchema.parse(input);
+    const userId = await this.resolveUserId(identity);
+    if (!userId) throw new Error("User not found");
+
+    const id = `clothing_${randomUUID()}`;
+    const uploadPath = `clothing-sources/${userId}/${id}.${validated.extension}`;
+    const now = new Date().toISOString();
+    const stored = {
+      id,
+      userId,
+      name: validated.name,
+      category: validated.category,
+      color: validated.color,
+      sourceFileId: uploadPath,
+      processingStatus: "draft" as const,
+      createdAt: now,
+      updatedAt: now,
+      version: 1,
+    };
+    await this.database.collection("clothing").add(stored);
+    return createClothingUploadResultSchema.parse({
+      clothing: toPublicClothing(stored),
+      uploadPath,
+    });
+  }
+
+  async completeUpload(
+    id: string,
+    input: CompleteClothingUploadRequest,
+    identity: TrustedIdentity,
+  ) {
+    const userId = await this.resolveUserId(identity);
+    if (!userId) return { status: "not_found" as const };
+    const result = await this.database
+      .collection("clothing")
+      .where({ id, userId })
+      .limit(1)
+      .get();
+    const stored = result.data[0] as Record<string, unknown> | undefined;
+    if (!stored || stored.processingStatus !== "draft")
+      return { status: "not_found" as const };
+    if (stored.version !== input.expectedVersion)
+      return { status: "conflict" as const };
+    if (
+      typeof stored.sourceFileId !== "string" ||
+      !input.fileId.endsWith(`/${stored.sourceFileId}`)
+    ) {
+      return { status: "not_found" as const };
+    }
+    const updatedAt = new Date().toISOString();
+    const next = {
+      ...stored,
+      sourceFileId: input.fileId,
+      updatedAt,
+      version: input.expectedVersion + 1,
+    };
+    const update = await this.database
+      .collection("clothing")
+      .where({ id, userId, version: input.expectedVersion })
+      .update({
+        sourceFileId: input.fileId,
+        updatedAt,
+        version: input.expectedVersion + 1,
+      });
+    if (update.updated !== 1) return { status: "conflict" as const };
+    return { status: "updated" as const, clothing: toPublicClothing(next) };
+  }
+
+  async update(
+    id: string,
+    input: UpdateClothingRequest,
+    identity: TrustedIdentity,
+  ) {
+    const userId = await this.resolveUserId(identity);
+    if (!userId) return { status: "not_found" as const };
+    const result = await this.database
+      .collection("clothing")
+      .where({ id, userId, processingStatus: "ready" })
+      .limit(1)
+      .get();
+    const stored = result.data[0] as Record<string, unknown> | undefined;
+    if (!stored) return { status: "not_found" as const };
+    if (stored.version !== input.expectedVersion)
+      return { status: "conflict" as const };
+    const updatedAt = new Date().toISOString();
+    const nextVersion = input.expectedVersion + 1;
+    const next = {
+      ...stored,
+      name: input.name,
+      category: input.category,
+      color: input.color,
+      updatedAt,
+      version: nextVersion,
+    };
+    const updateResult = await this.database
+      .collection("clothing")
+      .where({ id, userId, version: input.expectedVersion })
+      .update({
+        name: input.name,
+        category: input.category,
+        color: input.color,
+        updatedAt,
+        version: nextVersion,
+      });
+    if (updateResult.updated !== 1)
+      return { status: "conflict" as const };
+    return { status: "updated" as const, clothing: toPublicClothing(next) };
+  }
+
+
+  async delete(
+    id: string,
+    input: DeleteClothingRequest,
+    identity: TrustedIdentity,
+  ) {
+    const userId = await this.resolveUserId(identity);
+    if (!userId) return { status: "not_found" as const };
+    return this.database.runTransaction(async (
+      transaction: Pick<Db, "collection">,
+    ) => {
+      const result = await transaction
+        .collection("clothing")
+        .where({ id, userId, processingStatus: "ready" })
+        .limit(1)
+        .get();
+      const stored = result.data[0] as Record<string, unknown> | undefined;
+      if (!stored) return { status: "not_found" as const };
+      if (stored.version !== input.expectedVersion)
+        return { status: "conflict" as const };
+
+      const outfitResult = await transaction
+        .collection("outfits")
+        .where({ userId })
+        .limit(500)
+        .get();
+      const referenced = outfitResult.data.filter((outfit: unknown) =>
+        storedOutfitNodes(outfit).some((node) => node.clothingId === id),
+      );
+      if (referenced.length > 0 && !input.confirmReferencedRemoval) {
+        return {
+          status: "referenced" as const,
+          referenceCount: referenced.length,
+        };
+      }
+
+      const now = new Date().toISOString();
+      for (const outfit of referenced as Array<Record<string, unknown>>) {
+        if (typeof outfit._id !== "string") throw new Error("Invalid outfit");
+        const nextNodes = storedOutfitNodes(outfit).filter(
+          (node) => node.clothingId !== id,
+        );
+        const outfitDocument = transaction
+          .collection("outfits")
+          .doc(outfit._id);
+        if (nextNodes.length === 0) {
+          await outfitDocument.remove();
+        } else {
+          await outfitDocument.update({
+            nodes: nextNodes,
+            updatedAt: now,
+            version:
+              typeof outfit.version === "number" ? outfit.version + 1 : 1,
+          });
+        }
+      }
+      const removeResult = await transaction
+        .collection("clothing")
+        .where({ id, userId, version: input.expectedVersion })
+        .remove();
+      if (removeResult.deleted !== 1)
+        return { status: "conflict" as const };
+      return { status: "deleted" as const };
+    });
+  }
+  private async resolveUserId(
+    identity: TrustedIdentity,
+  ): Promise<string | undefined> {
+    const users = await this.database
+      .collection("users")
+      .where({ wechatOpenId: identity.openId, wechatAppId: identity.appId })
+      .limit(1)
+      .get();
+    const user = users.data[0] as { id?: unknown } | undefined;
+    return user && typeof user.id === "string" ? user.id : undefined;
+  }
+}
+
+function storedOutfitNodes(
+  stored: unknown,
+): Array<Record<string, unknown> & { clothingId?: unknown }> {
+  if (typeof stored !== "object" || stored === null) return [];
+  const nodes = (stored as Record<string, unknown>).nodes;
+  return Array.isArray(nodes)
+    ? (nodes.filter(
+        (node): node is Record<string, unknown> =>
+          typeof node === "object" && node !== null,
+      ) as Array<Record<string, unknown> & { clothingId?: unknown }>)
+    : [];
+}
+
+function toPublicClothing(stored: unknown): PublicClothing {
+  if (typeof stored !== "object" || stored === null)
+    throw new Error("Invalid stored clothing");
+  const {
+    userId: _userId,
+    _id: _databaseId,
+    ...publicFields
+  } = stored as Record<string, unknown>;
+  return clothingSchema.parse(publicFields);
+}

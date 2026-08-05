@@ -1,65 +1,65 @@
 ---
 name: Urban Wardrobe Narrative
 colors:
-  surface: '#faf9f7'
-  surface-dim: '#dadad8'
-  surface-bright: '#faf9f7'
-  surface-container-lowest: '#ffffff'
-  surface-container-low: '#f4f3f1'
-  surface-container: '#efeeec'
-  surface-container-high: '#e9e8e6'
-  surface-container-highest: '#e3e2e0'
-  on-surface: '#1a1c1b'
-  on-surface-variant: '#4d4540'
-  inverse-surface: '#2f3130'
-  inverse-on-surface: '#f1f1ef'
-  outline: '#7e756f'
-  outline-variant: '#cfc4bd'
-  primary: '#181512'
-  on-primary: '#ffffff'
-  primary-container: '#2d2926'
-  on-primary-container: '#96908b'
-  secondary: '#685c50'
-  on-secondary: '#ffffff'
-  secondary-container: '#f0e0d0'
-  on-secondary-container: '#6e6256'
-  tertiary: '#161612'
-  on-tertiary: '#ffffff'
-  error: '#ba1a1a'
-  error-container: '#ffdad6'
-  background: '#faf9f7'
-  on-background: '#1a1c1b'
+  surface: "#faf9f7"
+  surface-dim: "#dadad8"
+  surface-bright: "#faf9f7"
+  surface-container-lowest: "#ffffff"
+  surface-container-low: "#f4f3f1"
+  surface-container: "#efeeec"
+  surface-container-high: "#e9e8e6"
+  surface-container-highest: "#e3e2e0"
+  on-surface: "#1a1c1b"
+  on-surface-variant: "#4d4540"
+  inverse-surface: "#2f3130"
+  inverse-on-surface: "#f1f1ef"
+  outline: "#7e756f"
+  outline-variant: "#cfc4bd"
+  primary: "#181512"
+  on-primary: "#ffffff"
+  primary-container: "#2d2926"
+  on-primary-container: "#96908b"
+  secondary: "#685c50"
+  on-secondary: "#ffffff"
+  secondary-container: "#f0e0d0"
+  on-secondary-container: "#6e6256"
+  tertiary: "#161612"
+  on-tertiary: "#ffffff"
+  error: "#ba1a1a"
+  error-container: "#ffdad6"
+  background: "#faf9f7"
+  on-background: "#1a1c1b"
 typography:
   display-serif:
     fontFamily: Noto Serif SC
     fontSize: 32px
-    fontWeight: '600'
+    fontWeight: "600"
     lineHeight: 44px
     letterSpacing: -0.02em
   headline-md:
     fontFamily: Noto Serif SC
     fontSize: 24px
-    fontWeight: '500'
+    fontWeight: "500"
     lineHeight: 32px
   title-lg:
     fontFamily: Plus Jakarta Sans
     fontSize: 18px
-    fontWeight: '600'
+    fontWeight: "600"
     lineHeight: 26px
   body-main:
     fontFamily: Plus Jakarta Sans
     fontSize: 16px
-    fontWeight: '400'
+    fontWeight: "400"
     lineHeight: 24px
   body-sm:
     fontFamily: Inter
     fontSize: 14px
-    fontWeight: '400'
+    fontWeight: "400"
     lineHeight: 20px
   label-caps:
     fontFamily: Inter
     fontSize: 12px
-    fontWeight: '600'
+    fontWeight: "600"
     lineHeight: 16px
     letterSpacing: 0.05em
 rounded:
@@ -78,7 +78,7 @@ spacing:
   stack-xl: 48px
 ---
 
-# 今天穿什么｜最终原型设计规范
+# 穿衣有数｜最终原型设计规范
 
 > 当前 React 原型是 MVP 的确定 UI 方案。后续前端实现应保持本文件定义的视觉语言、页面结构和优先级，不重新采用旧原型风格。含截图的完整页面与次级弹层说明见 [FEISHU_DOCS.md](./FEISHU_DOCS.md) 中的“页面说明与开发指引”。
 
@@ -103,7 +103,7 @@ spacing:
 
 ## 3. 字体
 
-- 情绪标题、天气数字和“今天穿什么”等核心标题：`Noto Serif SC`，无该字体时使用系统中文宋体。
+- 情绪标题、天气数字和“穿衣有数”等核心标题：`Noto Serif SC`，无该字体时使用系统中文宋体。
 - 中文正文与控件：`PingFang SC` 或系统无衬线字体。
 - 拉丁文字和数据：`Plus Jakarta Sans` / `Inter`。
 - 信息层级依次为：32px展示标题、24px页面标题、18px区块标题、16px正文、14px辅助正文、12px标签。
@@ -151,36 +151,45 @@ spacing:
 
 ## 7. 页面规范
 
-### 7.1 登录页
+### 7.1 登录弹层
 
-- 展示本地产品 Logo、产品名和简短价值文案。
-- 微信一键登录是主操作；手机号登录/注册为次操作。
-- 用户协议和隐私政策确认必须可见。
-- 保持大面积留白和居中品牌秩序。
+- 登录不作为首次打开页面；未登录用户直接进入首页。
+- 微信一键登录是唯一登录操作，登录弹层由默认头像或受保护操作按需触发。
+- 弹层标题和说明需对应当前操作，例如“登录后添加行程”“登录后保存场景”，并说明当前填写内容会保留。
+- 用户协议和隐私政策确认必须可见；提供“微信一键登录”和“暂不登录”。
+- 弹层沿用现有温暖中性色、圆角和留白秩序，不使用整页登录跳转打断当前任务。
+- 身份登录完成后直接续接原操作并进入对应页面，不展示强制资料确认弹层；新账号展示系统默认头像和“微信用户 + 5 位随机数字”的默认昵称。
+- 微信头像和微信昵称只能在用户中心由用户主动触发微信原生能力，不使用静默获取或伪同步。
 
 ### 7.2 首页
 
 固定顺序：天气 → AI 全天建议 → 当天行程。
 
-- 顶部保留品牌与用户头像入口。
+- 顶部保留品牌与用户头像入口；未登录显示统一默认头像，登录后显示用户确认的头像。
 - 天气卡使用白色/温暖中性色，温度为最大视觉元素。
 - 城市显示为只读定位状态：线性定位图标、城市名、细分隔线、小字“微信定位”；不得出现下拉箭头或手动切换。
+- 未定位时城市胶囊显示“开启定位后查看当地天气”，天气卡显示通用天气占位和“开启定位”主按钮。
 - 天气卡右上保留来源与刷新按钮。
 - AI 建议加载文案使用“综合全天行程，编排穿脱方案…”，不得暗示读取具体衣橱。
-- 当天行程以紧凑列表展示时间、场景、温度和时长。
+- 建议生成后保留“有帮助 / 一般 / 没帮助”反馈区域；游客点击后再出现登录弹层。
+- 当天行程以紧凑列表展示时间、场景、温度和时长；游客默认展示地铁通勤与办公室两条示例行程。
 
 ### 7.3 场景库
 
 - 使用竖向卡片/列表展示场景名称、类别、估计温度、体感和备注。
 - 自定义场景提供编辑、删除；预设场景保持稳定。
+- 所有场景统一列表展示，均可编辑和删除。预设仅作初始引导。
 - 新建/编辑采用底部弹层，温度与体感控件遵循当前原型。
 - 体感选项为：偏冷、舒适、闷热、微凉。
+- 游客展示四个系统示例场景；可进入新增和编辑，提交或删除时使用全局登录弹层。
 
 ### 7.4 衣橱
 
 - 顶部提供名称搜索与分类、颜色筛选。
 - 衣物卡以图片为主体，编辑和删除操作保持低视觉权重。
 - 上传流程展示拍摄指南、选择图片、处理中、前后对比、重新拍摄和确认入库。
+- 游客展示三件系统示例衣物；打开录入弹层不要求登录，点击拍照或相册入口时使用全局登录弹层。
+- 游客可进入示例衣物编辑，保存修改和删除时使用全局登录弹层。
 
 ### 7.5 试穿
 
@@ -188,12 +197,16 @@ spacing:
 - 画板完全留白，不显示人体或固定分区。
 - 衣物支持移动、缩放、层级调整和删除；选中态使用轻量边框/提示。
 - 保存搭配提供名称、标签和清晰成功流转；已保存搭配可重新载入画板。
+- 游客可完整操作示例衣物画板并填写保存表单，仅在最终确认保存时使用全局登录弹层。
+- “我的搭配”游客态展示一个默认搭配，载入不拦截，删除时使用全局登录弹层。
 
 ### 7.6 用户中心
 
 - 由首页头像进入，不占用底部一级导航。
 - 使用与主页面一致的中性色、卡片、开关和列表风格。
 - 危险操作使用错误色和二次确认。
+- 游客点击默认头像只打开登录弹层；退出登录后回到首页默认头像状态。
+- 用户中心不显示独立“编辑资料”入口：点击头像先打开底部“查看头像 / 修改头像”操作层；修改头像来源按“使用微信头像 / 从相册选择 / 拍照上传”排列，选图后预览确认。点击昵称打开居中编辑弹层，昵称输入支持微信原生昵称和手动输入。
 
 ## 8. 交互与可用性
 
@@ -202,6 +215,7 @@ spacing:
 - 动画用于状态过渡，不作持续装饰；遵守 `prefers-reduced-motion`。
 - 图像和图标不得承载唯一信息，必须有文本或可访问名称。
 - 弹层保持在移动端容器内，避免横向溢出。
+- 登录弹层出现和关闭不得清空其下方页面的表单、画板或待提交选择；登录成功后恢复原页面上下文。
 
 ## 9. 禁止事项
 

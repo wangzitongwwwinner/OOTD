@@ -1,0 +1,470 @@
+.profile-center {
+  padding-bottom: 44px;
+}
+
+.profile-center__hero {
+  display: flex;
+  padding: 30px 24px 26px;
+  align-items: center;
+  background: linear-gradient(180deg, #fff 0%, rgb(255 255 255 / 0%) 100%);
+  flex-direction: column;
+}
+
+.profile-center__avatar {
+  position: relative;
+  display: flex;
+  width: 88px;
+  height: 88px;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  background: #2d2926;
+  box-shadow: 0 8px 22px rgb(45 41 38 / 17%);
+
+  &::after {
+    border: 0;
+  }
+}
+
+.profile-center__avatar-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.profile-center__avatar-fallback {
+  color: #eadfc7;
+  font-size: 48px;
+}
+
+.profile-center__name {
+  display: flex;
+  min-height: 34px;
+  padding: 0 12px;
+  margin-top: 14px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: transparent;
+  color: #1d1a17;
+  font-family: serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+
+  &::after {
+    border: 0;
+  }
+}
+
+.profile-center__feel-pill {
+  display: flex;
+  min-height: 30px;
+  padding: 0 14px;
+  margin-top: 12px;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #e6e1db;
+  border-radius: 999px;
+  background: #f4f2ef;
+  color: #6c655e;
+  font-size: 11px;
+  box-shadow: 0 2px 7px rgb(45 41 38 / 5%);
+}
+
+.profile-center__feel-icon {
+  color: #685c50;
+  font-size: 14px;
+}
+
+.profile-center__preference,
+.profile-center__settings {
+  padding: 0 24px;
+}
+
+.profile-center__preference .profile-preference {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.profile-center__preference .profile-preference__label {
+  margin-bottom: 10px;
+  color: #9e9891;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.profile-center__preference .profile-preference__options {
+  padding: 6px;
+  gap: 4px;
+  border: 1px solid #efebe6;
+  border-radius: 13px;
+  background: #fff;
+}
+
+.profile-center__preference .profile-preference__option {
+  display: flex;
+  min-width: 0;
+  min-height: 38px;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: transparent;
+  color: #6c655e;
+  font-size: 11px;
+  font-weight: 600;
+
+  &::after {
+    border: 0;
+  }
+}
+
+.profile-center__preference
+  .profile-preference__option.profile-preference__option--selected {
+  background: #181512;
+  color: #fff;
+  box-shadow: 0 3px 9px rgb(24 21 18 / 12%);
+}
+
+.profile-center__preference .profile-preference__success,
+.profile-center__preference .profile-preference__error {
+  margin-top: 7px;
+  font-size: 10px;
+}
+
+.profile-center__settings {
+  display: flex;
+  margin-top: 24px;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.profile-center__group {
+  overflow: hidden;
+  border: 1px solid #efebe6;
+  border-radius: 17px;
+  background: #fff;
+}
+
+.profile-center__group-heading {
+  display: flex;
+  min-height: 48px;
+  padding: 0 18px;
+  align-items: center;
+  gap: 9px;
+  border-bottom: 1px solid #f0ede8;
+  background: #faf9f7;
+  color: #3b3631;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.profile-center__group-icon {
+  display: flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #888078;
+  border-radius: 50%;
+  color: #777068;
+  font-size: 12px;
+}
+
+.profile-center__faq + .profile-center__faq,
+.profile-center__menu > button + button,
+.profile-center__menu-row + button {
+  border-top: 1px solid #f0ede8;
+}
+
+.profile-center__faq button,
+.profile-center__menu > button {
+  display: flex;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 18px;
+  margin: 0;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 0;
+  background: #fff;
+  color: #554f48;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+
+  &::after {
+    border: 0;
+  }
+}
+
+.profile-center__faq button text:first-child {
+  padding-right: 12px;
+}
+
+.profile-center__faq button text:last-child {
+  color: #aaa49c;
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+.profile-center__faq button text:last-child.is-expanded {
+  color: #292521;
+  transform: rotate(180deg);
+}
+
+.profile-center__faq-answer {
+  display: block;
+  padding: 12px 18px 15px;
+  border-top: 1px dashed #eee9e3;
+  color: #777068;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.profile-center__menu > button,
+.profile-center__menu-row {
+  display: flex;
+  width: 100%;
+  min-height: 64px;
+  padding: 0 18px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.profile-center__menu-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 14px;
+  flex: 0 0 18px;
+}
+
+.profile-center__menu-title,
+.profile-center__menu-caption {
+  display: block;
+}
+
+.profile-center__menu-title {
+  color: #39342f;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.profile-center__menu-caption {
+  margin-top: 2px;
+  color: #aaa49c;
+  font-size: 9px;
+}
+
+.profile-center__menu-more {
+  margin-left: auto;
+  color: #aaa49c;
+  font-size: 22px;
+}
+
+.profile-center__switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  min-height: 26px;
+  padding: 0;
+  margin: 0 0 0 auto;
+  border-radius: 999px;
+  background: #d0d5dd;
+
+  &::after {
+    border: 0;
+  }
+
+  text {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgb(16 24 40 / 20%);
+    transition: transform 0.18s ease;
+  }
+}
+
+.profile-center__switch--on {
+  background: #181512;
+
+  text {
+    transform: translateX(18px);
+  }
+}
+
+.profile-center .profile-center__danger {
+  display: flex;
+  min-height: 52px;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #f1d8d5;
+  border-radius: 17px;
+  background: #fff;
+  color: #c33d34;
+  font-size: 13px;
+  font-weight: 700;
+
+  &::after {
+    border: 0;
+  }
+}
+
+.profile-center__danger-icon {
+  font-size: 18px;
+}
+
+.profile-center__modal-mask {
+  position: fixed;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 54%);
+  inset: 0;
+}
+
+.profile-center__modal {
+  width: calc(100% - 48px);
+  padding: 24px;
+  box-sizing: border-box;
+  border-radius: 22px;
+  background: #fff;
+}
+
+.profile-center__modal-title {
+  display: block;
+  margin-bottom: 18px;
+  color: #101828;
+  font-family: serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.profile-center__modal input {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  border: 1px solid #dfe3e8;
+  border-radius: 10px;
+  background: #f8f9fa;
+  color: #101828;
+  font-size: 14px;
+}
+
+.profile-center__modal-actions {
+  display: grid;
+  margin-top: 22px;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.profile-center__modal-actions button {
+  display: flex;
+  min-height: 46px;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dfe3e8;
+  border-radius: 999px;
+  background: #fff;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 700;
+
+  &::after {
+    border: 0;
+  }
+}
+
+.profile-center__modal-actions .is-primary {
+  border-color: #181512;
+  background: #181512;
+  color: #fff;
+}
+
+.profile-center__sheet-mask {
+  position: fixed;
+  z-index: 110;
+  background: rgb(0 0 0 / 46%);
+  inset: 0;
+}
+
+.profile-center__sheet {
+  position: absolute;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: 12px;
+  overflow: hidden;
+  padding: 8px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 20%);
+}
+
+.profile-center__sheet-title {
+  display: block;
+  padding: 12px 16px 10px;
+  color: #8b847d;
+  font-size: 12px;
+  text-align: center;
+}
+
+.profile-center__sheet button {
+  display: flex;
+  min-height: 52px;
+  padding: 0 16px;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #fff;
+  color: #292521;
+  font-size: 15px;
+
+  &::after {
+    border: 0;
+  }
+}
+
+.profile-center__sheet button + button {
+  border-top: 1px solid #f0ede8;
+}
+
+.profile-center__sheet .is-cancel {
+  margin-top: 8px;
+  border-top: 0;
+  background: #f4f2ef;
+  color: #6c655e;
+}
+
+.profile-center__avatar-preview {
+  display: block;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: #f4f2ef;
+}

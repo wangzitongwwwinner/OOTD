@@ -1,0 +1,30 @@
+.scenes-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 40px 24px 120px;
+  background: #faf9f7;
+  color: #2d2926;
+}
+
+.scenes-page__title,
+.scenes-page__description {
+  display: block;
+}
+
+.scenes-page__title {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.scenes-page__description {
+  margin-top: 6px;
+  color: #8a929f;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.authenticated-page__loading {
+  padding: 80rpx 40rpx;
+  color: #756b62;
+}

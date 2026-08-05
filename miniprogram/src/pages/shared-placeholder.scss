@@ -1,0 +1,32 @@
+.feature-placeholder {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 96rpx 40rpx;
+  background: #faf9f7;
+  color: #2d2926;
+}
+
+.feature-placeholder__eyebrow,
+.feature-placeholder__title,
+.feature-placeholder__copy {
+  display: block;
+}
+
+.feature-placeholder__eyebrow {
+  color: #756b62;
+  font-size: 22rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+
+.feature-placeholder__title {
+  margin-top: 20rpx;
+  font-family: serif;
+  font-size: 54rpx;
+}
+
+.feature-placeholder__copy {
+  margin-top: 24rpx;
+  color: #756b62;
+  font-size: 28rpx;
+}

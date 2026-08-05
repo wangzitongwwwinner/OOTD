@@ -32,7 +32,10 @@ export default function App() {
         if (s.remark === undefined) {
           return {
             ...s,
-            remark: s.category === "地铁通勤" && s.id === "scene-metro" ? "高频活动" : "",
+            remark:
+              s.category === "地铁通勤" && s.id === "scene-metro"
+                ? "高频活动"
+                : "",
           };
         }
         return s;
@@ -51,8 +54,17 @@ export default function App() {
     const list = saved ? JSON.parse(saved) : initialClothing;
     return list.map((item: Clothing) => {
       const match = initialClothing.find((c) => c.id === item.id);
-      if (match && (match.image.startsWith("/input_file_") || item.image.startsWith("/input_file_"))) {
-        return { ...item, image: match.image, name: match.name, color: match.color };
+      if (
+        match &&
+        (match.image.startsWith("/input_file_") ||
+          item.image.startsWith("/input_file_"))
+      ) {
+        return {
+          ...item,
+          image: match.image,
+          name: match.name,
+          color: match.color,
+        };
       }
       return item;
     });
@@ -64,7 +76,9 @@ export default function App() {
   });
 
   // Navigation states
-  const [activeTab, setActiveTab] = useState<"home" | "scenes" | "wardrobe" | "tryon">("home");
+  const [activeTab, setActiveTab] = useState<
+    "home" | "scenes" | "wardrobe" | "tryon"
+  >("home");
   const [showProfile, setShowProfile] = useState(false);
 
   // 2. Persist state changes in LocalStorage
@@ -118,8 +132,10 @@ export default function App() {
     // Sync temperature change to active itineraries
     setItineraries(
       itineraries.map((it) =>
-        it.sceneId === updatedScene.id ? { ...it, temperature: updatedScene.temperature } : it
-      )
+        it.sceneId === updatedScene.id
+          ? { ...it, temperature: updatedScene.temperature }
+          : it,
+      ),
     );
   };
 
@@ -135,7 +151,9 @@ export default function App() {
   };
 
   const handleUpdateItinerary = (updatedItem: ItineraryItem) => {
-    setItineraries(itineraries.map((it) => (it.id === updatedItem.id ? updatedItem : it)));
+    setItineraries(
+      itineraries.map((it) => (it.id === updatedItem.id ? updatedItem : it)),
+    );
   };
 
   const handleDeleteItinerary = (id: string) => {
@@ -150,21 +168,23 @@ export default function App() {
   const handleDeleteClothing = (id: string) => {
     // Check if the clothing is being used in any saved outfit
     const isReferenced = savedOutfits.some((outfit) =>
-      outfit.canvasItems.some((ci) => ci.clothingId === id)
+      outfit.canvasItems.some((ci) => ci.clothingId === id),
     );
 
     if (isReferenced) {
       if (
         window.confirm(
-          "此衣物已被包含在您保存的‘推荐搭配组合’中。删除它会同时从那些搭配中移除。确定删除吗？"
+          "此衣物已被包含在您保存的‘推荐搭配组合’中。删除它会同时从那些搭配中移除。确定删除吗？",
         )
       ) {
         // Soft delete or filter out from saved outfits canvas nodes
         setSavedOutfits(
           savedOutfits.map((outfit) => ({
             ...outfit,
-            canvasItems: outfit.canvasItems.filter((ci) => ci.clothingId !== id),
-          }))
+            canvasItems: outfit.canvasItems.filter(
+              (ci) => ci.clothingId !== id,
+            ),
+          })),
         );
         setClothingList(clothingList.filter((c) => c.id !== id));
       }
@@ -174,7 +194,9 @@ export default function App() {
   };
 
   const handleUpdateClothing = (updatedItem: Clothing) => {
-    setClothingList(clothingList.map((c) => (c.id === updatedItem.id ? updatedItem : c)));
+    setClothingList(
+      clothingList.map((c) => (c.id === updatedItem.id ? updatedItem : c)),
+    );
   };
 
   // Saved Outfits handlers
@@ -193,7 +215,10 @@ export default function App() {
     return (
       <>
         <MaterialSymbolFallback />
-        <WeChatLogin onLoginSuccess={handleLoginSuccess} initialUser={initialUser} />
+        <WeChatLogin
+          onLoginSuccess={handleLoginSuccess}
+          initialUser={initialUser}
+        />
       </>
     );
   }
@@ -270,12 +295,17 @@ export default function App() {
             id="nav_tab_home"
             onClick={() => setActiveTab("home")}
             className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-all ${
-              activeTab === "home" ? "text-black scale-105" : "text-gray-400 hover:text-gray-700"
+              activeTab === "home"
+                ? "text-black scale-105"
+                : "text-gray-400 hover:text-gray-700"
             }`}
           >
             <span
               className="material-symbols-outlined text-2xl"
-              style={{ fontVariationSettings: activeTab === "home" ? "'FILL' 1" : "'FILL' 0" }}
+              style={{
+                fontVariationSettings:
+                  activeTab === "home" ? "'FILL' 1" : "'FILL' 0",
+              }}
             >
               wb_sunny
             </span>
@@ -287,12 +317,17 @@ export default function App() {
             id="nav_tab_scenes"
             onClick={() => setActiveTab("scenes")}
             className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-all ${
-              activeTab === "scenes" ? "text-black scale-105" : "text-gray-400 hover:text-gray-700"
+              activeTab === "scenes"
+                ? "text-black scale-105"
+                : "text-gray-400 hover:text-gray-700"
             }`}
           >
             <span
               className="material-symbols-outlined text-2xl"
-              style={{ fontVariationSettings: activeTab === "scenes" ? "'FILL' 1" : "'FILL' 0" }}
+              style={{
+                fontVariationSettings:
+                  activeTab === "scenes" ? "'FILL' 1" : "'FILL' 0",
+              }}
             >
               widgets
             </span>
@@ -304,12 +339,17 @@ export default function App() {
             id="nav_tab_wardrobe"
             onClick={() => setActiveTab("wardrobe")}
             className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-all ${
-              activeTab === "wardrobe" ? "text-black scale-105" : "text-gray-400 hover:text-gray-700"
+              activeTab === "wardrobe"
+                ? "text-black scale-105"
+                : "text-gray-400 hover:text-gray-700"
             }`}
           >
             <span
               className="material-symbols-outlined text-2xl"
-              style={{ fontVariationSettings: activeTab === "wardrobe" ? "'FILL' 1" : "'FILL' 0" }}
+              style={{
+                fontVariationSettings:
+                  activeTab === "wardrobe" ? "'FILL' 1" : "'FILL' 0",
+              }}
             >
               styler
             </span>
@@ -321,12 +361,17 @@ export default function App() {
             id="nav_tab_tryon"
             onClick={() => setActiveTab("tryon")}
             className={`flex flex-col items-center justify-center space-y-0.5 cursor-pointer transition-all ${
-              activeTab === "tryon" ? "text-black scale-105" : "text-gray-400 hover:text-gray-700"
+              activeTab === "tryon"
+                ? "text-black scale-105"
+                : "text-gray-400 hover:text-gray-700"
             }`}
           >
             <span
               className="material-symbols-outlined text-2xl"
-              style={{ fontVariationSettings: activeTab === "tryon" ? "'FILL' 1" : "'FILL' 0" }}
+              style={{
+                fontVariationSettings:
+                  activeTab === "tryon" ? "'FILL' 1" : "'FILL' 0",
+              }}
             >
               favorite
             </span>

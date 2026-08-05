@@ -1,0 +1,7 @@
+{
+  "default": {
+    "read": false,
+    "write": false
+  },
+  "reason": "MVP 的客户端数据访问统一经过云函数；数据库不允许客户端直读直写。"
+}

@@ -1,0 +1,59 @@
+{
+  "environment": "ootd-ai-dev-d6g5hzex6925fcea7",
+  "indexes": [
+    {
+      "collection": "users",
+      "name": "wechat_open_id_unique",
+      "fields": ["wechatOpenId"],
+      "unique": true
+    },
+    {
+      "collection": "scenes",
+      "name": "user_preset_updated",
+      "fields": ["userId", "isPreset", "updatedAt"],
+      "unique": false
+    },
+    {
+      "collection": "itineraries",
+      "name": "user_date_start",
+      "fields": ["userId", "localDate", "startTime"],
+      "unique": false
+    },
+    {
+      "collection": "clothing",
+      "name": "user_created",
+      "fields": ["userId", "createdAt"],
+      "unique": false
+    },
+    {
+      "collection": "outfits",
+      "name": "user_created",
+      "fields": ["userId", "createdAt"],
+      "unique": false
+    },
+    {
+      "collection": "imageProcessingJobs",
+      "name": "user_status_updated",
+      "fields": ["userId", "status", "updatedAt"],
+      "unique": false
+    },
+    {
+      "collection": "recommendationSnapshots",
+      "name": "user_date_hash",
+      "fields": ["userId", "localDate", "inputHash"],
+      "unique": true
+    },
+    {
+      "collection": "weatherCache",
+      "name": "city_observed",
+      "fields": ["cityCode", "observedAt"],
+      "unique": false
+    },
+    {
+      "collection": "idempotencyKeys",
+      "name": "user_scope_key",
+      "fields": ["userId", "scope", "key"],
+      "unique": true
+    }
+  ]
+}

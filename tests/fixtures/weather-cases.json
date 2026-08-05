@@ -1,0 +1,42 @@
+[
+  {
+    "kind": "extreme-cold",
+    "city": "测试市",
+    "temperatureC": -12,
+    "feelsLikeC": -18,
+    "minC": -16,
+    "maxC": -8
+  },
+  {
+    "kind": "cool",
+    "city": "测试市",
+    "temperatureC": 10,
+    "feelsLikeC": 8,
+    "minC": 6,
+    "maxC": 13
+  },
+  {
+    "kind": "comfortable",
+    "city": "测试市",
+    "temperatureC": 22,
+    "feelsLikeC": 22,
+    "minC": 18,
+    "maxC": 25
+  },
+  {
+    "kind": "hot",
+    "city": "测试市",
+    "temperatureC": 36,
+    "feelsLikeC": 40,
+    "minC": 29,
+    "maxC": 38
+  },
+  {
+    "kind": "large-day-night-gap",
+    "city": "测试市",
+    "temperatureC": 18,
+    "feelsLikeC": 17,
+    "minC": 8,
+    "maxC": 26
+  }
+]

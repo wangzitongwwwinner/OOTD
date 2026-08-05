@@ -1,0 +1,17 @@
+{
+  "fixtureSetId": "m0-05-baseline",
+  "timezone": "Asia/Shanghai",
+  "fixedNow": "2026-01-15T08:00:00+08:00",
+  "testDataMarker": "__test__",
+  "fictionalUser": {
+    "openId": "__test__fictional-user-001",
+    "nickname": "测试用户",
+    "isFictional": true
+  },
+  "location": {
+    "city": "测试市",
+    "precision": "city",
+    "isFictional": true
+  },
+  "imageSource": "generated-placeholder"
+}
